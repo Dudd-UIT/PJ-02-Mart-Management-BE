@@ -108,13 +108,20 @@ export class SuppliersService {
 
     const options = {
       where: filter,
-      relations: [],
+      relations: ['supplierProducts'],
       take: pageSize,
       skip: skip,
       order: sort,
     };
 
-    const results = await this.supplierRepository.find(options);
+    const suppliers = await this.supplierRepository.find(options);
+
+    const results = suppliers.map((supplier) => ({
+      ...supplier,
+      supplierProducts: supplier.supplierProducts
+        .filter((product) => product.status === '1') // Only include products with status '1'
+        .map((product) => product.productUnitId), // Map to productUnitId
+    }));
 
     return {
       meta: {
@@ -162,7 +169,16 @@ export class SuppliersService {
         throw new ConflictException('Số điện thoại đã tồn tại');
       }
     }
-    Object.assign(supplier, updateSupplierDto);
+    const { productUnitIds, ...rest } = updateSupplierDto;
+    // const productUnitIds = updateSupplierDto.productUnitIds;
+
+    const savedSupplier = await this.updateSupplierProduct(id, {
+      productUnitIds,
+    });
+
+    console.log('savedSupplier', savedSupplier);
+
+    Object.assign(supplier, rest);
     const savedUser = await this.supplierRepository.save(supplier);
     return savedUser;
   }

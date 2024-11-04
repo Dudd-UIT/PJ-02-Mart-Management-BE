@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductUnitDto } from './dto/create-product_unit.dto';
 import { UpdateProductUnitDto } from './dto/update-product_unit.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ProductUnit } from './entities/product_unit.entity';
 import { ProductSamplesService } from '../product_samples/product_samples.service';
 import { UnitsService } from '../units/units.service';
@@ -55,40 +55,145 @@ export class ProductUnitsService {
     }
   }
 
+  // async findAll(query: string, current: number, pageSize: number) {
+  //   console.log('>>>>>>');
+  //   console.log(query);
+  //   console.log(current, pageSize);
+
+  //   const { filter, sort } = aqp(query);
+
+  //   if (!current) current = 1;
+  //   if (!pageSize) pageSize = 10;
+  //   delete filter.current;
+  //   delete filter.pageSize;
+
+  //   console.log('filter', filter);
+  //   console.log('sort', sort);
+
+  //   const totalItems = await this.productUnitRepository.count(filter);
+  //   const totalPages = Math.ceil(totalItems / pageSize);
+  //   const skip = (current - 1) * pageSize;
+
+  //   // Sử dụng QueryBuilder để chỉ chọn trường 'name' của 'productSample'
+  //   const queryBuilder = this.productUnitRepository
+  //     .createQueryBuilder('productUnit')
+  //     .leftJoinAndSelect('productUnit.unit', 'unit')
+  //     .leftJoinAndSelect('productUnit.productSample', 'productSample')
+  //     .select([
+  //       'productUnit', // Chọn toàn bộ thông tin của productUnit
+  //       'productSample.name', // Chỉ chọn trường 'name' của productSample
+  //       'unit.name', // Chọn toàn bộ thông tin của unit (hoặc chọn trường cụ thể nếu cần)
+  //     ])
+  //     .skip(skip)
+  //     .take(pageSize);
+
+  //   const results = await queryBuilder.getMany();
+
+  //   return {
+  //     meta: {
+  //       current,
+  //       pageSize,
+  //       pages: totalPages,
+  //       total: totalItems,
+  //     },
+  //     results,
+  //   };
+  // }
+
   async findAll(query: string, current: number, pageSize: number) {
-    console.log('>>>>>>');
     console.log(query);
     console.log(current, pageSize);
 
     const { filter, sort } = aqp(query);
-
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-    delete filter.current;
-    delete filter.pageSize;
-
     console.log('filter', filter);
     console.log('sort', sort);
 
-    const totalItems = await this.productUnitRepository.count(filter);
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
+
+    // Extract the name filter if present for productSample.name
+    const productSampleNameFilter = filter.name ? filter.name : null;
+    delete filter.current;
+    delete filter.pageSize;
+    delete filter.name;
+
+    // Calculate pagination details
+    const skip = (current - 1) * pageSize;
+
+    // Count total items with the productSample.name filter if provided
+    const totalItems = await this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productUnit.unit', 'unit') // Include the unit relation
+      .where((qb) => {
+        qb.where(filter);
+        if (productSampleNameFilter) {
+          qb.andWhere('productSample.name LIKE :name', {
+            name: `%${productSampleNameFilter}%`,
+          });
+        }
+      })
+      .getCount();
+
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    // Fetch results with pagination and sorting
+    const results = await this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productUnit.unit', 'unit') // Include the unit relation
+      .where((qb) => {
+        qb.where(filter);
+        if (productSampleNameFilter) {
+          qb.andWhere('productSample.name LIKE :name', {
+            name: `%${productSampleNameFilter}%`,
+          });
+        }
+      })
+      .take(pageSize)
+      .skip(skip)
+      .getMany();
+
+    return {
+      meta: {
+        current,
+        pageSize,
+        pages: totalPages,
+        total: totalItems,
+      },
+      results,
+    };
+  }
+
+  async findByIds(ids: number[], current: number, pageSize: number) {
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
+    if (!ids || ids.length === 0) {
+      return {
+        meta: {
+          current,
+          pageSize,
+          pages: 0,
+          total: 0,
+        },
+        results: {},
+      };
+    }
+
+    // Calculate total items and pages
+    const totalItems = ids.length;
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
-    // Sử dụng QueryBuilder để chỉ chọn trường 'name' của 'productSample'
-    const queryBuilder = this.productUnitRepository
-      .createQueryBuilder('productUnit')
-      .leftJoinAndSelect('productUnit.unit', 'unit')
-      .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .select([
-        'productUnit', // Chọn toàn bộ thông tin của productUnit
-        'productSample.name', // Chỉ chọn trường 'name' của productSample
-        'unit.name', // Chọn toàn bộ thông tin của unit (hoặc chọn trường cụ thể nếu cần)
-      ])
-      .skip(skip)
-      .take(pageSize);
+    // Fetch the product units based on the paginated ids
+    const results = await this.productUnitRepository.find({
+      where: { id: In(ids.slice(skip, skip + pageSize)) },
+      relations: ['productSample', 'unit'],
+    });
 
-    const results = await queryBuilder.getMany();
-
+    if (results.length === 0) {
+      throw new NotFoundException('No ProductUnits found for the given IDs.');
+    }
     return {
       meta: {
         current,
