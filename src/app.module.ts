@@ -55,11 +55,11 @@ import { ProductUnitsModule } from './modules/product_units/product_units.module
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: 'mysql-db',
       port: 3306,
       username: 'root',
       password: 'Admin@123',
-      database: 'MART_MANAGEMENT',
+      database: 'minimart',
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
