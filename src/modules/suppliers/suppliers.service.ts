@@ -71,13 +71,21 @@ export class SuppliersService {
 
   async create(createSupplierDto: CreateSupplierDto) {
     console.log('createSupplierDto', createSupplierDto);
-    const existingSupplier = await this.supplierRepository.findOne({
+    const existingSupplierByName = await this.supplierRepository.findOne({
       where: { name: createSupplierDto.name },
     });
 
-    if (existingSupplier) {
+    if (existingSupplierByName) {
       throw new ConflictException('Tên nhà cung cấp đã tồn tại');
     }
+
+    const existingSupplierByPhone = await this.supplierRepository.findOne({
+      where: { phone: createSupplierDto.phone },
+    });
+    if (existingSupplierByPhone) {
+      throw new ConflictException('Số điện thoại nhà cung cấp đã tồn tại');
+    }
+
     const productUnitIds = createSupplierDto.productUnitIds;
     const supplier = this.supplierRepository.create(createSupplierDto);
     const newSupplier = await this.supplierRepository.save(supplier);

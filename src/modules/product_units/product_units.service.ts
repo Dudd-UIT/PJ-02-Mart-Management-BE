@@ -166,8 +166,13 @@ export class ProductUnitsService {
   }
 
   async findByIds(ids: number[], current: number, pageSize: number) {
+    console.log('current', current);
+    console.log('pageSize', pageSize);
+    // Set default values if not provided
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
+
+    // Handle the case when no IDs are provided
     if (!ids || ids.length === 0) {
       return {
         meta: {
@@ -176,24 +181,38 @@ export class ProductUnitsService {
           pages: 0,
           total: 0,
         },
-        results: {},
+        results: [],
       };
     }
 
-    // Calculate total items and pages
-    const totalItems = ids.length;
+    // Calculate total items and pages based on the provided IDs
+    const totalItems = await this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productUnit.unit', 'unit')
+      .where('productUnit.id IN (:...ids)', { ids })
+      .getCount();
+    console.log('totalItems', totalItems);
+
     const totalPages = Math.ceil(totalItems / pageSize);
+    console.log('totalPages', totalPages);
+
+    // Calculate the starting point for pagination
     const skip = (current - 1) * pageSize;
+    console.log('skip', skip);
 
     // Fetch the product units based on the paginated ids
-    const results = await this.productUnitRepository.find({
-      where: { id: In(ids.slice(skip, skip + pageSize)) },
-      relations: ['productSample', 'unit'],
-    });
+    const results = await this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productUnit.unit', 'unit')
+      .where('productUnit.id IN (:...ids)', { ids })
+      .skip(skip)
+      .take(pageSize)
+      .getMany();
 
-    if (results.length === 0) {
-      throw new NotFoundException('No ProductUnits found for the given IDs.');
-    }
+    console.log('results', results);
+
     return {
       meta: {
         current,
