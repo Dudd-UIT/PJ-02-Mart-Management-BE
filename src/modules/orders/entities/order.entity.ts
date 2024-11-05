@@ -34,14 +34,14 @@ export class Order {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => User, (customer) => customer.customerOrders)
+  @ManyToOne(() => User, (customer) => customer.customerOrders, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'customer_id' })
   customer: User;
 
-  @ManyToOne(() => User, (staff) => staff.staffOrders)
+  @ManyToOne(() => User, (staff) => staff.staffOrders, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'staff_id' })
   staff: User;
 
-  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order)
+  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order, { createForeignKeyConstraints: false })
   orderDetails: OrderDetail[];
 }

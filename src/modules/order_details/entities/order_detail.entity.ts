@@ -13,9 +13,9 @@ export class OrderDetail {
   @Column()
   public current_price: number;
 
-  @ManyToOne(() => Order, (order) => order.orderDetails)
+  @ManyToOne(() => Order, (order) => order.orderDetails, { createForeignKeyConstraints: false })
   public order: Order;
 
-  @ManyToOne(() => ProductUnit, (productUnit) => productUnit.orderDetails)
+  @ManyToOne(() => ProductUnit, (productUnit) => productUnit.orderDetails, { createForeignKeyConstraints: false })
   public productUnit: ProductUnit;
 }

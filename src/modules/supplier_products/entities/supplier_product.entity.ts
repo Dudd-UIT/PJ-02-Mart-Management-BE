@@ -16,9 +16,9 @@ export class SupplierProduct {
   @Column()
   public status: string;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.supplierProducts)
+  @ManyToOne(() => Supplier, (supplier) => supplier.supplierProducts, { createForeignKeyConstraints: false })
   public supplier: Supplier;
 
-  @ManyToOne(() => ProductUnit, (productUnit) => productUnit.supplierProducts)
+  @ManyToOne(() => ProductUnit, (productUnit) => productUnit.supplierProducts, { createForeignKeyConstraints: false })
   public productUnit: ProductUnit;
 }

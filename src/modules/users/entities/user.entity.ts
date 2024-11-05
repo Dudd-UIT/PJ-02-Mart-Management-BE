@@ -44,16 +44,16 @@ export class User {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => Group, (group) => group.users)
+  @ManyToOne(() => Group, (group) => group.users, { createForeignKeyConstraints: false })
   @JoinColumn()
   group: Group;
 
-  @OneToMany(() => Order, (user) => user.customer)
+  @OneToMany(() => Order, (user) => user.customer, { createForeignKeyConstraints: false })
   customerOrders: Order[];
 
-  @OneToMany(() => Order, (user) => user.staff)
+  @OneToMany(() => Order, (user) => user.staff, { createForeignKeyConstraints: false })
   staffOrders: Order[];
 
-  @OneToMany(() => InboundReceipt, (inboundReceipt) => inboundReceipt.staff)
+  @OneToMany(() => InboundReceipt, (inboundReceipt) => inboundReceipt.staff, { createForeignKeyConstraints: false })
   inboundReceipts: InboundReceipt[];
 }
