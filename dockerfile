@@ -27,6 +27,6 @@ WORKDIR /src/app
 
 COPY --from=development /src/app/ .
 
-EXPOSE 3001
+EXPOSE 8081
 
 CMD [ "node" , "dist/main" ]

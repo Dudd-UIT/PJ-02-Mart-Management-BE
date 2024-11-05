@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile
       target: development
     ports:
-      - "3001:3001"
+      - "8081:8081"
     env_file:
       - .env
     volumes:
