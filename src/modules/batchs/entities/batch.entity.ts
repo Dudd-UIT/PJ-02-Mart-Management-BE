@@ -7,6 +7,8 @@ import {
   OneToOne,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
+  DeleteDateColumn
 } from 'typeorm';
 
 @Entity()
@@ -32,11 +34,17 @@ export class Batch {
   @Column()
   expiredAt: Date;
 
-  @ManyToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.batchs)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+  @ManyToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.batchs, { createForeignKeyConstraints: false })
   @JoinColumn()
   inboundReceipt: InboundReceipt;
 
-  @OneToOne(() => ProductUnit, (productUnit) => productUnit.batch)
+  @OneToOne(() => ProductUnit, (productUnit) => productUnit.batch, { createForeignKeyConstraints: false })
   @JoinColumn()
   productUnit: ProductUnit;
 }

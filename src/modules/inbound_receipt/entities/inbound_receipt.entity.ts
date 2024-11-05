@@ -33,14 +33,14 @@ export class InboundReceipt {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.inboundReceipts)
+  @ManyToOne(() => User, (user) => user.inboundReceipts, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'staff_id' })
   staff: User;
 
-  @OneToMany(() => Batch, (batch) => batch.inboundReceipt)
+  @OneToMany(() => Batch, (batch) => batch.inboundReceipt, { createForeignKeyConstraints: false })
   batchs: Batch[];
 
-  @OneToOne(() => Supplier, (supplier) => supplier.inboundReceipt)
+  @OneToOne(() => Supplier, (supplier) => supplier.inboundReceipt, { createForeignKeyConstraints: false })
   @JoinColumn()
   supplier: Supplier;
 }

@@ -20,10 +20,10 @@ export class Group {
   @Column()
   description: string;
 
-  @OneToMany(() => User, (user) => user.group)
+  @OneToMany(() => User, (user) => user.group, { createForeignKeyConstraints: false })
   users: User[];
 
-  @ManyToMany(() => Role, (role) => role.groups)
+  @ManyToMany(() => Role, (role) => role.groups, { createForeignKeyConstraints: false })
   @JoinTable({
     name: 'role_group',
     joinColumn: { name: 'groupId', referencedColumnName: 'id' },
