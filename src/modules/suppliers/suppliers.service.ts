@@ -71,13 +71,21 @@ export class SuppliersService {
 
   async create(createSupplierDto: CreateSupplierDto) {
     console.log('createSupplierDto', createSupplierDto);
-    const existingSupplier = await this.supplierRepository.findOne({
+    const existingSupplierByName = await this.supplierRepository.findOne({
       where: { name: createSupplierDto.name },
     });
 
-    if (existingSupplier) {
+    if (existingSupplierByName) {
       throw new ConflictException('Tên nhà cung cấp đã tồn tại');
     }
+
+    const existingSupplierByPhone = await this.supplierRepository.findOne({
+      where: { phone: createSupplierDto.phone },
+    });
+    if (existingSupplierByPhone) {
+      throw new ConflictException('Số điện thoại nhà cung cấp đã tồn tại');
+    }
+
     const productUnitIds = createSupplierDto.productUnitIds;
     const supplier = this.supplierRepository.create(createSupplierDto);
     const newSupplier = await this.supplierRepository.save(supplier);
@@ -108,13 +116,20 @@ export class SuppliersService {
 
     const options = {
       where: filter,
-      relations: [],
+      relations: ['supplierProducts'],
       take: pageSize,
       skip: skip,
       order: sort,
     };
 
-    const results = await this.supplierRepository.find(options);
+    const suppliers = await this.supplierRepository.find(options);
+
+    const results = suppliers.map((supplier) => ({
+      ...supplier,
+      supplierProducts: supplier.supplierProducts
+        .filter((product) => product.status === '1') // Only include products with status '1'
+        .map((product) => product.productUnitId), // Map to productUnitId
+    }));
 
     return {
       meta: {
@@ -162,7 +177,16 @@ export class SuppliersService {
         throw new ConflictException('Số điện thoại đã tồn tại');
       }
     }
-    Object.assign(supplier, updateSupplierDto);
+    const { productUnitIds, ...rest } = updateSupplierDto;
+    // const productUnitIds = updateSupplierDto.productUnitIds;
+
+    const savedSupplier = await this.updateSupplierProduct(id, {
+      productUnitIds,
+    });
+
+    console.log('savedSupplier', savedSupplier);
+
+    Object.assign(supplier, rest);
     const savedUser = await this.supplierRepository.save(supplier);
     return savedUser;
   }

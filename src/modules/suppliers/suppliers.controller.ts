@@ -49,6 +49,7 @@ export class SuppliersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateSupplierDto: UpdateSupplierDto,
   ) {
+    console.log('>>> update supplier', id, updateSupplierDto);
     return this.suppliersService.update(id, updateSupplierDto);
   }
 

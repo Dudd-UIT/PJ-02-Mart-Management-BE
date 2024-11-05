@@ -13,6 +13,8 @@ import {
 import { ProductUnitsService } from './product_units.service';
 import { CreateProductUnitDto } from './dto/create-product_unit.dto';
 import { UpdateProductUnitDto } from './dto/update-product_unit.dto';
+import { FindProductUnitsByIdsDto } from './dto/find-product_units-by-ids.dto';
+import { ProductUnit } from './entities/product_unit.entity';
 
 @Controller('product-units')
 export class ProductUnitsController {
@@ -37,6 +39,19 @@ export class ProductUnitsController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productUnitsService.findOne(id);
+  }
+
+  @Post('find-by-ids')
+  async findByIds(
+    @Body() findProductUnitsByIdsDto: FindProductUnitsByIdsDto,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.productUnitsService.findByIds(
+      findProductUnitsByIdsDto.ids,
+      +current,
+      +pageSize,
+    );
   }
 
   @Patch(':id')
