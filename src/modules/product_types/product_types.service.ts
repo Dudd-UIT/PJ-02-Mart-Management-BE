@@ -6,7 +6,7 @@ import {
 import { CreateProductTypeDto } from './dto/create-product_type.dto';
 import { UpdateProductTypeDto } from './dto/update-product_type.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { ProductType } from './entities/product_type.entity';
 import aqp from 'api-query-params';
 
@@ -46,12 +46,16 @@ export class ProductTypesService {
     console.log('filter', filter);
     console.log('sort', sort);
 
+    if (filter.name) {
+      filter.name = Like(`%${filter.name}%`);
+    }
+
     const totalItems = await this.productTypeRepository.count(filter);
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
     const options = {
-      where: {},
+      where: filter,
       relations: [],
       take: pageSize,
       skip: skip,

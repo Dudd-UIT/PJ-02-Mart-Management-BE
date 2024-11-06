@@ -6,7 +6,7 @@ import {
 import { CreateProductSampleDto } from './dto/create-product_sample.dto';
 import { UpdateProductSampleDto } from './dto/update-product_sample.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { ProductSample } from './entities/product_sample.entity';
 import aqp from 'api-query-params';
 import { ProductLinesService } from '../product_lines/product_lines.service';
@@ -54,12 +54,16 @@ export class ProductSamplesService {
     console.log('filter', filter);
     console.log('sort', sort);
 
+    if (filter.name) {
+      filter.name = Like(`%${filter.name}%`);
+    }
+
     const totalItems = await this.productSampleRepository.count(filter);
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
     const options = {
-      where: {},
+      where: filter,
       relations: [],
       take: pageSize,
       skip: skip,
