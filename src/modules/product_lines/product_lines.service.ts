@@ -7,7 +7,7 @@ import { CreateProductLineDto } from './dto/create-product_line.dto';
 import { UpdateProductLineDto } from './dto/update-product_line.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductLine } from './entities/product_line.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import aqp from 'api-query-params';
 import { ProductTypesService } from '../product_types/product_types.service';
 
@@ -17,6 +17,7 @@ export class ProductLinesService {
     @InjectRepository(ProductLine)
     private productLineRepository: Repository<ProductLine>,
     private productTypesService: ProductTypesService,
+    
   ) {}
 
   async create(createProductLineDto: CreateProductLineDto) {
@@ -52,13 +53,18 @@ export class ProductLinesService {
     console.log('filter', filter);
     console.log('sort', sort);
 
-    const totalItems = await this.productLineRepository.count(filter);
+    if (filter.name) {
+      filter.name = Like(`%${filter.name}%`);
+    }
+
+    const totalItems = await this.productLineRepository.count({ where: filter });
+    console.log("totalItems:::", totalItems);
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
     const options = {
-      where: {},
-      relations: [],
+      where: filter,
+      relations: ["productType"],
       take: pageSize,
       skip: skip,
     };
@@ -89,10 +95,17 @@ export class ProductLinesService {
   }
 
   async update(id: number, updateProductLineDto: UpdateProductLineDto) {
-    const productLine = await this.findOne(id);
+
+    console.log("updateProductLineDto:::", updateProductLineDto);
+    const productLine = await this.productLineRepository.findOne({
+      where: { id },
+      relations: ["productType"]
+    })
     if (!productLine) {
       throw new NotFoundException('Không tìm thấy dòng sản phẩm');
     }
+
+    console.log("productLine:::", productLine);
 
     if (
       updateProductLineDto.name &&
@@ -107,9 +120,23 @@ export class ProductLinesService {
       }
     }
 
+    if(productLine.productType.id !== updateProductLineDto.productTypeId) {
+      const newProductType = await this.productTypesService.findOne(
+        +updateProductLineDto.productTypeId,
+      );
+  
+      productLine.productType = newProductType;
+
+      if (!newProductType) {
+        throw new NotFoundException('Không tìm thấy loại sản phẩm mới');
+      }
+
+      productLine.productType = newProductType;
+    } 
+
     Object.assign(productLine, updateProductLineDto);
-    const savedUser = await this.productLineRepository.save(productLine);
-    return savedUser;
+    const saveProductLine = await this.productLineRepository.save(productLine);
+    return saveProductLine;
   }
 
   async remove(id: number) {
