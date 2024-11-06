@@ -20,19 +20,19 @@ export class User {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ default: 'chưa có', nullable: true })
   username: string;
 
-  @Column()
+  @Column({ default: 'chưa có', nullable: true })
   email: string;
 
-  @Column()
+  @Column({ default: 'chưa có', nullable: true })
   password: string;
 
-  @Column()
+  @Column({ default: 0, nullable: true })
   score: number;
 
-  @Column()
+  @Column({ default: 'chưa có', nullable: true })
   address: string;
 
   @Column()
@@ -44,16 +44,24 @@ export class User {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => Group, (group) => group.users, { createForeignKeyConstraints: false })
+  @ManyToOne(() => Group, (group) => group.users, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn()
   group: Group;
 
-  @OneToMany(() => Order, (user) => user.customer, { createForeignKeyConstraints: false })
+  @OneToMany(() => Order, (user) => user.customer, {
+    createForeignKeyConstraints: false,
+  })
   customerOrders: Order[];
 
-  @OneToMany(() => Order, (user) => user.staff, { createForeignKeyConstraints: false })
+  @OneToMany(() => Order, (user) => user.staff, {
+    createForeignKeyConstraints: false,
+  })
   staffOrders: Order[];
 
-  @OneToMany(() => InboundReceipt, (inboundReceipt) => inboundReceipt.staff, { createForeignKeyConstraints: false })
+  @OneToMany(() => InboundReceipt, (inboundReceipt) => inboundReceipt.staff, {
+    createForeignKeyConstraints: false,
+  })
   inboundReceipts: InboundReceipt[];
 }

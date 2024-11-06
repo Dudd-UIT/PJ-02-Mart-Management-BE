@@ -2,9 +2,10 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateCustomerDto, CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -61,6 +62,41 @@ export class UsersService {
 
     const savedUser = this.userRepository.save(user);
     return savedUser;
+  }
+
+  async createCustomer(createCustomerDto: CreateCustomerDto) {
+    try {
+      const { name, phone } = createCustomerDto;
+      const groupId = 3;
+      console.log('createCustomerDto', createCustomerDto);
+
+      const existingUserByPhone = await this.userRepository.findOne({
+        where: { phone },
+      });
+
+      if (existingUserByPhone) {
+        throw new ConflictException('Số điện thoại đã tồn tại');
+      }
+
+      const customer = this.userRepository.create({
+        name,
+        phone,
+      });
+      const group = await this.groupsService.findOne(+groupId);
+      if (!group) {
+        throw new NotFoundException('Group không tồn tại');
+      }
+
+      customer.group = group;
+      console.log('group', group);
+
+      const savedCustomer = await this.userRepository.save(customer);
+      console.log('savedCustomer', savedCustomer);
+      return savedCustomer;
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      throw new InternalServerErrorException('Không thể tạo khách hàng');
+    }
   }
 
   async findAll(
