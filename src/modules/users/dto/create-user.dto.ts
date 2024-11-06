@@ -31,3 +31,13 @@ export class CreateUserDto {
   @IsNotEmpty()
   groupId: number;
 }
+
+export class CreateCustomerDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  phone: string;
+}
