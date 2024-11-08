@@ -10,4 +10,7 @@ export class Parameters {
 
   @Column()
   description: string;
+
+  @Column()
+  value: number;
 }
