@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsDate, IsDateString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateBatchDto {
   @IsOptional()
@@ -17,6 +17,7 @@ export class CreateBatchDto {
   inbound_quantity: number;
 
   @IsNotEmpty()
+  @IsDateString()
   expiredAt: Date;
 
   @IsNotEmpty()

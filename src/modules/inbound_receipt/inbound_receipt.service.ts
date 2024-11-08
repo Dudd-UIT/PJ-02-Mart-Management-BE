@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateInboundReceiptDto } from './dto/create-inbound_receipt.dto';
@@ -34,193 +36,222 @@ export class InboundReceiptService {
   async createInboundReceiptAndBatchs(
     createInboundReceiptBatchsDto: CreateInboundReceiptBatchsDto,
   ) {
-    const { inboundReceiptDto, batchsDto } = createInboundReceiptBatchsDto;
+    try {
+      const { inboundReceiptDto, batchsDto } = createInboundReceiptBatchsDto;
+      const inboundReceipt = await this.create(inboundReceiptDto);
 
-    const inboundReceipt = await this.create(inboundReceiptDto);
+      const inboundReceiptId = inboundReceipt.id;
 
-    const inboundReceiptId = inboundReceipt.id;
+      for (const batchInfo of batchsDto) {
+        await this.batchsService.create({
+          ...batchInfo,
+          inboundReceiptId,
+        });
+      }
 
-    batchsDto.forEach(async (batchInfo) => {
-      const batch = await this.batchsService.create({
-        ...batchInfo,
-        inboundReceiptId,
-      });
-      const savedBatch = await this.batchRepository.save(batch);
-    });
-
-    const savedInboundReceipt =
-      await this.inboundReceiptRepository.save(inboundReceipt);
-
-    return savedInboundReceipt;
+      return await this.inboundReceiptRepository.save(inboundReceipt);
+    } catch (error) {
+      console.error('Lỗi khi tạo đơn nhập hàng và lô hàng:', error.message);
+      throw new InternalServerErrorException(
+        'Có lỗi xảy ra trong quá trình tạo đơn nhập hàng và lô hàng.',
+      );
+    }
   }
 
   async create(createInboundReceiptDto: CreateInboundReceiptDto) {
-    const { staffId, supplierId, ...rest } = createInboundReceiptDto;
+    try {
+      const { staffId, supplierId, ...rest } = createInboundReceiptDto;
+      const inboundReceipt = this.inboundReceiptRepository.create(rest);
 
-    const inboundReceipt = this.inboundReceiptRepository.create(rest);
-    if (staffId) {
-      const staff = await this.usersService.findOneById(staffId);
-      if (!staff) {
-        throw new NotFoundException('Không tìm thấy mã nhân viên');
+      if (staffId) {
+        const staff = await this.usersService.findOneById(staffId);
+        if (!staff) {
+          throw new NotFoundException('Không tìm thấy mã nhân viên');
+        }
+        inboundReceipt.staff = staff;
       }
-      inboundReceipt.staff = staff;
-    }
 
-    if (supplierId) {
-      const suppplier = await this.suppliersService.findOne(supplierId);
-      if (!suppplier) {
-        throw new NotFoundException('Không tìm thấy nhà cung cấp');
+      if (supplierId) {
+        const supplier = await this.suppliersService.findOne(supplierId);
+        if (!supplier) {
+          throw new NotFoundException('Không tìm thấy nhà cung cấp');
+        }
+        inboundReceipt.supplier = supplier;
       }
-      inboundReceipt.supplier = suppplier;
-    }
 
-    const savedInboundReceipt =
-      this.inboundReceiptRepository.save(inboundReceipt);
-    return savedInboundReceipt;
+      return await this.inboundReceiptRepository.save(inboundReceipt);
+    } catch (error) {
+      console.error('Lỗi khi tạo đơn nhập hàng:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể tạo đơn nhập hàng, vui lòng thử lại sau.',
+      );
+    }
   }
 
   async findAll(query: string, current: number, pageSize: number) {
-    const { filter, sort } = aqp(query);
-    const { staffName, supplierName, startDate, endDate } = filter;
+    try {
+      const { filter } = aqp(query);
+      const { staffName, supplierName, startDate, endDate } = filter;
 
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
+      const whereConditions: any = {};
 
-    delete filter.current;
-    delete filter.pageSize;
+      if (staffName) {
+        whereConditions.staff = { name: staffName };
+      }
 
-    const whereConditions: any = {};
+      if (supplierName) {
+        whereConditions.supplier = { name: supplierName };
+      }
 
-    if (staffName) {
-      whereConditions.staff = { name: staffName };
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        whereConditions.createdAt = Between(start, end);
+      } else if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        whereConditions.createdAt = MoreThanOrEqual(start);
+      } else if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        whereConditions.createdAt = LessThanOrEqual(end);
+      }
+
+      const totalItems = await this.inboundReceiptRepository.count({
+        where: whereConditions,
+        relations: ['staff', 'supplier'],
+      });
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const skip = (current - 1) * pageSize;
+
+      const options = {
+        where: whereConditions,
+        relations: [
+          'staff',
+          'supplier',
+          'batchs.productUnit.productSample',
+          'batchs.productUnit.unit',
+        ],
+        take: pageSize,
+        skip: skip,
+      };
+
+      const results = await this.inboundReceiptRepository.find(options);
+
+      return {
+        meta: {
+          current,
+          pageSize,
+          pages: totalPages,
+          total: totalItems,
+        },
+        results,
+      };
+    } catch (error) {
+      console.error('Lỗi khi truy vấn đơn nhập hàng:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể truy xuất dữ liệu đơn nhập hàng, vui lòng thử lại sau.',
+      );
     }
-
-    if (supplierName) {
-      whereConditions.supplier = { name: supplierName };
-    }
-
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      start.setHours(0, 0, 0, 0); // Start of the day
-      end.setHours(23, 59, 59, 999); // End of the day
-
-      whereConditions.createdAt = Between(start, end);
-    } else if (startDate) {
-      const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0); // Include the start date at 00:00:00
-      whereConditions.createdAt = MoreThanOrEqual(start);
-    } else if (endDate) {
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999); // Include the end date until the end of the day
-      whereConditions.createdAt = LessThanOrEqual(end);
-    }
-
-    const totalItems = await this.inboundReceiptRepository.count({
-      where: whereConditions,
-      relations: ['staff', 'supplier'],
-    });
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const skip = (current - 1) * pageSize;
-
-    const options = {
-      where: whereConditions,
-      relations: [
-        'staff',
-        'supplier',
-        'batchs.productUnit.productSample',
-        'batchs.productUnit.unit',
-      ],
-      take: pageSize,
-      skip: skip,
-    };
-
-    const results = await this.inboundReceiptRepository.find(options);
-
-    return {
-      meta: {
-        current,
-        pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      results,
-    };
   }
 
   async findOne(id: number) {
-    const inboundReceipt = await this.inboundReceiptRepository.findOne({
-      where: { id },
-    });
+    try {
+      const inboundReceipt = await this.inboundReceiptRepository.findOne({
+        where: { id },
+      });
 
-    if (!inboundReceipt) {
-      throw new NotFoundException('Không tìm thấy đơn nhập hàng');
+      if (!inboundReceipt) {
+        throw new NotFoundException('Không tìm thấy đơn nhập hàng');
+      }
+
+      return inboundReceipt;
+    } catch (error) {
+      console.error(`Lỗi khi tìm đơn nhập hàng với id: ${id}`, error.message);
+      throw new InternalServerErrorException(
+        'Không thể truy xuất dữ liệu đơn nhập hàng, vui lòng thử lại sau.',
+      );
     }
-
-    return inboundReceipt;
   }
 
   async updateInboundReceiptAndBatchs(
     id: number,
     updateInboundReceiptBatchsDto: UpdateInboundReceiptBatchsDto,
   ) {
-    const { inboundReceiptDto, batchsDto } = updateInboundReceiptBatchsDto;
+    try {
+      const { inboundReceiptDto, batchsDto } = updateInboundReceiptBatchsDto;
 
-    if (inboundReceiptDto.isPaid && +inboundReceiptDto.isPaid === 1) {
-      throw new ConflictException(
-        'Không thể cập nhật đơn nhập hàng đã thanh toán',
+      if (inboundReceiptDto.isPaid && +inboundReceiptDto.isPaid === 1) {
+        throw new ConflictException(
+          'Không thể cập nhật đơn nhập hàng đã thanh toán',
+        );
+      }
+
+      await this.update(id, inboundReceiptDto);
+
+      for (const batchInfo of batchsDto) {
+        const { id: batchId, ...rest } = batchInfo;
+        await this.batchsService.update(batchId, rest);
+      }
+
+      return await this.inboundReceiptRepository.findOne({ where: { id } });
+    } catch (error) {
+      console.error(
+        'Lỗi khi cập nhật đơn nhập hàng và lô hàng:',
+        error.message,
+      );
+      throw new InternalServerErrorException(
+        'Không thể cập nhật đơn nhập hàng và lô hàng, vui lòng thử lại sau.',
       );
     }
-
-    const inboundReceipt = await this.update(id, inboundReceiptDto);
-
-    batchsDto.forEach(async (batchInfo) => {
-      const { id, ...rest } = batchInfo;
-      const batch = await this.batchsService.update(id, rest);
-    });
-
-    const savedInboundReceipt =
-      await this.inboundReceiptRepository.save(inboundReceipt);
-
-    return savedInboundReceipt;
   }
 
   async update(id: number, updateInboundReceiptDto: UpdateInboundReceiptDto) {
-    const inboundReceipt = await this.findOne(id);
-    if (!inboundReceipt) {
-      throw new NotFoundException('Không tìm thấy đơn nhập hàng');
-    }
-    if (updateInboundReceiptDto.staffId) {
-      const staff = await this.usersService.findOneById(
-        updateInboundReceiptDto.staffId,
-      );
-      if (!staff) {
-        throw new NotFoundException('Không tìm thấy mã nhân viên');
-      }
-      inboundReceipt.staff = staff;
-    }
+    try {
+      const inboundReceipt = await this.findOne(id);
 
-    if (updateInboundReceiptDto.supplierId) {
-      const suppplier = await this.suppliersService.findOne(
-        updateInboundReceiptDto.supplierId,
-      );
-      if (!suppplier) {
-        throw new NotFoundException('Không tìm thấy nhà cung cấp');
+      if (updateInboundReceiptDto.staffId) {
+        const staff = await this.usersService.findOneById(
+          updateInboundReceiptDto.staffId,
+        );
+        if (!staff) throw new NotFoundException('Không tìm thấy mã nhân viên');
+        inboundReceipt.staff = staff;
       }
-      inboundReceipt.supplier = suppplier;
-    }
 
-    Object.assign(inboundReceipt, updateInboundReceiptDto);
-    const savedUser = await this.inboundReceiptRepository.save(inboundReceipt);
-    return savedUser;
+      if (updateInboundReceiptDto.supplierId) {
+        const supplier = await this.suppliersService.findOne(
+          updateInboundReceiptDto.supplierId,
+        );
+        if (!supplier)
+          throw new NotFoundException('Không tìm thấy nhà cung cấp');
+        inboundReceipt.supplier = supplier;
+      }
+
+      Object.assign(inboundReceipt, updateInboundReceiptDto);
+      return await this.inboundReceiptRepository.save(inboundReceipt);
+    } catch (error) {
+      console.error('Lỗi khi cập nhật đơn nhập hàng:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể cập nhật đơn nhập hàng, vui lòng thử lại sau.',
+      );
+    }
   }
 
   async remove(id: number) {
-    const inboundReceipt = await this.findOne(id);
-    if (!inboundReceipt) {
-      throw new NotFoundException('Không tìm thấy đơn nhập hàng');
+    try {
+      const inboundReceipt = await this.findOne(id);
+      if (!inboundReceipt) {
+        throw new NotFoundException('Không tìm thấy đơn nhập hàng');
+      }
+      await this.inboundReceiptRepository.softDelete(id);
+      return inboundReceipt;
+    } catch (error) {
+      console.error(`Lỗi khi xóa đơn nhập hàng với id: ${id}`, error.message);
+      throw new InternalServerErrorException(
+        'Không thể xóa đơn nhập hàng, vui lòng thử lại sau.',
+      );
     }
-    await this.inboundReceiptRepository.softDelete(id);
-    return inboundReceipt;
   }
 }
