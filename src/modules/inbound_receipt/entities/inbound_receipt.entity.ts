@@ -27,20 +27,32 @@ export class InboundReceipt {
   @Column()
   isPaid: number;
 
+  @Column()
+  discount: number;
+
+  @Column()
+  vat: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.inboundReceipts, { createForeignKeyConstraints: false })
+  @ManyToOne(() => User, (user) => user.inboundReceipts, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'staff_id' })
   staff: User;
 
-  @OneToMany(() => Batch, (batch) => batch.inboundReceipt, { createForeignKeyConstraints: false })
+  @OneToMany(() => Batch, (batch) => batch.inboundReceipt, {
+    createForeignKeyConstraints: false,
+  })
   batchs: Batch[];
 
-  @OneToOne(() => Supplier, (supplier) => supplier.inboundReceipt, { createForeignKeyConstraints: false })
+  @OneToOne(() => Supplier, (supplier) => supplier.inboundReceipt, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn()
   supplier: Supplier;
 }

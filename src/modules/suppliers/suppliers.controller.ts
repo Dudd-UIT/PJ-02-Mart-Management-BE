@@ -22,7 +22,6 @@ export class SuppliersController {
   @ResponseMessage('Tạo nhà cung cấp thành công')
   @Post()
   create(@Body(ValidationPipe) createSupplierDto: CreateSupplierDto) {
-    console.log('Tạo nhà cung cấp', createSupplierDto);
     return this.suppliersService.create(createSupplierDto);
   }
 
@@ -33,7 +32,6 @@ export class SuppliersController {
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {
-    console.log('>> query', query);
     return this.suppliersService.findAll(query, +current, +pageSize);
   }
 
@@ -49,7 +47,6 @@ export class SuppliersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateSupplierDto: UpdateSupplierDto,
   ) {
-    console.log('>>> update supplier', id, updateSupplierDto);
     return this.suppliersService.update(id, updateSupplierDto);
   }
 

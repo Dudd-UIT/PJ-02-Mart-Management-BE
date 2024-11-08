@@ -17,7 +17,6 @@ export class ProductLinesService {
     @InjectRepository(ProductLine)
     private productLineRepository: Repository<ProductLine>,
     private productTypesService: ProductTypesService,
-    
   ) {}
 
   async create(createProductLineDto: CreateProductLineDto) {
@@ -40,9 +39,6 @@ export class ProductLinesService {
   }
 
   async findAll(query: string, current: number, pageSize: number) {
-    console.log(query);
-    console.log(current, pageSize);
-
     const { filter, sort } = aqp(query);
 
     if (!current) current = 1;
@@ -50,21 +46,19 @@ export class ProductLinesService {
     delete filter.current;
     delete filter.pageSize;
 
-    console.log('filter', filter);
-    console.log('sort', sort);
-
     if (filter.name) {
       filter.name = Like(`%${filter.name}%`);
     }
 
-    const totalItems = await this.productLineRepository.count({ where: filter });
-    console.log("totalItems:::", totalItems);
+    const totalItems = await this.productLineRepository.count({
+      where: filter,
+    });
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
     const options = {
       where: filter,
-      relations: ["productType"],
+      relations: ['productType'],
       take: pageSize,
       skip: skip,
     };
@@ -95,17 +89,13 @@ export class ProductLinesService {
   }
 
   async update(id: number, updateProductLineDto: UpdateProductLineDto) {
-
-    console.log("updateProductLineDto:::", updateProductLineDto);
     const productLine = await this.productLineRepository.findOne({
       where: { id },
-      relations: ["productType"]
-    })
+      relations: ['productType'],
+    });
     if (!productLine) {
       throw new NotFoundException('Không tìm thấy dòng sản phẩm');
     }
-
-    console.log("productLine:::", productLine);
 
     if (
       updateProductLineDto.name &&
@@ -120,11 +110,11 @@ export class ProductLinesService {
       }
     }
 
-    if(productLine.productType.id !== updateProductLineDto.productTypeId) {
+    if (productLine.productType.id !== updateProductLineDto.productTypeId) {
       const newProductType = await this.productTypesService.findOne(
         +updateProductLineDto.productTypeId,
       );
-  
+
       productLine.productType = newProductType;
 
       if (!newProductType) {
@@ -132,7 +122,7 @@ export class ProductLinesService {
       }
 
       productLine.productType = newProductType;
-    } 
+    }
 
     Object.assign(productLine, updateProductLineDto);
     const saveProductLine = await this.productLineRepository.save(productLine);

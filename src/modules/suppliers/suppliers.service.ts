@@ -70,7 +70,6 @@ export class SuppliersService {
   }
 
   async create(createSupplierDto: CreateSupplierDto) {
-    console.log('createSupplierDto', createSupplierDto);
     const existingSupplierByName = await this.supplierRepository.findOne({
       where: { name: createSupplierDto.name },
     });
@@ -96,9 +95,6 @@ export class SuppliersService {
   }
 
   async findAll(query: string, current: number, pageSize: number) {
-    console.log(query);
-    console.log(current, pageSize);
-
     const { filter, sort } = aqp(query);
 
     if (!current) current = 1;
@@ -106,9 +102,6 @@ export class SuppliersService {
 
     delete filter.current;
     delete filter.pageSize;
-
-    console.log('filter', filter);
-    console.log('sort', sort);
 
     const totalItems = await this.supplierRepository.count({ where: filter });
     const totalPages = Math.ceil(totalItems / pageSize);
@@ -183,8 +176,6 @@ export class SuppliersService {
     const savedSupplier = await this.updateSupplierProduct(id, {
       productUnitIds,
     });
-
-    console.log('savedSupplier', savedSupplier);
 
     Object.assign(supplier, rest);
     const savedUser = await this.supplierRepository.save(supplier);

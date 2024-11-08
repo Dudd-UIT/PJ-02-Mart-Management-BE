@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+// batchs.module.ts
+import { Module, forwardRef } from '@nestjs/common';
 import { BatchsService } from './batchs.service';
 import { BatchsController } from './batchs.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,7 +10,7 @@ import { ProductUnitsModule } from '../product_units/product_units.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Batch]),
-    InboundReceiptModule,
+    forwardRef(() => InboundReceiptModule), // Use forwardRef here
     ProductUnitsModule,
   ],
   controllers: [BatchsController],

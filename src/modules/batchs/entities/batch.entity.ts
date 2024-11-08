@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
-  DeleteDateColumn
+  DeleteDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -20,13 +20,10 @@ export class Batch {
   inbound_price: number;
 
   @Column()
-  sell_price: number;
-
-  @Column()
   discount: number;
 
   @Column()
-  quantity: number;
+  invent_quantity: number;
 
   @Column()
   inbound_quantity: number;
@@ -40,11 +37,15 @@ export class Batch {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.batchs, { createForeignKeyConstraints: false })
+  @ManyToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.batchs, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn()
   inboundReceipt: InboundReceipt;
 
-  @OneToOne(() => ProductUnit, (productUnit) => productUnit.batch, { createForeignKeyConstraints: false })
+  @OneToOne(() => ProductUnit, (productUnit) => productUnit.batch, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn()
   productUnit: ProductUnit;
 }

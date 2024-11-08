@@ -33,18 +33,12 @@ export class ProductTypesService {
   }
 
   async findAll(query: string, current: number, pageSize: number) {
-    console.log(query);
-    console.log(current, pageSize);
-
     const { filter, sort } = aqp(query);
 
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
     delete filter.current;
     delete filter.pageSize;
-
-    console.log('filter', filter);
-    console.log('sort', sort);
 
     if (filter.name) {
       filter.name = Like(`%${filter.name}%`);
