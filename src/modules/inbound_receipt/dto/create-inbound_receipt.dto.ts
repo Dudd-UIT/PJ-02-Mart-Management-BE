@@ -2,6 +2,12 @@ import { IsNotEmpty } from 'class-validator';
 
 export class CreateInboundReceiptDto {
   @IsNotEmpty()
+  staffId: number;
+
+  @IsNotEmpty()
+  supplierId: number;
+
+  @IsNotEmpty()
   totalPrice: number;
 
   @IsNotEmpty()
@@ -11,8 +17,11 @@ export class CreateInboundReceiptDto {
   isPaid: number;
 
   @IsNotEmpty()
-  staffId: number;
+  discount: number;
 
   @IsNotEmpty()
-  supplierId: number;
+  vat: number;
+
+  @IsNotEmpty()
+  createdAt: Date;
 }

@@ -33,7 +33,6 @@ export class UsersService {
     const { name, username, email, password, score, phone, address } =
       createUserDto;
 
-    console.log('createUserDto', createUserDto);
     const isExist = await this.isEmailExist(email);
     if (isExist) {
       throw new BadRequestException(`Email đã tồn tại: ${email}`);
@@ -68,7 +67,6 @@ export class UsersService {
     try {
       const { name, phone } = createCustomerDto;
       const groupId = 3;
-      console.log('createCustomerDto', createCustomerDto);
 
       const existingUserByPhone = await this.userRepository.findOne({
         where: { phone },
@@ -88,10 +86,8 @@ export class UsersService {
       }
 
       customer.group = group;
-      console.log('group', group);
 
       const savedCustomer = await this.userRepository.save(customer);
-      console.log('savedCustomer', savedCustomer);
       return savedCustomer;
     } catch (error) {
       console.error('Error creating customer:', error);
@@ -105,8 +101,6 @@ export class UsersService {
     pageSize: number,
     groupId: number,
   ) {
-    console.log(current, pageSize);
-
     const { filter, sort } = aqp(query);
 
     if (!current) current = 1;

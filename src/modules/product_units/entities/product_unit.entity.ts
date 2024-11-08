@@ -38,24 +38,34 @@ export class ProductUnit {
   @DeleteDateColumn()
   deletedAt: string;
 
-  @ManyToOne(() => ProductSample, (productSample) => productSample.productUnits, { createForeignKeyConstraints: false })
+  @ManyToOne(
+    () => ProductSample,
+    (productSample) => productSample.productUnits,
+    { createForeignKeyConstraints: false },
+  )
   @JoinColumn()
   productSample?: ProductSample;
 
-  @ManyToOne(() => Unit, (unit) => unit.productUnits, { createForeignKeyConstraints: false })
+  @ManyToOne(() => Unit, (unit) => unit.productUnits, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn()
   unit: Unit;
 
   @OneToMany(
     () => SupplierProduct,
     (supplierProduct) => supplierProduct.productUnit,
-    { createForeignKeyConstraints: false }
+    { createForeignKeyConstraints: false },
   )
   supplierProducts?: SupplierProduct[];
 
-  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.productUnit, { createForeignKeyConstraints: false })
+  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.productUnit, {
+    createForeignKeyConstraints: false,
+  })
   orderDetails?: OrderDetail[];
 
-  @OneToOne(() => Batch, (batch) => batch.productUnit, { createForeignKeyConstraints: false })
+  @OneToOne(() => Batch, (batch) => batch.productUnit, {
+    createForeignKeyConstraints: false,
+  })
   batch?: Batch;
 }

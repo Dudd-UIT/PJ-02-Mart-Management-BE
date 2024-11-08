@@ -1,17 +1,17 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateBatchDto {
-  @IsNotEmpty()
-  inbound_price: number;
+  @IsOptional()
+  id?: number;
 
   @IsNotEmpty()
-  sell_price: number;
+  inbound_price: number;
 
   @IsNotEmpty()
   discount: number;
 
   @IsNotEmpty()
-  quantity: number;
+  invent_quantity: number;
 
   @IsNotEmpty()
   inbound_quantity: number;
@@ -20,8 +20,8 @@ export class CreateBatchDto {
   expiredAt: Date;
 
   @IsNotEmpty()
-  inboundReceiptId: number;
+  productUnitId: number;
 
   @IsNotEmpty()
-  productUnitId: number;
+  inboundReceiptId?: number;
 }

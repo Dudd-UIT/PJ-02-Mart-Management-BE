@@ -32,12 +32,7 @@ export class UnitsService {
   }
 
   async findAll(query: string, current: number, pageSize: number) {
-    console.log(query);
-    console.log(current, pageSize);
-
     const { filter, sort } = aqp(query);
-    console.log('filter', filter);
-    console.log('sort', sort);
 
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;

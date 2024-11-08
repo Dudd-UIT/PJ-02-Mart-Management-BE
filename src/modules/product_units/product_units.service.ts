@@ -18,7 +18,6 @@ export class ProductUnitsService {
   ) {}
 
   async create(createProductUnitDto: CreateProductUnitDto) {
-    console.log('createProductUnitDto', createProductUnitDto);
     const { unitId, productSampleId, ...rest } = createProductUnitDto;
 
     const productSample =
@@ -28,13 +27,11 @@ export class ProductUnitsService {
         `Product sample with ID ${productSampleId} not found`,
       );
     }
-    console.log('productSample', productSample);
 
     const unit = await this.unitsService.findOne(unitId);
     if (!unit) {
       throw new NotFoundException(`Unit with ID ${unitId} not found`);
     }
-    console.log('unit', unit);
 
     const productUnit = this.productUnitRepository.create({
       ...rest,
@@ -42,12 +39,9 @@ export class ProductUnitsService {
       unit,
     });
 
-    console.log('productUnit before save', productUnit);
-
     try {
       const savedProductUnit =
         await this.productUnitRepository.save(productUnit);
-      console.log('savedProductUnit', savedProductUnit);
       return savedProductUnit;
     } catch (error) {
       console.error('Error saving productUnit:', error);
@@ -55,58 +49,8 @@ export class ProductUnitsService {
     }
   }
 
-  // async findAll(query: string, current: number, pageSize: number) {
-  //   console.log('>>>>>>');
-  //   console.log(query);
-  //   console.log(current, pageSize);
-
-  //   const { filter, sort } = aqp(query);
-
-  //   if (!current) current = 1;
-  //   if (!pageSize) pageSize = 10;
-  //   delete filter.current;
-  //   delete filter.pageSize;
-
-  //   console.log('filter', filter);
-  //   console.log('sort', sort);
-
-  //   const totalItems = await this.productUnitRepository.count(filter);
-  //   const totalPages = Math.ceil(totalItems / pageSize);
-  //   const skip = (current - 1) * pageSize;
-
-  //   // Sử dụng QueryBuilder để chỉ chọn trường 'name' của 'productSample'
-  //   const queryBuilder = this.productUnitRepository
-  //     .createQueryBuilder('productUnit')
-  //     .leftJoinAndSelect('productUnit.unit', 'unit')
-  //     .leftJoinAndSelect('productUnit.productSample', 'productSample')
-  //     .select([
-  //       'productUnit', // Chọn toàn bộ thông tin của productUnit
-  //       'productSample.name', // Chỉ chọn trường 'name' của productSample
-  //       'unit.name', // Chọn toàn bộ thông tin của unit (hoặc chọn trường cụ thể nếu cần)
-  //     ])
-  //     .skip(skip)
-  //     .take(pageSize);
-
-  //   const results = await queryBuilder.getMany();
-
-  //   return {
-  //     meta: {
-  //       current,
-  //       pageSize,
-  //       pages: totalPages,
-  //       total: totalItems,
-  //     },
-  //     results,
-  //   };
-  // }
-
   async findAll(query: string, current: number, pageSize: number) {
-    console.log(query);
-    console.log(current, pageSize);
-
     const { filter, sort } = aqp(query);
-    console.log('filter', filter);
-    console.log('sort', sort);
 
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
@@ -166,8 +110,6 @@ export class ProductUnitsService {
   }
 
   async findByIds(ids: number[], current: number, pageSize: number) {
-    console.log('current', current);
-    console.log('pageSize', pageSize);
     // Set default values if not provided
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
@@ -192,14 +134,11 @@ export class ProductUnitsService {
       .leftJoinAndSelect('productUnit.unit', 'unit')
       .where('productUnit.id IN (:...ids)', { ids })
       .getCount();
-    console.log('totalItems', totalItems);
 
     const totalPages = Math.ceil(totalItems / pageSize);
-    console.log('totalPages', totalPages);
 
     // Calculate the starting point for pagination
     const skip = (current - 1) * pageSize;
-    console.log('skip', skip);
 
     // Fetch the product units based on the paginated ids
     const results = await this.productUnitRepository
@@ -210,8 +149,6 @@ export class ProductUnitsService {
       .skip(skip)
       .take(pageSize)
       .getMany();
-
-    console.log('results', results);
 
     return {
       meta: {

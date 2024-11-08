@@ -36,10 +36,12 @@ export class Supplier {
   @OneToMany(
     () => SupplierProduct,
     (supplierProduct) => supplierProduct.supplier,
-    { createForeignKeyConstraints: false }
+    { createForeignKeyConstraints: false },
   )
   supplierProducts: SupplierProduct[];
 
-  @OneToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.supplier, { createForeignKeyConstraints: false })
+  @OneToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.supplier, {
+    createForeignKeyConstraints: false,
+  })
   inboundReceipt: InboundReceipt;
 }
