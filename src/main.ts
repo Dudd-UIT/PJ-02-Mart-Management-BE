@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { HttpException, ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from './filters/exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,6 +34,8 @@ async function bootstrap() {
     preflightContinue: false,
     credentials: true,
   });
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   await app.listen(port);
 }

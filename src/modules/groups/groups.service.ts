@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -18,89 +19,125 @@ export class GroupsService {
   ) {}
 
   async create(createGroupDto: CreateGroupDto) {
-    const existingGroup = await this.groupRepository.findOne({
-      where: { name: createGroupDto.name },
-    });
+    try {
+      const existingGroup = await this.groupRepository.findOne({
+        where: { name: createGroupDto.name },
+      });
 
-    if (existingGroup) {
-      throw new ConflictException('Tên nhóm người dùng đã tồn tại');
+      if (existingGroup) {
+        throw new ConflictException('Tên nhóm người dùng đã tồn tại');
+      }
+
+      const group = this.groupRepository.create(createGroupDto);
+      return await this.groupRepository.save(group);
+    } catch (error) {
+      console.error('Lỗi khi tạo nhóm người dùng:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể tạo nhóm người dùng, vui lòng thử lại sau.',
+      );
     }
-
-    const group = this.groupRepository.create(createGroupDto);
-    const savedGroup = this.groupRepository.save(group);
-    return savedGroup;
   }
 
   async findAll(query: string, current: number, pageSize: number) {
-    const { filter, sort } = aqp(query);
+    try {
+      const { filter } = aqp(query);
 
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-    delete filter.current;
-    delete filter.pageSize;
+      if (!current) current = 1;
+      if (!pageSize) pageSize = 10;
+      delete filter.current;
+      delete filter.pageSize;
 
-    const totalItems = await this.groupRepository.count(filter);
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const skip = (current - 1) * pageSize;
+      const totalItems = await this.groupRepository.count(filter);
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const skip = (current - 1) * pageSize;
 
-    const options = {
-      where: {},
-      relations: [],
-      take: pageSize,
-      skip: skip,
-    };
+      const options = {
+        where: filter,
+        relations: [],
+        take: pageSize,
+        skip: skip,
+      };
 
-    const results = await this.groupRepository.find(options);
+      const results = await this.groupRepository.find(options);
 
-    return {
-      meta: {
-        current,
-        pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      results,
-    };
+      return {
+        meta: {
+          current,
+          pageSize,
+          pages: totalPages,
+          total: totalItems,
+        },
+        results,
+      };
+    } catch (error) {
+      console.error('Lỗi khi truy vấn nhóm người dùng:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể truy xuất dữ liệu nhóm người dùng, vui lòng thử lại sau.',
+      );
+    }
   }
 
   async findOne(id: number) {
-    const group = await this.groupRepository.findOne({
-      where: { id },
-    });
+    try {
+      const group = await this.groupRepository.findOne({
+        where: { id },
+      });
 
-    if (!group) {
-      throw new NotFoundException('Không tìm thấy nhóm người dùng');
+      if (!group) {
+        throw new NotFoundException('Không tìm thấy nhóm người dùng');
+      }
+
+      return group;
+    } catch (error) {
+      console.error(`Lỗi khi tìm nhóm người dùng với id: ${id}`, error.message);
+      throw new InternalServerErrorException(
+        'Không thể truy xuất dữ liệu nhóm người dùng, vui lòng thử lại sau.',
+      );
     }
-
-    return group;
   }
 
   async update(id: number, updateGroupDto: UpdateGroupDto) {
-    const group = await this.findOne(id);
-    if (!group) {
-      throw new NotFoundException('Không tìm thấy nhóm người dùng');
-    }
-
-    if (updateGroupDto.name && updateGroupDto.name !== group.name) {
-      const existingGroupByName = await this.groupRepository.findOne({
-        where: { name: updateGroupDto.name },
-      });
-      if (existingGroupByName) {
-        throw new ConflictException('Tên nhóm người dùng đã tồn tại');
+    try {
+      const group = await this.findOne(id);
+      if (!group) {
+        throw new NotFoundException('Không tìm thấy nhóm người dùng');
       }
-    }
 
-    Object.assign(group, updateGroupDto);
-    const savedUser = await this.groupRepository.save(group);
-    return savedUser;
+      if (updateGroupDto.name && updateGroupDto.name !== group.name) {
+        const existingGroupByName = await this.groupRepository.findOne({
+          where: { name: updateGroupDto.name },
+        });
+        if (existingGroupByName) {
+          throw new ConflictException('Tên nhóm người dùng đã tồn tại');
+        }
+      }
+
+      Object.assign(group, updateGroupDto);
+      return await this.groupRepository.save(group);
+    } catch (error) {
+      console.error(
+        `Lỗi khi cập nhật nhóm người dùng với id: ${id}`,
+        error.message,
+      );
+      throw new InternalServerErrorException(
+        'Không thể cập nhật nhóm người dùng, vui lòng thử lại sau.',
+      );
+    }
   }
 
   async remove(id: number) {
-    const group = await this.findOne(id);
-    if (!group) {
-      throw new NotFoundException('Không tìm thấy nhóm người dùng');
+    try {
+      const group = await this.findOne(id);
+      if (!group) {
+        throw new NotFoundException('Không tìm thấy nhóm người dùng');
+      }
+      await this.groupRepository.softDelete(id);
+      return group;
+    } catch (error) {
+      console.error(`Lỗi khi xóa nhóm người dùng với id: ${id}`, error.message);
+      throw new InternalServerErrorException(
+        'Không thể xóa nhóm người dùng, vui lòng thử lại sau.',
+      );
     }
-    await this.groupRepository.softDelete(id);
-    return group;
   }
 }
