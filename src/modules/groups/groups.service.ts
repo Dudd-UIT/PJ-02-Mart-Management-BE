@@ -7,15 +7,18 @@ import {
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Group } from './entities/group.entity';
 import aqp from 'api-query-params';
+import { UpdateRoleGroupDto } from './dto/update-role-group.dto';
+import { RolesService } from '../roles/roles.service';
 
 @Injectable()
 export class GroupsService {
   constructor(
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
+    private rolesService: RolesService,
   ) {}
 
   async create(createGroupDto: CreateGroupDto) {
@@ -53,7 +56,7 @@ export class GroupsService {
 
       const options = {
         where: filter,
-        relations: [],
+        relations: ['roles'],
         take: pageSize,
         skip: skip,
       };
@@ -137,6 +140,39 @@ export class GroupsService {
       console.error(`Lỗi khi xóa nhóm người dùng với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể xóa nhóm người dùng, vui lòng thử lại sau.',
+      );
+    }
+  }
+
+  async assignRolesToGroup(id: number, updateRoleGroupDto: UpdateRoleGroupDto) {
+    try {
+      const group = await this.findOne(id);
+
+      if (!group) {
+        throw new NotFoundException(
+          `Không tìm thấy nhóm người dùng có id ${id}`,
+        );
+      }
+
+      const roles = await this.rolesService.findByIds(
+        updateRoleGroupDto.roleIds,
+      );
+      const plainRoles = roles.map((role) => ({ ...role }));
+
+      if (plainRoles.length !== updateRoleGroupDto.roleIds.length) {
+        throw new NotFoundException('Một số vai trò không tìm thấy');
+      }
+
+      group.roles = plainRoles;
+
+      return await this.groupRepository.save(group);
+    } catch (error) {
+      console.error(
+        `Lỗi khi gán vai trò cho nhóm người dùng với ID ${id}:`,
+        error.message,
+      );
+      throw new InternalServerErrorException(
+        'Không thể gán vai trò cho nhóm người dùng',
       );
     }
   }
