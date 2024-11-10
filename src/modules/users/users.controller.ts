@@ -25,6 +25,12 @@ export class UsersController {
     return this.usersService.createCustomer(createCustomerDto);
   }
 
+  @ResponseMessage('Tạo mới tài khoản nhân viên thành công')
+  @Post('staff')
+  createStaff(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+
   @ResponseMessage('Tạo mới người dùng thành công')
   @Post()
   create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
@@ -57,7 +63,7 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @ResponseMessage('Xóa khách hàng thành công')
+  @ResponseMessage('Xóa người dùng thành công')
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
