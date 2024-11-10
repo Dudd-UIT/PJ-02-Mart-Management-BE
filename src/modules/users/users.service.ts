@@ -33,27 +33,33 @@ export class UsersService {
     }
   }
 
+  async isPhoneExist(phone: string) {
+    try {
+      const user = await this.userRepository.findOne({ where: { phone } });
+      return !!user;
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra phone tồn tại:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể kiểm tra phone, vui lòng thử lại sau.',
+      );
+    }
+  }
+
   async create(createUserDto: CreateUserDto) {
     try {
-      const { name, username, email, password, score, phone, address } =
-        createUserDto;
+      const { name, email, password, score, phone, address } = createUserDto;
 
       if (await this.isEmailExist(email)) {
         throw new BadRequestException(`Email đã tồn tại: ${email}`);
       }
 
-      const existingUserByPhone = await this.userRepository.findOne({
-        where: { phone: createUserDto.phone },
-      });
-
-      if (existingUserByPhone) {
-        throw new ConflictException('Số điện thoại đã tồn tại');
+      if (await this.isPhoneExist(phone)) {
+        throw new BadRequestException(`Số điện thoại đã tồn tại: ${phone}`);
       }
 
       const hashPassword = await hashPasswordHelper(password);
       const user = this.userRepository.create({
         name,
-        username,
         email,
         password: hashPassword,
         score,
@@ -127,6 +133,7 @@ export class UsersService {
       const options = {
         where: filter,
         take: pageSize,
+        relations: ['group'],
         skip: skip,
         order: sort || {},
       };
