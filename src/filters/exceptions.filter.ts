@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -15,30 +16,41 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error'; // Mặc định là lỗi server nội bộ
+    let message = 'Internal server error';
 
-    // Nếu là lỗi HttpException (bao gồm cả ValidationPipe)
+    // Kiểm tra nếu là UnauthorizedException
+    if (exception instanceof UnauthorizedException) {
+      status = HttpStatus.UNAUTHORIZED;
+      message = 'Bạn không có quyền truy cập.';
+    }
+
+    // Kiểm tra nếu là HttpException (bao gồm ValidationPipe)
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      // Kiểm tra nếu ValidationPipe trả về mảng, chuyển thành chuỗi
-      if (
-        exceptionResponse instanceof Object &&
-        Array.isArray(exceptionResponse['message'])
-      ) {
-        message = exceptionResponse['message'].join(', '); // Ghép các thông báo lỗi thành chuỗi
+      if (Array.isArray(exceptionResponse['message'])) {
+        // Nếu là mảng, ghép các thông báo lỗi thành chuỗi
+        message = exceptionResponse['message'].join(', ');
       } else if (typeof exceptionResponse === 'string') {
-        message = exceptionResponse; // Nếu là chuỗi, giữ nguyên
-      } else if (exceptionResponse instanceof Object) {
-        message = exceptionResponse['message'] || 'Unknown error'; // Xử lý nếu là object nhưng không phải mảng
+        message = exceptionResponse;
+      } else if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null
+      ) {
+        message = exceptionResponse['message'] || 'Unknown error';
       }
+    } else {
+      // Nếu là ngoại lệ không xác định, log ra để tìm hiểu thêm
+      console.error('Unhandled exception:', exception);
     }
 
-    // Trả về JSON với lỗi dưới dạng chuỗi
-    response.status(status).json({
-      statusCode: status,
-      message: message, // Trả về chuỗi thay vì mản
-    });
+    // Đảm bảo chỉ gửi một phản hồi duy nhất
+    if (!response.headersSent) {
+      response.status(status).json({
+        statusCode: status,
+        message: message,
+      });
+    }
   }
 }

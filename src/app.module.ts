@@ -1,8 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TransformInterceptor } from './interceptors/transform.response.interceptor';
+import { AllExceptionsFilter } from './filters/exceptions.filter';
+import { JwtAuthGuard } from './modules/auths/passport/guards/jwt-auth.guard';
+import { AuthsModule } from './modules/auths/auths.module';
+
 import { UsersModule } from './modules/users/users.module';
 import { GroupsModule } from './modules/groups/groups.module';
 import { RolesModule } from './modules/roles/roles.module';
@@ -17,6 +24,8 @@ import { BatchsModule } from './modules/batchs/batchs.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { SupplierProductsModule } from './modules/supplier_products/supplier_products.module';
 import { InboundReceiptModule } from './modules/inbound_receipt/inbound_receipt.module';
+import { ProductUnitsModule } from './modules/product_units/product_units.module';
+
 import { User } from './modules/users/entities/user.entity';
 import { Group } from './modules/groups/entities/group.entity';
 import { Batch } from './modules/batchs/entities/batch.entity';
@@ -31,27 +40,9 @@ import { Role } from './modules/roles/entities/role.entity';
 import { SupplierProduct } from './modules/supplier_products/entities/supplier_product.entity';
 import { Supplier } from './modules/suppliers/entities/supplier.entity';
 import { Unit } from './modules/units/entities/unit.entity';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { TransformInterceptor } from './interceptors/transform.response.interceptor';
-import { AllExceptionsFilter } from './filters/exceptions.filter';
-import { ProductUnitsModule } from './modules/product_units/product_units.module';
 
 @Module({
   imports: [
-    UsersModule,
-    GroupsModule,
-    RolesModule,
-    ProductSamplesModule,
-    ProductLinesModule,
-    ProductTypesModule,
-    OrdersModule,
-    OrderDetailsModule,
-    UnitsModule,
-    ParametersModule,
-    BatchsModule,
-    SuppliersModule,
-    SupplierProductsModule,
-    InboundReceiptModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -79,15 +70,30 @@ import { ProductUnitsModule } from './modules/product_units/product_units.module
       Unit,
       User,
     ]),
+    UsersModule,
+    GroupsModule,
+    RolesModule,
+    ProductSamplesModule,
+    ProductLinesModule,
+    ProductTypesModule,
+    OrdersModule,
+    OrderDetailsModule,
+    UnitsModule,
+    ParametersModule,
+    BatchsModule,
+    SuppliersModule,
+    SupplierProductsModule,
+    InboundReceiptModule,
+    AuthsModule,
     ProductUnitsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard, // Đăng ký JwtAuthGuard toàn cục
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,

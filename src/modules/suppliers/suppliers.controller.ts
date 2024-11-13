@@ -25,7 +25,7 @@ export class SuppliersController {
     return this.suppliersService.create(createSupplierDto);
   }
 
-  @ResponseMessage('Trả về dánh sách các nhà cung cấp thành công')
+  @ResponseMessage('Trả về danh sách các nhà cung cấp thành công')
   @Get()
   findAll(
     @Query() query: string,

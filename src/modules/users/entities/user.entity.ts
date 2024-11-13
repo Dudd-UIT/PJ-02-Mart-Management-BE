@@ -38,6 +38,15 @@ export class User {
   @Column()
   phone: string;
 
+  @Column({ default: 0 })
+  isActive: number;
+
+  @Column({ nullable: true })
+  codeId: number;
+
+  @Column({ nullable: true })
+  codeExpired: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

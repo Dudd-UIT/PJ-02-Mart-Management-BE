@@ -40,7 +40,7 @@ export class InboundReceiptController {
     );
   }
 
-  @ResponseMessage('Trả về dánh sách các đơn nhập hàng thành công')
+  @ResponseMessage('Trả về danh sách các đơn nhập hàng thành công')
   @Get()
   findAll(
     @Query() query: string,
