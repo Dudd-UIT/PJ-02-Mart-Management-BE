@@ -37,7 +37,7 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @ResponseMessage('Trả về dánh sách các khách hàng thành công')
+  @ResponseMessage('Trả về danh sách các khách hàng thành công')
   @Get()
   findAll(
     @Query() query: string,

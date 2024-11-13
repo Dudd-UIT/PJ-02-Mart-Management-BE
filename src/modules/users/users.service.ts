@@ -72,6 +72,9 @@ export class UsersService {
 
       return await this.userRepository.save(user);
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       console.error('Lỗi khi tạo người dùng:', error.message);
       throw new InternalServerErrorException('Không thể tạo người dùng');
     }
@@ -164,6 +167,21 @@ export class UsersService {
       return user;
     } catch (error) {
       console.error(`Lỗi khi tìm người dùng với ID ${id}:`, error.message);
+      throw new InternalServerErrorException('Không thể tìm người dùng');
+    }
+  }
+
+  async findOneByEmail(email: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { email },
+        relations: ['group'],
+      });
+      if (!user)
+        throw new NotFoundException(`Không tìm thấy người dùng ${email}`);
+      return user;
+    } catch (error) {
+      console.error(`Lỗi khi tìm người dùng với ID ${email}:`, error.message);
       throw new InternalServerErrorException('Không thể tìm người dùng');
     }
   }

@@ -14,7 +14,6 @@ import { ProductUnitsService } from './product_units.service';
 import { CreateProductUnitDto } from './dto/create-product_unit.dto';
 import { UpdateProductUnitDto } from './dto/update-product_unit.dto';
 import { FindProductUnitsByIdsDto } from './dto/find-product_units-by-ids.dto';
-import { ProductUnit } from './entities/product_unit.entity';
 
 @Controller('product-units')
 export class ProductUnitsController {
@@ -28,8 +27,6 @@ export class ProductUnitsController {
   @Get()
   findAll(
     @Query() query: string,
-    // @Query('current', ParseIntPipe) current: number,
-    // @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {

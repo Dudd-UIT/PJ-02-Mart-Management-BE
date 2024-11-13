@@ -26,7 +26,7 @@ export class GroupsController {
     return this.groupsService.create(createGroupDto);
   }
 
-  @ResponseMessage('Trả về dánh sách các nhóm người dùng thành công')
+  @ResponseMessage('Trả về danh sách các nhóm người dùng thành công')
   @Get()
   findAll(
     @Query() query: string,
