@@ -17,13 +17,16 @@ export class Order {
   id: number;
 
   @Column()
-  total_price: number;
+  totalPrice: number;
 
   @Column()
-  payment_method: string;
+  paymentMethod: string;
 
   @Column()
-  payment_time: Date;
+  paymentTime: Date;
+
+  @Column()
+  orderType: string;
 
   @Column()
   status: string;
@@ -34,14 +37,20 @@ export class Order {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => User, (customer) => customer.customerOrders, { createForeignKeyConstraints: false })
-  @JoinColumn({ name: 'customer_id' })
+  @ManyToOne(() => User, (customer) => customer.customerOrders, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'customerId' })
   customer: User;
 
-  @ManyToOne(() => User, (staff) => staff.staffOrders, { createForeignKeyConstraints: false })
-  @JoinColumn({ name: 'staff_id' })
+  @ManyToOne(() => User, (staff) => staff.staffOrders, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'staffId' })
   staff: User;
 
-  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order, { createForeignKeyConstraints: false })
+  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order, {
+    createForeignKeyConstraints: false,
+  })
   orderDetails: OrderDetail[];
 }

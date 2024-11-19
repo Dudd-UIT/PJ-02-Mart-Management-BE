@@ -42,7 +42,7 @@ export class InboundReceipt {
   @ManyToOne(() => User, (user) => user.inboundReceipts, {
     createForeignKeyConstraints: false,
   })
-  @JoinColumn({ name: 'staff_id' })
+  @JoinColumn({ name: 'staffId' })
   staff: User;
 
   @OneToMany(() => Batch, (batch) => batch.inboundReceipt, {

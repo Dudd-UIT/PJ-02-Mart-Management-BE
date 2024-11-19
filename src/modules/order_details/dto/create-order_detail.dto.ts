@@ -22,5 +22,5 @@ export class OrderDetailDto {
   @IsNotEmpty()
   @IsNumber()
   @IsPositive()
-  current_price: number;
+  currentPrice: number;
 }

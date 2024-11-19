@@ -61,7 +61,7 @@ INSERT INTO unit (id, name, createdAt) VALUES
 
 
 -- Thêm Product Units (Tổng 20 đơn vị sản phẩm)
-INSERT INTO product_unit (id, sell_price, conversion_rate, image, volumne, productSampleId, unitId, createdAt) VALUES
+INSERT INTO product_unit (id, sellPrice, conversionRate, image, volumne, productSampleId, unitId, createdAt) VALUES
 -- Thịt và Gia cầm
 (1, 120000, 1, 'thit-ba-roi.jpg', '1', 1, 1, NOW()),
 (2, 350000, 1, 'thit-bo-uc.jpg', '1', 2, 1, NOW()),
@@ -132,19 +132,19 @@ INSERT INTO supplier_product (id, supplierId, productUnitId, status) VALUES
 (5, 2, 5, 'active');
 
 -- Insert Inbound Receipts
-INSERT INTO inbound_receipt (id, totalPrice, isReceived, isPaid, staff_id, supplierId, createdAt) VALUES
+INSERT INTO inbound_receipt (id, totalPrice, isReceived, isPaid, staffId, supplierId, createdAt) VALUES
 (1, 5000000, 1, 1, 2, 1, NOW()),
 (2, 3000000, 1, 1, 2, 2, NOW());
 
 -- Insert Batches
-INSERT INTO batch (id, inbound_price, sell_price, discount, quantity, inbound_quantity, expiredAt, inboundReceiptId, productUnitId, createdAt) VALUES
+INSERT INTO batch (id, inboundPrice, sellPrice, discount, quantity, inboundQuantity, expiredAt, inboundReceiptId, productUnitId, createdAt) VALUES
 (1, 100000, 120000, 0, 50, 50, '2024-12-31', 1, 1, NOW()),
 (2, 6000, 8000, 0, 100, 100, '2024-06-30', 1, 2, NOW()),
 (3, 3500, 4000, 0, 500, 500, '2024-12-31', 2, 3, NOW()),
 (4, 8000, 10000, 0, 200, 200, '2024-12-31', 2, 4, NOW());
 
 -- Thêm Orders (15 đơn hàng)
-INSERT INTO `order` (id, total_price, payment_method, payment_time, status, customer_id, staff_id, createdAt) VALUES
+INSERT INTO `order` (id, totalPrice, paymentMethod, paymentTime, status, customerId, staffId, createdAt) VALUES
     (1, 256000, 'cash', NOW() - INTERVAL 1 DAY, 'completed', 3, 2, NOW() - INTERVAL 1 DAY),
     (2, 120000, 'card', NOW() - INTERVAL 1 DAY, 'completed', 3, 2, NOW() - INTERVAL 1 DAY),
     (3, 185000, 'cash', NOW() - INTERVAL 2 DAY, 'completed', 3, 2, NOW() - INTERVAL 2 DAY),
@@ -165,7 +165,7 @@ INSERT INTO `order` (id, total_price, payment_method, payment_time, status, cust
 
 
 -- Thêm Order Details (Tổng >20 chi tiết đơn hàng)
-INSERT INTO order_detail (id, quantity, current_price, orderId, productUnitId) VALUES
+INSERT INTO order_detail (id, quantity, currentPrice, orderId, productUnitId) VALUES
 -- Đơn hàng 1
 (1, 2, 120000, 1, 1),  -- 2 kg thịt ba rọi
 (2, 2, 8000, 1, 5),    -- 2 bó rau muống

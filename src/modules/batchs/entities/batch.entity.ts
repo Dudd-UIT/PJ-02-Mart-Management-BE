@@ -17,16 +17,16 @@ export class Batch {
   id: number;
 
   @Column()
-  inbound_price: number;
+  inboundPrice: number;
 
   @Column()
   discount: number;
 
   @Column()
-  invent_quantity: number;
+  inventQuantity: number;
 
   @Column()
-  inbound_quantity: number;
+  inboundQuantity: number;
 
   @Column()
   expiredAt: Date;

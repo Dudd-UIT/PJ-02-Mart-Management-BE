@@ -5,16 +5,16 @@ export class CreateBatchDto {
   id?: number;
 
   @IsNotEmpty()
-  inbound_price: number;
+  inboundPrice: number;
 
   @IsNotEmpty()
   discount: number;
 
   @IsNotEmpty()
-  invent_quantity: number;
+  inventQuantity: number;
 
   @IsNotEmpty()
-  inbound_quantity: number;
+  inboundQuantity: number;
 
   @IsNotEmpty()
   @IsDateString()
