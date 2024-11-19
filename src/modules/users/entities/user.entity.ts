@@ -42,7 +42,7 @@ export class User {
   isActive: number;
 
   @Column({ nullable: true })
-  codeId: number;
+  codeId: string;
 
   @Column({ nullable: true })
   codeExpired: Date;

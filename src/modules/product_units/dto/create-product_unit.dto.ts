@@ -6,10 +6,10 @@ export class CreateProductUnitDto {
   volumne: string;
 
   @IsNotEmpty()
-  sell_price: number;
+  sellPrice: number;
 
   @IsNotEmpty()
-  conversion_rate: number;
+  conversionRate: number;
 
   @IsOptional()
   @IsString()

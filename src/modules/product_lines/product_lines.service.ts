@@ -140,7 +140,7 @@ export class ProductLinesService {
         );
 
         if (!newProductType) {
-          throw new NotFoundException('Không tìm thấy loại sản phẩm mới');
+          throw new NotFoundException('Không tìm thấy loại sản phẩm');
         }
 
         productLine.productType = newProductType;

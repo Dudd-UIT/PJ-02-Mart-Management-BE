@@ -21,10 +21,10 @@ export class ProductUnit {
   id: number;
 
   @Column()
-  sell_price: number;
+  sellPrice: number;
 
   @Column()
-  conversion_rate: number;
+  conversionRate: number;
 
   @Column()
   image: string;

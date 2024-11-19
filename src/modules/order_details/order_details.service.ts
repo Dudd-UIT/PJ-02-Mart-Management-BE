@@ -23,7 +23,7 @@ export class OrderDetailsService {
     }
     const orderDetails = [];
     for (const detail of details) {
-      const { productUnitId, quantity, current_price } = detail;
+      const { productUnitId, quantity, currentPrice } = detail;
       const productUnit = await this.productUnitsService.findOne(productUnitId);
       if (!productUnit) {
         throw new NotFoundException(
@@ -34,7 +34,7 @@ export class OrderDetailsService {
         order,
         productUnit,
         quantity,
-        current_price,
+        currentPrice,
       });
       orderDetails.push(orderDetail);
     }

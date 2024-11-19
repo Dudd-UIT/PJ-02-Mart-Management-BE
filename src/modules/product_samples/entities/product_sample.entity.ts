@@ -27,9 +27,13 @@ export class ProductSample {
   @DeleteDateColumn()
   deletedAt: string;
 
-  @OneToMany(() => ProductUnit, (productUnit) => productUnit.productSample, { createForeignKeyConstraints: false })
+  @OneToMany(() => ProductUnit, (productUnit) => productUnit.productSample, {
+    createForeignKeyConstraints: false,
+  })
   productUnits?: ProductUnit[];
 
-  @ManyToOne(() => ProductLine, (productLine) => productLine.productSamples, { createForeignKeyConstraints: false })
+  @ManyToOne(() => ProductLine, (productLine) => productLine.productSamples, {
+    createForeignKeyConstraints: false,
+  })
   productLine?: ProductLine;
 }
