@@ -47,7 +47,24 @@ INSERT INTO product_sample (id, name, description, productLineId, createdAt) VAL
 (17, 'Sữa tươi Vinamilk', 'Sữa tươi tiệt trùng không đường', 5, NOW()),
 (18, 'Sữa TH True Milk', 'Sữa tươi tiệt trùng có đường', 5, NOW()),
 (19, 'Sữa đặc Ông Thọ', 'Sữa đặc có đường', 5, NOW()),
-(20, 'Sữa chua Vinamilk', 'Sữa chua có đường', 5, NOW());
+(20, 'Sữa chua Vinamilk', 'Sữa chua có đường', 5, NOW()),
+
+(21, 'Thịt heo nạc', 'Thịt heo nạc tươi từ trang trại', 1, NOW()),
+(22, 'Sườn heo', 'Sườn heo tươi ngon', 1, NOW()),
+(23, 'Thịt bò thăn', 'Thịt bò thăn tươi cao cấp', 1, NOW()),
+
+-- Rau củ (product_line_id: 2) - Thêm các loại rau củ
+(24, 'Bắp cải', 'Bắp cải tươi organic', 2, NOW()),
+(25, 'Cà chua', 'Cà chua Đà Lạt', 2, NOW()),
+(26, 'Hành tây', 'Hành tây tươi', 2, NOW()),
+
+-- Mì gói (product_line_id: 3) - Thêm các loại mì
+(27, 'Mì Cung Đình', 'Mì Cung Đình hương vị tôm chua cay', 3, NOW()),
+(28, 'Mì Gấu Đỏ', 'Mì Gấu Đỏ hương vị thịt bò', 3, NOW()),
+
+-- Nước giải khát (product_line_id: 4) - Thêm đồ uống
+(29, '7Up', 'Nước giải khát có gas', 4, NOW()),
+(30, 'Fanta', 'Nước giải khát có gas hương cam', 4, NOW());
 
 -- Insert Units
 INSERT INTO unit (id, name, createdAt) VALUES
@@ -56,7 +73,12 @@ INSERT INTO unit (id, name, createdAt) VALUES
 (3, 'gói', NOW()),
 (4, 'chai', NOW()),
 (5, 'hộp', NOW()),
-(6, 'thùng', NOW());
+(6, 'thùng', NOW()),
+(7, 'miếng', NOW()),
+(8, 'lốc', NOW()),
+(9, 'gram', NOW()),
+(10, 'túi', NOW());
+
 
 
 
@@ -90,7 +112,41 @@ INSERT INTO product_unit (id, sell_price, conversion_rate, image, volumne, produ
 (17, 35000, 1, 'sua-tuoi-vinamilk.jpg', '1L', 17, 5, NOW()),
 (18, 38000, 1, 'sua-tuoi-th.jpg', '1L', 18, 5, NOW()),
 (19, 25000, 1, 'sua-dac.jpg', '380g', 19, 5, NOW()),
-(20, 6000, 1, 'sua-chua.jpg', '100g', 20, 5, NOW());
+(20, 6000, 1, 'sua-chua.jpg', '100g', 20, 5, NOW()),
+(21, 120000, 1, 'thit-heo-nac-kg.jpg', '1', 21, 1, NOW()),         -- kg
+(22, 12000, 0.1, 'thit-heo-nac-100g.jpg', '100', 21, 9, NOW()),    -- 100g
+(23, 600000, 5, 'thit-heo-nac-5kg.jpg', '5', 21, 1, NOW()),        -- 5kg
+
+-- Sườn heo (id: 22) - 3 đơn vị tính
+(24, 45000, 0.3, 'suon-heo-mieng.jpg', '1', 22, 7, NOW()),         -- miếng
+(25, 150000, 1, 'suon-heo-kg.jpg', '1', 22, 1, NOW()),             -- kg
+(26, 15000, 0.1, 'suon-heo-100g.jpg', '100', 22, 9, NOW()),        -- 100g
+
+-- Thịt bò thăn (id: 23) - 3 đơn vị tính
+(27, 400000, 1, 'thit-bo-than-kg.jpg', '1', 23, 1, NOW()),         -- kg
+(28, 40000, 0.1, 'thit-bo-than-100g.jpg', '100', 23, 9, NOW()),    -- 100g
+(29, 200000, 0.5, 'thit-bo-than-500g.jpg', '500', 23, 9, NOW()),   -- 500g
+
+-- Bắp cải (id: 24) - 3 đơn vị tính
+(30, 15000, 1, 'bap-cai-kg.jpg', '1', 24, 1, NOW()),               -- kg
+(31, 20000, 1, 'bap-cai-bong.jpg', '1', 24, 7, NOW()),             -- bông
+(32, 70000, 5, 'bap-cai-tui.jpg', '5', 24, 10, NOW()),             -- túi 5kg
+
+-- Cà chua (id: 25) - 3 đơn vị tính
+(33, 25000, 1, 'ca-chua-kg.jpg', '1', 25, 1, NOW()),               -- kg
+(34, 60000, 3, 'ca-chua-tui.jpg', '3', 25, 10, NOW()),             -- túi 3kg
+(35, 10000, 0.5, 'ca-chua-500g.jpg', '500', 25, 9, NOW()),         -- 500g
+
+-- Mì Cung Đình (id: 27) - 3 đơn vị tính
+(36, 8500, 1, 'mi-cung-dinh-goi.jpg', '1', 27, 3, NOW()),          -- gói
+(37, 48000, 6, 'mi-cung-dinh-loc.jpg', '6', 27, 8, NOW()),         -- lốc 6 gói
+(38, 190000, 24, 'mi-cung-dinh-thung.jpg', '24', 27, 6, NOW()),    -- thùng 24 gói
+
+-- 7Up (id: 29) - 4 đơn vị tính
+(39, 10000, 1, '7up-chai.jpg', '330ml', 29, 4, NOW()),             -- chai
+(40, 55000, 6, '7up-loc.jpg', '6x330ml', 29, 8, NOW()),            -- lốc 6 chai
+(41, 200000, 24, '7up-thung.jpg', '24x330ml', 29, 6, NOW()),       -- thùng 24 chai
+(42, 15000, 1, '7up-lon.jpg', '330ml', 29, 5, NOW());              -- lon
 
 
 -- Insert Groups
@@ -129,7 +185,12 @@ INSERT INTO supplier_product (id, supplierId, productUnitId, status) VALUES
 (2, 1, 2, 'active'),
 (3, 2, 3, 'active'),
 (4, 2, 4, 'active'),
-(5, 2, 5, 'active');
+(5, 2, 5, 'active'),
+(6, 1, 21, 'active'),
+(7, 1, 24, 'active'),
+(8, 1, 27, 'active'),
+(9, 2, 36, 'active'),
+(10, 2, 39, 'active');
 
 -- Insert Inbound Receipts
 INSERT INTO inbound_receipt (id, totalPrice, isReceived, isPaid, staff_id, supplierId, createdAt) VALUES
@@ -141,7 +202,13 @@ INSERT INTO batch (id, inbound_price, sell_price, discount, quantity, inbound_qu
 (1, 100000, 120000, 0, 50, 50, '2024-12-31', 1, 1, NOW()),
 (2, 6000, 8000, 0, 100, 100, '2024-06-30', 1, 2, NOW()),
 (3, 3500, 4000, 0, 500, 500, '2024-12-31', 2, 3, NOW()),
-(4, 8000, 10000, 0, 200, 200, '2024-12-31', 2, 4, NOW());
+(4, 8000, 10000, 0, 200, 200, '2024-12-31', 2, 4, NOW()),
+(5, 100000, 120000, 0, 100, 100, '2024-12-31', 1, 21, NOW()),
+(6, 10000, 12000, 0, 200, 200, '2024-12-31', 1, 22, NOW()),
+(7, 35000, 45000, 0, 50, 50, '2024-12-31', 1, 24, NOW()),
+(8, 7000, 8500, 0, 500, 500, '2024-12-31', 2, 36, NOW()),
+(9, 8000, 10000, 0, 300, 300, '2024-12-31', 2, 39, NOW()),
+(10, 45000, 55000, 0, 100, 100, '2024-12-31', 2, 40, NOW());
 
 -- Thêm Orders (15 đơn hàng)
 INSERT INTO `order` (id, total_price, payment_method, payment_time, status, customer_id, staff_id, createdAt) VALUES

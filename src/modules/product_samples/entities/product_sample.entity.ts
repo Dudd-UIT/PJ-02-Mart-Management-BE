@@ -27,6 +27,9 @@ export class ProductSample {
   @DeleteDateColumn()
   deletedAt: string;
 
+  @Column()
+  productLineId: number;
+
   @OneToMany(() => ProductUnit, (productUnit) => productUnit.productSample, { createForeignKeyConstraints: false })
   productUnits?: ProductUnit[];
 

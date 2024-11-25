@@ -26,10 +26,10 @@ export class ProductUnit {
   @Column()
   conversion_rate: number;
 
-  @Column()
+  @Column({ nullable: true })
   image: string;
 
-  @Column()
+  @Column({ nullable: true })
   volumne: string;
 
   @CreateDateColumn()
