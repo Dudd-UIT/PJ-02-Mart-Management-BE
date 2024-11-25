@@ -16,16 +16,32 @@ export class Batch {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   inboundPrice: number;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   discount: number;
 
-  @Column()
+  @Column({
+    type: 'int',
+    default: 0,
+  })
   inventQuantity: number;
 
-  @Column()
+  @Column({
+    type: 'int',
+    default: 0,
+  })
   inboundQuantity: number;
 
   @Column()
@@ -39,12 +55,16 @@ export class Batch {
 
   @ManyToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.batchs, {
     createForeignKeyConstraints: false,
+    onDelete: 'CASCADE',
+    nullable: false,
   })
   @JoinColumn()
   inboundReceipt: InboundReceipt;
 
   @OneToOne(() => ProductUnit, (productUnit) => productUnit.batch, {
     createForeignKeyConstraints: false,
+    onDelete: 'CASCADE',
+    nullable: false,
   })
   @JoinColumn()
   productUnit: ProductUnit;

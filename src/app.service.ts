@@ -28,7 +28,10 @@ export class AppService implements OnModuleInit {
       if (count === 0) {
         console.log('result[0].count: ', count);
         console.log('Bang chua co du lieu tien hanh insert du lieu moi: ');
-        const sql = readFileSync(join('/app/src', 'dump', 'dump.sql'), 'utf8');
+        const sql = readFileSync(
+          join('D:/SE100/Project/pj-02-mart-management-be/src/dump/dump.sql'),
+          'utf8',
+        );
         const statements = sql.split(';').filter((stmt) => stmt.trim() !== '');
 
         for (const statement of statements) {

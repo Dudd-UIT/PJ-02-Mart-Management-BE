@@ -37,7 +37,7 @@ export class SuppliersService {
       const productUnitIds = updateSupplierProductDto.productUnitIds;
       await this.supplierProductRepository.update(
         { supplierId },
-        { status: '0' },
+        { status: 0 },
       );
 
       const supplierProducts = [];
@@ -56,12 +56,12 @@ export class SuppliersService {
         });
 
         if (supplierProduct) {
-          supplierProduct.status = '1';
+          supplierProduct.status = 1;
         } else {
           supplierProduct = new SupplierProduct();
           supplierProduct.supplierId = supplierId;
           supplierProduct.productUnitId = productUnitId;
-          supplierProduct.status = '1';
+          supplierProduct.status = 1;
         }
 
         supplierProducts.push(supplierProduct);
@@ -135,7 +135,7 @@ export class SuppliersService {
       const results = suppliers.map((supplier) => ({
         ...supplier,
         supplierProducts: supplier.supplierProducts
-          .filter((product) => product.status === '1') // Only include products with status '1'
+          .filter((product) => product.status === 1) // Only include products with status '1'
           .map((product) => product.productUnitId), // Map to productUnitId
       }));
 

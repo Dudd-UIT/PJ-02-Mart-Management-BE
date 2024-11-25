@@ -17,34 +17,31 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ length: 100 })
   name: string;
 
-  @Column({ default: 'chưa có', nullable: true })
-  username: string;
-
-  @Column({ default: 'chưa có', nullable: true })
+  @Column({ default: 'Chưa có', length: 100 })
   email: string;
 
-  @Column({ default: 'chưa có', nullable: true })
+  @Column({ default: 'Chưa có' })
   password: string;
 
-  @Column({ default: 0, nullable: true })
+  @Column({ default: 0, type: 'int', unsigned: true })
   score: number;
 
-  @Column({ default: 'chưa có', nullable: true })
+  @Column({ default: 'Chưa có', length: 255 })
   address: string;
 
-  @Column()
+  @Column({ length: 10, unique: true })
   phone: string;
 
-  @Column({ default: 0 })
+  @Column({ type: 'tinyint', default: 0, comment: '0: inactive, 1: active' })
   isActive: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 32 })
   codeId: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'datetime' })
   codeExpired: Date;
 
   @CreateDateColumn()
@@ -55,17 +52,20 @@ export class User {
 
   @ManyToOne(() => Group, (group) => group.users, {
     createForeignKeyConstraints: false,
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   group: Group;
 
   @OneToMany(() => Order, (user) => user.customer, {
     createForeignKeyConstraints: false,
+    cascade: true,
   })
   customerOrders: Order[];
 
   @OneToMany(() => Order, (user) => user.staff, {
     createForeignKeyConstraints: false,
+    cascade: true,
   })
   staffOrders: Order[];
 

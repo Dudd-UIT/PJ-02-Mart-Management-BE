@@ -16,25 +16,36 @@ export class Group {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    unique: true,
+  })
   name: string;
 
-  @Column()
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   description: string;
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @DeleteDateColumn()
-  deleteAt: string;
+  deleteAt: Date;
 
   @OneToMany(() => User, (user) => user.group, {
     createForeignKeyConstraints: false,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
   })
   users: User[];
 
   @ManyToMany(() => Role, (role) => role.groups, {
     createForeignKeyConstraints: false,
+    cascade: true,
   })
   @JoinTable({
     name: 'role_group',
