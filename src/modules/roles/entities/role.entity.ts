@@ -6,10 +6,18 @@ export class Role {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    unique: true,
+  })
   url: string;
 
-  @Column()
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   description: string;
 
   @ManyToMany(() => Group, (group) => group.roles, {

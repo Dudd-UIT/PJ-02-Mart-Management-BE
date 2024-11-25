@@ -177,11 +177,24 @@ export class UsersService {
         where: { email },
         relations: ['group'],
       });
-      if (!user)
-        throw new NotFoundException(`Không tìm thấy người dùng ${email}`);
+      if (!user) {
+        // Trả về lỗi NotFoundException nếu không tìm thấy người dùng
+        throw new NotFoundException(
+          `Không tìm thấy người dùng với email: ${email}`,
+        );
+      }
       return user;
     } catch (error) {
-      console.error(`Lỗi khi tìm người dùng với ID ${email}:`, error.message);
+      // Kiểm tra nếu lỗi đã là NotFoundException, thì ném lại lỗi
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      // Ghi log lỗi và trả về InternalServerErrorException cho các lỗi khác
+      console.error(
+        `Lỗi khi tìm người dùng với email ${email}:`,
+        error.message,
+      );
       throw new InternalServerErrorException('Không thể tìm người dùng');
     }
   }

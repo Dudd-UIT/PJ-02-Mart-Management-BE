@@ -16,20 +16,49 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   totalPrice: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 20,
+    default: 'Tiền mặt',
+    comment: 'Phương thức thanh toán, VD: Tiền mặt, Chuyển khoản',
+  })
   paymentMethod: string;
 
-  @Column()
+  @Column({
+    type: 'datetime',
+    nullable: true,
+  })
   paymentTime: Date;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 20,
+    default: 'Trực tiếp',
+    comment: 'Loại đơn hàng, VD: Trực tiếp, Online',
+  })
   orderType: string;
 
-  @Column()
-  status: string;
+  @Column({
+    type: 'tinyint',
+    default: 0,
+    comment: '0: Chưa nhận, 1: Đã nhận',
+  })
+  isReceived: number;
+
+  @Column({
+    type: 'tinyint',
+    default: 0,
+    comment: '0: Chưa thanh toán, 1: Đã thanh toán',
+  })
+  isPaid: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -45,12 +74,15 @@ export class Order {
 
   @ManyToOne(() => User, (staff) => staff.staffOrders, {
     createForeignKeyConstraints: false,
+    onDelete: 'SET NULL',
+    nullable: true,
   })
   @JoinColumn({ name: 'staffId' })
   staff: User;
 
   @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order, {
     createForeignKeyConstraints: false,
+    cascade: true,
   })
   orderDetails: OrderDetail[];
 }

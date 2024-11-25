@@ -33,10 +33,10 @@ export class ProductUnit {
   volumne: string;
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: string;
+  deletedAt: Date;
 
   @ManyToOne(
     () => ProductSample,

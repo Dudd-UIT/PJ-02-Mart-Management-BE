@@ -13,15 +13,25 @@ export class ProductType {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    unique: true,
+  })
   name: string;
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: string;
+  deletedAt: Date;
 
-  @OneToMany(() => ProductLine, (productLine) => productLine.productType, { createForeignKeyConstraints: false })
+  @OneToMany(() => ProductLine, (productLine) => productLine.productType, {
+    createForeignKeyConstraints: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+    cascade: true,
+  })
   productLines?: ProductLine[];
 }

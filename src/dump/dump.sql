@@ -58,46 +58,44 @@ INSERT INTO unit (id, name, createdAt) VALUES
 (5, 'hộp', NOW()),
 (6, 'thùng', NOW());
 
-
-
 -- Thêm Product Units (Tổng 20 đơn vị sản phẩm)
 INSERT INTO product_unit (id, sellPrice, conversionRate, image, volumne, productSampleId, unitId, createdAt) VALUES
 -- Thịt và Gia cầm
-(1, 120000, 1, 'thit-ba-roi.jpg', '1', 1, 1, NOW()),
-(2, 350000, 1, 'thit-bo-uc.jpg', '1', 2, 1, NOW()),
-(3, 65000, 1, 'dui-ga.jpg', '1', 3, 1, NOW()),
-(4, 60000, 1, 'canh-ga.jpg', '1', 4, 1, NOW()),
+(1, 120000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRS_idOuuaioteV4Hzmsvwus57R7SlL1A26jg&s', '1', 1, 1, NOW()),
+(2, 350000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNVM2hRGNPr9C9sQP2aaH6LlWQXHCNqCp3vw&s', '1', 2, 1, NOW()),
+(3, 65000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSssGbOdvVm9YSE2T8PJPnjGNQQYcZCBVWJhg&s', '1', 3, 1, NOW()),
+(4, 60000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1Ts6kDgWocoZNlSbfinxeP47AlELJWcjXXA&s', '1', 4, 1, NOW()),
 
 -- Rau củ
-(5, 8000, 1, 'rau-muong.jpg', '1', 5, 2, NOW()),
-(6, 12000, 1, 'cai-thao.jpg', '1', 6, 1, NOW()),
-(7, 15000, 1, 'ca-rot.jpg', '1', 7, 1, NOW()),
-(8, 18000, 1, 'khoai-tay.jpg', '1', 8, 1, NOW()),
+(5, 8000, 1, 'https://images2.thanhnien.vn/zoom/686_429/528068263637045248/2023/9/13/rau-muong-16945744756401379166751-75-0-476-642-crop-16945745476001397609558.png', '1', 5, 2, NOW()),
+(6, 12000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeP85FwnzLmG3zAxRo3PvArn90xh7H3uNWvg&s', '1', 6, 1, NOW()),
+(7, 15000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAp57MbrrAh6O6DQ89USyHFOIq0f2eHZKSQ&s', '1', 7, 1, NOW()),
+(8, 18000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMiVD5BCbRjnu4tsOvs9WV7j4Za_ISLpnAYw&s', '1', 8, 1, NOW()),
 
 -- Mì gói
-(9, 4000, 1, 'mi-hao-hao.jpg', '1', 9, 3, NOW()),
-(10, 7000, 1, 'mi-omachi.jpg', '1', 10, 3, NOW()),
-(11, 3500, 1, 'mi-3-mien.jpg', '1', 11, 3, NOW()),
-(12, 3500, 1, 'mi-kokomi.jpg', '1', 12, 3, NOW()),
+(9, 4000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ3YZSwJEl3EFCb5haHxhPyzOvnMU5kpGG6A&s', '1', 9, 3, NOW()),
+(10, 7000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQADicx1UWOZePim-anIkCy3Mj7A2v-tvJNQ&s', '1', 10, 3, NOW()),
+(11, 3500, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9I5cdBIRo6XpzS-nEzOoEj2TJlSrUk0qEGw&s', '1', 11, 3, NOW()),
+(12, 3500, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqFIK6cJcHwnzUHtTqvrXws3xaDrL2Fw85Cg&s', '1', 12, 3, NOW()),
 
 -- Nước giải khát
-(13, 10000, 1, 'coca-cola.jpg', '330ml', 13, 4, NOW()),
-(14, 10000, 1, 'pepsi.jpg', '330ml', 14, 4, NOW()),
-(15, 12000, 1, 'sting.jpg', '330ml', 15, 4, NOW()),
-(16, 10000, 1, 'tra-xanh.jpg', '330ml', 16, 4, NOW()),
+(13, 10000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUlFvGKCHhTwr6fiK0O1ZwVyuffp8zRcXlcQ&s', '330ml', 13, 4, NOW()),
+(14, 10000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGFF9wTI-2Lf_kMUkCPjK1LwqC_YQWy-_FVA&s', '330ml', 14, 4, NOW()),
+(15, 12000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9jDajnaubt1eQGpm3FkCHHSe6NkP-pu5OZw&s', '330ml', 15, 4, NOW()),
+(16, 10000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR32Rpyq52E5rHkTM8LExvIZeFmO6oP-sj3Cg&s', '330ml', 16, 4, NOW()),
 
 -- Sữa
-(17, 35000, 1, 'sua-tuoi-vinamilk.jpg', '1L', 17, 5, NOW()),
-(18, 38000, 1, 'sua-tuoi-th.jpg', '1L', 18, 5, NOW()),
-(19, 25000, 1, 'sua-dac.jpg', '380g', 19, 5, NOW()),
-(20, 6000, 1, 'sua-chua.jpg', '100g', 20, 5, NOW());
+(17, 35000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-2L581_Fmf-h87orbYar6cg0Wmss93tJ3Mg&s', '1L', 17, 5, NOW()),
+(18, 38000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG_mCa8SZ0ilroESF12s1rxV6t8C4bOOGkCg&s', '1L', 18, 5, NOW()),
+(19, 25000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLJsXsGamM-MVngdc3qPPxD7RNDQy1hQSGdw&s', '380g', 19, 5, NOW()),
+(20, 6000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '100g', 20, 5, NOW());
 
 
 -- Insert Groups
 INSERT INTO `group` (id, name, description) VALUES
 (1, 'Admin', 'Quản trị viên hệ thống'),
-(2, 'Staff', 'Nhân viên bán hàng'),
-(3, 'Customer', 'Khách hàng');
+(2, 'Nhân viên', 'Nhân viên bán hàng'),
+(3, 'Khách hàng', 'Khách hàng');
 
 -- Insert Roles
 INSERT INTO role (id, url, description) VALUES
@@ -113,10 +111,10 @@ INSERT INTO role_group (groupId, roleId) VALUES
 (3, 3);
 
 -- Insert Users
-INSERT INTO `user` (id, name, username, email, password, score, address, phone, groupId, createdAt) VALUES
-(1, 'Nguyễn Văn Admin', 'admin', 'admin@mini.mart', '$2a$10$encrypted', 0, 'Hà Nội', '0901234567', 1, NOW()),
-(2, 'Trần Thị Nhân Viên', 'staff1', 'staff1@mini.mart', '$2a$10$encrypted', 0, 'Hà Nội', '0901234568', 2, NOW()),
-(3, 'Lê Văn Khách', 'customer1', 'customer1@gmail.com', '$2a$10$encrypted', 100, 'Hà Nội', '0901234569', 3, NOW());
+INSERT INTO `user` (id, name, email, password, score, address, phone, groupId, createdAt) VALUES
+(1, 'Đoàn Danh Dự', 'dudd@mini.mart', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 0, 'Ấp Thị 1, xã Hội An, Chợ Mới, An Giang', '0901234567', 1, NOW()),
+(2, 'Trần Thị Nhân Viên', 'vienttn@mini.mart', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 0, 'Đường Bùi Thị Xuân, Quận 1, TP. Hồ Chí Minh', '0901234568', 2, NOW()),
+(3, 'Lê Văn Khách', 'khachlv@gmail.com', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 100, 'Hoàn Kiếm, Hà Nội', '0901234569', 3, NOW());
 
 -- Insert Suppliers
 INSERT INTO supplier (id, name, phone, address, country, createdAt) VALUES
@@ -125,11 +123,11 @@ INSERT INTO supplier (id, name, phone, address, country, createdAt) VALUES
 
 -- Insert Supplier Products
 INSERT INTO supplier_product (id, supplierId, productUnitId, status) VALUES
-(1, 1, 1, 'active'),
-(2, 1, 2, 'active'),
-(3, 2, 3, 'active'),
-(4, 2, 4, 'active'),
-(5, 2, 5, 'active');
+(1, 1, 1, 1),
+(2, 1, 2, 1),
+(3, 2, 3, 1),
+(4, 2, 4, 1),
+(5, 2, 5, 1);
 
 -- Insert Inbound Receipts
 INSERT INTO inbound_receipt (id, totalPrice, isReceived, isPaid, staffId, supplierId, createdAt) VALUES
@@ -137,29 +135,30 @@ INSERT INTO inbound_receipt (id, totalPrice, isReceived, isPaid, staffId, suppli
 (2, 3000000, 1, 1, 2, 2, NOW());
 
 -- Insert Batches
-INSERT INTO batch (id, inboundPrice, sellPrice, discount, quantity, inboundQuantity, expiredAt, inboundReceiptId, productUnitId, createdAt) VALUES
-(1, 100000, 120000, 0, 50, 50, '2024-12-31', 1, 1, NOW()),
-(2, 6000, 8000, 0, 100, 100, '2024-06-30', 1, 2, NOW()),
-(3, 3500, 4000, 0, 500, 500, '2024-12-31', 2, 3, NOW()),
-(4, 8000, 10000, 0, 200, 200, '2024-12-31', 2, 4, NOW());
+INSERT INTO batch (id, inboundPrice, discount, inventQuantity, inboundQuantity, expiredAt, inboundReceiptId, productUnitId, createdAt) VALUES
+(1, 100000, 0, 50, 50, '2024-12-31', 1, 1, NOW()),
+(2, 6000, 0, 100, 100, '2024-06-30', 1, 2, NOW()),
+(3, 3500, 0, 500, 500, '2024-12-31', 2, 3, NOW()),
+(4, 8000, 0, 200, 200, '2024-12-31', 2, 4, NOW());
+
 
 -- Thêm Orders (15 đơn hàng)
-INSERT INTO `order` (id, totalPrice, paymentMethod, paymentTime, status, customerId, staffId, createdAt) VALUES
-    (1, 256000, 'cash', NOW() - INTERVAL 1 DAY, 'completed', 3, 2, NOW() - INTERVAL 1 DAY),
-    (2, 120000, 'card', NOW() - INTERVAL 1 DAY, 'completed', 3, 2, NOW() - INTERVAL 1 DAY),
-    (3, 185000, 'cash', NOW() - INTERVAL 2 DAY, 'completed', 3, 2, NOW() - INTERVAL 2 DAY),
-    (4, 95000, 'card', NOW() - INTERVAL 2 DAY, 'completed', 3, 2, NOW() - INTERVAL 2 DAY),
-    (5, 450000, 'cash', NOW() - INTERVAL 3 DAY, 'completed', 3, 2, NOW() - INTERVAL 3 DAY),
-    (6, 165000, 'card', NOW() - INTERVAL 3 DAY, 'completed', 3, 2, NOW() - INTERVAL 3 DAY),
-    (7, 78000, 'cash', NOW() - INTERVAL 4 DAY, 'completed', 3, 2, NOW() - INTERVAL 4 DAY),
-    (8, 225000, 'card', NOW() - INTERVAL 4 DAY, 'completed', 3, 2, NOW() - INTERVAL 4 DAY),
-    (9, 142000, 'cash', NOW() - INTERVAL 5 DAY, 'completed', 3, 2, NOW() - INTERVAL 5 DAY),
-    (10, 89000, 'cash', NOW() - INTERVAL 5 DAY, 'completed', 3, 2, NOW() - INTERVAL 5 DAY),
-    (11, 167000, 'card', NOW() - INTERVAL 6 DAY, 'completed', 3, 2, NOW() - INTERVAL 6 DAY),
-    (12, 234000, 'cash', NOW() - INTERVAL 6 DAY, 'completed', 3, 2, NOW() - INTERVAL 6 DAY),
-    (13, 345000, 'card', NOW() - INTERVAL 7 DAY, 'completed', 3, 2, NOW() - INTERVAL 7 DAY),
-    (14, 178000, 'cash', NOW() - INTERVAL 7 DAY, 'completed', 3, 2, NOW() - INTERVAL 7 DAY),
-    (15, 156000, 'card', NOW() - INTERVAL 7 DAY, 'completed', 3, 2, NOW() - INTERVAL 7 DAY);
+INSERT INTO `order` (id, totalPrice, paymentMethod, paymentTime, isPaid, isReceived, customerId, staffId, createdAt) VALUES
+    (1, 256000, 'Tiền mặt', NOW() - INTERVAL 1 DAY, 1, 1, 3, 2, NOW() - INTERVAL 1 DAY),
+    (2, 120000, 'Chuyển khoản', NOW() - INTERVAL 1 DAY, 1, 1, 3, 2, NOW() - INTERVAL 1 DAY),
+    (3, 185000, 'Tiền mặt', NOW() - INTERVAL 2 DAY, 1, 1, 3, 2, NOW() - INTERVAL 2 DAY),
+    (4, 95000, 'Chuyển khoản', NOW() - INTERVAL 2 DAY, 1, 1, 3, 2, NOW() - INTERVAL 2 DAY),
+    (5, 450000, 'Tiền mặt', NOW() - INTERVAL 3 DAY, 1, 1, 3, 2, NOW() - INTERVAL 3 DAY),
+    (6, 165000, 'Chuyển khoản', NOW() - INTERVAL 3 DAY, 1, 1, 3, 2, NOW() - INTERVAL 3 DAY),
+    (7, 78000, 'Tiền mặt', NOW() - INTERVAL 4 DAY, 1, 1, 3, 2, NOW() - INTERVAL 4 DAY),
+    (8, 225000, 'Chuyển khoản', NOW() - INTERVAL 4 DAY, 1, 1, 3, 2, NOW() - INTERVAL 4 DAY),
+    (9, 142000, 'Tiền mặt', NOW() - INTERVAL 5 DAY, 1, 1, 3, 2, NOW() - INTERVAL 5 DAY),
+    (10, 89000, 'Tiền mặt', NOW() - INTERVAL 5 DAY, 1, 1, 3, 2, NOW() - INTERVAL 5 DAY),
+    (11, 167000, 'Chuyển khoản', NOW() - INTERVAL 6 DAY, 1, 1,  3, 2, NOW() - INTERVAL 6 DAY),
+    (12, 234000, 'Tiền mặt', NOW() - INTERVAL 6 DAY, 1, 1, 3, 2, NOW() - INTERVAL 6 DAY),
+    (13, 345000, 'Chuyển khoản', NOW() - INTERVAL 7 DAY, 1, 1, 3, 2, NOW() - INTERVAL 7 DAY),
+    (14, 178000, 'Tiền mặt', NOW() - INTERVAL 7 DAY, 1, 1, 3, 2, NOW() - INTERVAL 7 DAY),
+    (15, 156000, 'Chuyển khoản', NOW() - INTERVAL 7 DAY, 1, 1, 3, 2, NOW() - INTERVAL 7 DAY);
 
 
 
@@ -226,3 +225,7 @@ INSERT INTO order_detail (id, quantity, currentPrice, orderId, productUnitId) VA
 -- Đơn hàng 15
 (30, 1, 120000, 15, 1), -- 1 kg thịt ba rọi
 (31, 3, 12000, 15, 15); -- 3 chai Sting
+
+INSERT INTO parameter (name, description, value) VALUES
+('pointConversionRate', 'Tỷ lệ đổi từ điểm sang VND, bao nhiêu điểm thì được 1 VND', 100),
+('moneyConversionRate', 'Tỷ lệ đổi từ VND sang điểm, bao nhiêu VND thì được 1 điểm', 1000);

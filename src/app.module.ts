@@ -32,7 +32,7 @@ import { Batch } from './modules/batchs/entities/batch.entity';
 import { InboundReceipt } from './modules/inbound_receipt/entities/inbound_receipt.entity';
 import { OrderDetail } from './modules/order_details/entities/order_detail.entity';
 import { Order } from './modules/orders/entities/order.entity';
-import { Parameters } from './modules/parameters/entities/parameter.entity';
+import { Parameter } from './modules/parameters/entities/parameter.entity';
 import { ProductLine } from './modules/product_lines/entities/product_line.entity';
 import { ProductSample } from './modules/product_samples/entities/product_sample.entity';
 import { ProductType } from './modules/product_types/entities/product_type.entity';
@@ -60,7 +60,7 @@ import { Unit } from './modules/units/entities/unit.entity';
       InboundReceipt,
       OrderDetail,
       Order,
-      Parameters,
+      Parameter,
       ProductLine,
       ProductSample,
       ProductType,
@@ -92,7 +92,7 @@ import { Unit } from './modules/units/entities/unit.entity';
     AppService,
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard, // Đăng ký JwtAuthGuard toàn cục
+      useClass: JwtAuthGuard,
     },
     {
       provide: APP_INTERCEPTOR,
