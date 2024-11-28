@@ -73,8 +73,6 @@ export class ParametersService {
 
   async update(id: number, updateParameterDto: UpdateParameterDto) {
     try {
-      console.log('id', id);
-      console.log('updateParameterDto', updateParameterDto);
       const parameter = await this.findOne(id);
       if (!parameter) {
         throw new NotFoundException('Không tìm thấy tham số');

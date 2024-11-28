@@ -23,13 +23,13 @@ export class ProductUnit {
   @Column()
   sellPrice: number;
 
-  @Column()
+  @Column({ nullable: true })
   conversionRate: number;
 
-  @Column()
+  @Column({ nullable: true })
   image: string;
 
-  @Column()
+  @Column({ nullable: true })
   volumne: string;
 
   @CreateDateColumn()
@@ -68,4 +68,11 @@ export class ProductUnit {
     createForeignKeyConstraints: false,
   })
   batch?: Batch;
+
+  @ManyToOne(() => Unit, (unit) => unit.productUnits, {
+    createForeignKeyConstraints: false,
+    nullable: true,
+  })
+  @JoinColumn({ name: 'compareUnitId' })
+  compareUnit?: Unit;
 }

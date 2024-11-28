@@ -31,8 +31,14 @@ export class ProductLinesController {
     @Query() query: string,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
+    @Query('productTypeId') productTypeId: string,
   ) {
-    return this.productLinesService.findAll(query, +current, +pageSize);
+    return this.productLinesService.findAll(
+      query,
+      +current,
+      +pageSize,
+      +productTypeId,
+    );
   }
 
   @Get(':id')

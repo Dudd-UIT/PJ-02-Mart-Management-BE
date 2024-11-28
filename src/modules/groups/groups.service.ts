@@ -50,7 +50,9 @@ export class GroupsService {
       delete filter.current;
       delete filter.pageSize;
 
-      const totalItems = await this.groupRepository.count(filter);
+      const totalItems = await this.groupRepository.count({
+        where: filter,
+      });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 

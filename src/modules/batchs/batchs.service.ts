@@ -67,7 +67,9 @@ export class BatchsService {
       delete filter.current;
       delete filter.pageSize;
 
-      const totalItems = await this.batchRepository.count(filter);
+      const totalItems = await this.batchRepository.count({
+        where: filter,
+      });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 

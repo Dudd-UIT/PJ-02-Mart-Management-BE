@@ -39,7 +39,9 @@ export class UnitsService {
     delete filter.current;
     delete filter.pageSize;
 
-    const totalItems = await this.unitRepository.count(filter);
+    const totalItems = await this.unitRepository.count({
+      where: filter,
+    });
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 

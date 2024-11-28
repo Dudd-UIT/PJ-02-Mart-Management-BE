@@ -56,39 +56,45 @@ INSERT INTO unit (id, name, createdAt) VALUES
 (3, 'gói', NOW()),
 (4, 'chai', NOW()),
 (5, 'hộp', NOW()),
-(6, 'thùng', NOW());
+(6, 'thùng', NOW()),
+(7, 'miếng', NOW()),
+(8, 'lốc', NOW()),
+(9, 'gram', NOW()),
+(10, 'túi', NOW()),
+(11, 'lon', NOW());
+
 
 -- Thêm Product Units (Tổng 20 đơn vị sản phẩm)
-INSERT INTO product_unit (id, sellPrice, conversionRate, image, volumne, productSampleId, unitId, createdAt) VALUES
+INSERT INTO product_unit (id, sellPrice, conversionRate, compareUnitId, image, volumne, productSampleId, unitId, createdAt) VALUES
 -- Thịt và Gia cầm
-(1, 120000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRS_idOuuaioteV4Hzmsvwus57R7SlL1A26jg&s', '1', 1, 1, NOW()),
-(2, 350000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNVM2hRGNPr9C9sQP2aaH6LlWQXHCNqCp3vw&s', '1', 2, 1, NOW()),
-(3, 65000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSssGbOdvVm9YSE2T8PJPnjGNQQYcZCBVWJhg&s', '1', 3, 1, NOW()),
-(4, 60000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1Ts6kDgWocoZNlSbfinxeP47AlELJWcjXXA&s', '1', 4, 1, NOW()),
+(1, 120000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRS_idOuuaioteV4Hzmsvwus57R7SlL1A26jg&s', '1 kg', 1, 1, NOW()),
+(2, 350000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNVM2hRGNPr9C9sQP2aaH6LlWQXHCNqCp3vw&s', '1 kg', 2, 1, NOW()),
+(3, 65000, null, null,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSssGbOdvVm9YSE2T8PJPnjGNQQYcZCBVWJhg&s', '1 kg', 3, 1, NOW()),
+(4, 60000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1Ts6kDgWocoZNlSbfinxeP47AlELJWcjXXA&s', '1 kg', 4, 1, NOW()),
 
 -- Rau củ
-(5, 8000, 1, 'https://images2.thanhnien.vn/zoom/686_429/528068263637045248/2023/9/13/rau-muong-16945744756401379166751-75-0-476-642-crop-16945745476001397609558.png', '1', 5, 2, NOW()),
-(6, 12000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeP85FwnzLmG3zAxRo3PvArn90xh7H3uNWvg&s', '1', 6, 1, NOW()),
-(7, 15000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAp57MbrrAh6O6DQ89USyHFOIq0f2eHZKSQ&s', '1', 7, 1, NOW()),
-(8, 18000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMiVD5BCbRjnu4tsOvs9WV7j4Za_ISLpnAYw&s', '1', 8, 1, NOW()),
+(5, 8000, null, null, 'https://images2.thanhnien.vn/zoom/686_429/528068263637045248/2023/9/13/rau-muong-16945744756401379166751-75-0-476-642-crop-16945745476001397609558.png', '1 kg', 5, 2, NOW()),
+(6, 12000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeP85FwnzLmG3zAxRo3PvArn90xh7H3uNWvg&s', '1 kg', 6, 1, NOW()),
+(7, 15000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuAp57MbrrAh6O6DQ89USyHFOIq0f2eHZKSQ&s', '1 kg', 7, 1, NOW()),
+(8, 18000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMiVD5BCbRjnu4tsOvs9WV7j4Za_ISLpnAYw&s', '1 kg', 8, 1, NOW()),
 
 -- Mì gói
-(9, 4000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ3YZSwJEl3EFCb5haHxhPyzOvnMU5kpGG6A&s', '1', 9, 3, NOW()),
-(10, 7000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQADicx1UWOZePim-anIkCy3Mj7A2v-tvJNQ&s', '1', 10, 3, NOW()),
-(11, 3500, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9I5cdBIRo6XpzS-nEzOoEj2TJlSrUk0qEGw&s', '1', 11, 3, NOW()),
-(12, 3500, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqFIK6cJcHwnzUHtTqvrXws3xaDrL2Fw85Cg&s', '1', 12, 3, NOW()),
+(9, 4000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ3YZSwJEl3EFCb5haHxhPyzOvnMU5kpGG6A&s', '65 gram', 9, 3, NOW()),
+(10, 7000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQADicx1UWOZePim-anIkCy3Mj7A2v-tvJNQ&s', '65 gram', 10, 3, NOW()),
+(11, 3500, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9I5cdBIRo6XpzS-nEzOoEj2TJlSrUk0qEGw&s', '65 gram', 11, 3, NOW()),
+(12, 3500, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqFIK6cJcHwnzUHtTqvrXws3xaDrL2Fw85Cg&s', '65 gram', 12, 3, NOW()),
 
 -- Nước giải khát
-(13, 10000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUlFvGKCHhTwr6fiK0O1ZwVyuffp8zRcXlcQ&s', '330ml', 13, 4, NOW()),
-(14, 10000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGFF9wTI-2Lf_kMUkCPjK1LwqC_YQWy-_FVA&s', '330ml', 14, 4, NOW()),
-(15, 12000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9jDajnaubt1eQGpm3FkCHHSe6NkP-pu5OZw&s', '330ml', 15, 4, NOW()),
-(16, 10000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR32Rpyq52E5rHkTM8LExvIZeFmO6oP-sj3Cg&s', '330ml', 16, 4, NOW()),
+(13, 10000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUlFvGKCHhTwr6fiK0O1ZwVyuffp8zRcXlcQ&s', '330ml', 13, 4, NOW()),
+(14, 10000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGFF9wTI-2Lf_kMUkCPjK1LwqC_YQWy-_FVA&s', '330ml', 14, 4, NOW()),
+(15, 12000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9jDajnaubt1eQGpm3FkCHHSe6NkP-pu5OZw&s', '330ml', 15, 4, NOW()),
+(16, 10000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR32Rpyq52E5rHkTM8LExvIZeFmO6oP-sj3Cg&s', '330ml', 16, 4, NOW()),
 
 -- Sữa
-(17, 35000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-2L581_Fmf-h87orbYar6cg0Wmss93tJ3Mg&s', '1L', 17, 5, NOW()),
-(18, 38000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG_mCa8SZ0ilroESF12s1rxV6t8C4bOOGkCg&s', '1L', 18, 5, NOW()),
-(19, 25000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLJsXsGamM-MVngdc3qPPxD7RNDQy1hQSGdw&s', '380g', 19, 5, NOW()),
-(20, 6000, 1, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '100g', 20, 5, NOW());
+(17, 35000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-2L581_Fmf-h87orbYar6cg0Wmss93tJ3Mg&s', '1L', 17, 5, NOW()),
+(18, 38000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG_mCa8SZ0ilroESF12s1rxV6t8C4bOOGkCg&s', '1L', 18, 5, NOW()),
+(19, 25000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLJsXsGamM-MVngdc3qPPxD7RNDQy1hQSGdw&s', '380g', 19, 5, NOW()),
+(20, 6000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '100g', 20, 5, NOW());
 
 
 -- Insert Groups
@@ -129,17 +135,38 @@ INSERT INTO supplier_product (id, supplierId, productUnitId, status) VALUES
 (4, 2, 4, 1),
 (5, 2, 5, 1);
 
--- Insert Inbound Receipts
+-- Cập nhật Inbound Receipts
 INSERT INTO inbound_receipt (id, totalPrice, isReceived, isPaid, staffId, supplierId, createdAt) VALUES
-(1, 5000000, 1, 1, 2, 1, NOW()),
-(2, 3000000, 1, 1, 2, 2, NOW());
+(1, 33650000, 1, 1, 2, 1, NOW()), -- Nhập thịt và rau
+(2, 18000000, 1, 1, 2, 2, NOW()), -- Nhập sữa
+(3, 8550000, 1, 1, 2, 1, NOW()), -- Nhập nước giải khát
+(4, 4900000, 1, 1, 2, 1, NOW()); -- Nhập mì gói
 
--- Insert Batches
+
+-- Cập nhật Batches
 INSERT INTO batch (id, inboundPrice, discount, inventQuantity, inboundQuantity, expiredAt, inboundReceiptId, productUnitId, createdAt) VALUES
-(1, 100000, 0, 50, 50, '2024-12-31', 1, 1, NOW()),
-(2, 6000, 0, 100, 100, '2024-06-30', 1, 2, NOW()),
-(3, 3500, 0, 500, 500, '2024-12-31', 2, 3, NOW()),
-(4, 8000, 0, 200, 200, '2024-12-31', 2, 4, NOW());
+-- Nhập thịt và rau
+(1, 60000, 0, 100, 100, '2024-12-31', 1, 1, NOW()),  -- Thịt heo ba rọi
+(2, 7000, 0, 200, 200, '2024-12-31', 1, 5, NOW()),   -- Rau muống
+(3, 350000, 0, 50, 50, '2024-12-31', 1, 2, NOW()),   -- Thịt bò Úc
+(4, 65000, 0, 100, 100, '2024-12-31', 1, 3, NOW()),  -- Đùi gà
+(5, 15000, 0, 150, 150, '2024-12-31', 1, 7, NOW()),  -- Cà rốt
+
+-- Nhập sữa
+(6, 30000, 0, 200, 200, '2024-12-31', 2, 17, NOW()), -- Sữa tươi Vinamilk
+(7, 60000, 0, 100, 100, '2024-12-31', 2, 18, NOW()), -- Sữa TH True Milk
+(8, 20000, 0, 300, 300, '2024-12-31', 2, 20, NOW()), -- Sữa chua Vinamilk
+
+-- Nhập nước giải khát
+(9, 8000, 0, 300, 300, '2024-12-31', 3, 13, NOW()),  -- Coca Cola
+(10, 11000, 0, 200, 200, '2024-12-31', 3, 14, NOW()), -- Pepsi
+(11, 10000, 0, 200, 200, '2024-12-31', 3, 15, NOW()), -- Sting
+(12, 13000, 0, 150, 150, '2024-12-31', 3, 16, NOW()), -- Trà xanh
+
+-- Nhập mì gói
+(13, 7000, 0, 500, 500, '2024-12-31', 4, 10, NOW()), -- Mì Omachi
+(14, 3500, 0, 400, 400, '2024-12-31', 4, 11, NOW()); -- Mì 3 Miền
+
 
 
 -- Thêm Orders (15 đơn hàng)

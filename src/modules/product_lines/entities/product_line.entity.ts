@@ -8,6 +8,7 @@ import {
   OneToMany,
   CreateDateColumn,
   DeleteDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -35,6 +36,7 @@ export class ProductLine {
     onUpdate: 'CASCADE',
     nullable: false,
   })
+  @JoinColumn()
   productType: ProductType;
 
   @OneToMany(

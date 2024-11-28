@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductUnitDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   volumne: string;
 
@@ -15,9 +15,12 @@ export class CreateProductUnitDto {
   @IsString()
   image: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   productSampleId?: number;
 
   @IsNotEmpty()
   unitId?: number;
+
+  @IsNotEmpty()
+  compareUnitId?: number;
 }

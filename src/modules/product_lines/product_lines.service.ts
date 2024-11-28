@@ -48,7 +48,12 @@ export class ProductLinesService {
     }
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(
+    query: string,
+    current: number,
+    pageSize: number,
+    productTypeId: number,
+  ) {
     try {
       const { filter, sort } = aqp(query);
 
@@ -56,20 +61,26 @@ export class ProductLinesService {
       if (!pageSize) pageSize = 10;
       delete filter.current;
       delete filter.pageSize;
+      delete filter.productTypeId;
 
       if (filter.name) {
         filter.name = Like(`%${filter.name}%`);
       }
 
+      if (productTypeId) {
+        filter.productType = { id: productTypeId };
+      }
+
       const totalItems = await this.productLineRepository.count({
         where: filter,
+        relations: ['productType'], // Đảm bảo relations có 'productType'
       });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
       const options = {
         where: filter,
-        relations: ['productType'],
+        relations: ['productType'], // Đảm bảo relations có 'productType'
         take: pageSize,
         skip: skip,
         order: sort || {},

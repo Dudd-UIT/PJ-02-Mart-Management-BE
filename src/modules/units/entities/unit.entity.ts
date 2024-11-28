@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 
 @Entity()

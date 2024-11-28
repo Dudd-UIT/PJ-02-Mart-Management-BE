@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductUnitDto } from './dto/create-product_unit.dto';
 import { UpdateProductUnitDto } from './dto/update-product_unit.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,62 +18,83 @@ export class ProductUnitsService {
   constructor(
     @InjectRepository(ProductUnit)
     private productUnitRepository: Repository<ProductUnit>,
+    @Inject(forwardRef(() => ProductSamplesService))
     private productSamplesService: ProductSamplesService,
     private unitsService: UnitsService,
   ) {}
 
   async create(createProductUnitDto: CreateProductUnitDto) {
-    const { unitId, productSampleId, ...rest } = createProductUnitDto;
-
-    const productSample =
-      await this.productSamplesService.findOne(productSampleId);
-    if (!productSample) {
-      throw new NotFoundException(
-        `Product sample with ID ${productSampleId} not found`,
-      );
-    }
-
-    const unit = await this.unitsService.findOne(unitId);
-    if (!unit) {
-      throw new NotFoundException(`Unit with ID ${unitId} not found`);
-    }
-
-    const productUnit = this.productUnitRepository.create({
-      ...rest,
-      productSample,
-      unit,
-    });
-
     try {
+      const { unitId, productSampleId, compareUnitId, ...rest } =
+        createProductUnitDto;
+
+      const productUnit = this.productUnitRepository.create({
+        ...rest,
+      });
+      if (productSampleId) {
+        const productSample =
+          await this.productSamplesService.findOne(productSampleId);
+        if (!productSample) {
+          throw new NotFoundException(
+            `Không tìm thấy mẫu sản phẩm với id ${productSampleId}`,
+          );
+        }
+        productUnit.productSample = productSample;
+      }
+
+      if (unitId) {
+        const unit = await this.unitsService.findOne(unitId);
+        if (!unit) {
+          throw new NotFoundException(`Không tìm thấy đơn vị với id ${unitId}`);
+        }
+        productUnit.unit = unit;
+      }
+
+      if (compareUnitId) {
+        const compareUnit = await this.unitsService.findOne(compareUnitId);
+        if (!compareUnit) {
+          throw new NotFoundException(`Không tìm thấy đơn vị với id ${unitId}`);
+        }
+        productUnit.compareUnit = compareUnit;
+      }
+
+      console.log('>>>productUnit', productUnit);
       const savedProductUnit =
         await this.productUnitRepository.save(productUnit);
       return savedProductUnit;
     } catch (error) {
-      console.error('Error saving productUnit:', error);
-      throw new Error('Failed to create ProductUnit');
+      console.error('Lỗi khi tạo productUnit', error);
+      throw new Error('Có lỗi xảy ra khi tạo productUnit');
     }
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(
+    query: string,
+    current: number,
+    pageSize: number,
+    productLineId: number,
+  ) {
     const { filter, sort } = aqp(query);
 
     if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
+    if (!pageSize) pageSize = 100;
 
-    // Extract the name filter if present for productSample.name
     const productSampleNameFilter = filter.name ? filter.name : null;
     delete filter.current;
     delete filter.pageSize;
     delete filter.name;
+    delete filter.productLineId;
 
-    // Calculate pagination details
+    if (productLineId) {
+      filter.productSample = { productLineId: productLineId };
+    }
+
     const skip = (current - 1) * pageSize;
 
-    // Count total items with the productSample.name filter if provided
     const totalItems = await this.productUnitRepository
       .createQueryBuilder('productUnit')
       .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productUnit.unit', 'unit') // Include the unit relation
+      .leftJoinAndSelect('productUnit.unit', 'unit')
       .where((qb) => {
         qb.where(filter);
         if (productSampleNameFilter) {
@@ -81,11 +107,10 @@ export class ProductUnitsService {
 
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    // Fetch results with pagination and sorting
     const results = await this.productUnitRepository
       .createQueryBuilder('productUnit')
       .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productUnit.unit', 'unit') // Include the unit relation
+      .leftJoinAndSelect('productUnit.unit', 'unit')
       .where((qb) => {
         qb.where(filter);
         if (productSampleNameFilter) {
@@ -110,11 +135,9 @@ export class ProductUnitsService {
   }
 
   async findByIds(ids: number[], current: number, pageSize: number) {
-    // Set default values if not provided
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
 
-    // Handle the case when no IDs are provided
     if (!ids || ids.length === 0) {
       return {
         meta: {
@@ -127,7 +150,6 @@ export class ProductUnitsService {
       };
     }
 
-    // Calculate total items and pages based on the provided IDs
     const totalItems = await this.productUnitRepository
       .createQueryBuilder('productUnit')
       .leftJoinAndSelect('productUnit.productSample', 'productSample')
@@ -137,10 +159,8 @@ export class ProductUnitsService {
 
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    // Calculate the starting point for pagination
     const skip = (current - 1) * pageSize;
 
-    // Fetch the product units based on the paginated ids
     const results = await this.productUnitRepository
       .createQueryBuilder('productUnit')
       .leftJoinAndSelect('productUnit.productSample', 'productSample')
@@ -161,9 +181,18 @@ export class ProductUnitsService {
     };
   }
 
+  async findAllByIds(unitIds: number[]) {
+    const roles = await this.productUnitRepository.findBy({
+      id: In(unitIds),
+    });
+
+    return roles;
+  }
+
   async findOne(id: number) {
     const productSample = await this.productUnitRepository.findOne({
       where: { id },
+      relations: ['productUnits'],
     });
 
     if (!productSample) {
@@ -189,7 +218,7 @@ export class ProductUnitsService {
     if (!productUnit) {
       throw new NotFoundException('Không tìm thấy mẫu sản phẩm');
     }
-    await this.productUnitRepository.softDelete(id);
+    await this.productUnitRepository.delete(id);
     return productUnit;
   }
 }

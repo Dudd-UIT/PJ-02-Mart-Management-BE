@@ -35,6 +35,9 @@ export class ProductSample {
   @DeleteDateColumn()
   deletedAt: Date;
 
+  @Column()
+  productLineId: number;
+
   @OneToMany(() => ProductUnit, (productUnit) => productUnit.productSample, {
     createForeignKeyConstraints: false,
     cascade: true,

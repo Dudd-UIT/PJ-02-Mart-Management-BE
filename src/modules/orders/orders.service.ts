@@ -81,7 +81,9 @@ export class OrdersService {
     delete filter.current;
     delete filter.pageSize;
 
-    const totalItems = await this.orderRepository.count(filter);
+    const totalItems = await this.orderRepository.count({
+      where: filter,
+    });
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
@@ -154,7 +156,6 @@ export class OrdersService {
   }
 
   async remove(id: number) {
-    console.log(id);
     const order = await this.findOne(id);
     if (!order) {
       throw new NotFoundException('Không tìm thấy đơn hàng');

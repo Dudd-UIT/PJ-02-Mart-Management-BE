@@ -20,7 +20,9 @@ export class RolesService {
       delete filter.current;
       delete filter.pageSize;
 
-      const totalItems = await this.roleRepository.count(filter);
+      const totalItems = await this.roleRepository.count({
+        where: filter,
+      });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
