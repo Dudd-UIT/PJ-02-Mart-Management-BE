@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
@@ -43,6 +44,13 @@ export class OrdersService {
 
       return await this.orderRepository.save(order);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo đơn hàng:', error.message);
       throw new InternalServerErrorException(
         'Có lỗi xảy ra trong quá trình tạo đơn hàng.',
@@ -73,7 +81,7 @@ export class OrdersService {
     return savedOrder;
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(query: any, current: number, pageSize: number) {
     const { filter, sort } = aqp(query);
 
     if (!current) current = 1;

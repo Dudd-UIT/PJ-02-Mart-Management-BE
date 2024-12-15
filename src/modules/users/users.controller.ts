@@ -40,7 +40,7 @@ export class UsersController {
   @ResponseMessage('Trả về danh sách các khách hàng thành công')
   @Get()
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
     @Query('groupId') groupId: string,

@@ -31,7 +31,7 @@ export class ProductUnitsController {
     'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
   )
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
     @Query('productLineId') productLineId: string,

@@ -44,8 +44,4 @@ export class AppService implements OnModuleInit {
       await queryRunner.release();
     }
   }
-
-  getHello(): string {
-    return 'Hello World!';
-  }
 }

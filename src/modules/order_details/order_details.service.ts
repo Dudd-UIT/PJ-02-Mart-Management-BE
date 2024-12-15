@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
@@ -48,6 +50,13 @@ export class OrderDetailsService {
         await this.orderDetailRepository.save(orderDetail);
       return savedOrderDetail;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo chi tiết đơn hàng:', error.message);
       throw new InternalServerErrorException(
         'Không thể tạo chi tiết đơn hàng, vui lòng thử lại sau.',

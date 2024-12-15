@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateProductLineDto } from './dto/create-product_line.dto';
 import { UpdateProductLineDto } from './dto/update-product_line.dto';
@@ -43,13 +44,20 @@ export class ProductLinesService {
       productLine.productType = productType;
       return await this.productLineRepository.save(productLine);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo dòng sản phẩm:', error.message);
       throw new InternalServerErrorException('Không thể tạo dòng sản phẩm');
     }
   }
 
   async findAll(
-    query: string,
+    query: any,
     current: number,
     pageSize: number,
     productTypeId: number,
@@ -98,6 +106,13 @@ export class ProductLinesService {
         results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tìm kiếm các dòng sản phẩm:', error.message);
       throw new InternalServerErrorException(
         'Không thể tìm kiếm các dòng sản phẩm',
@@ -117,6 +132,13 @@ export class ProductLinesService {
 
       return productLine;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi tìm dòng sản phẩm với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể tìm dòng sản phẩm');
     }
@@ -160,6 +182,13 @@ export class ProductLinesService {
       Object.assign(productLine, updateProductLineDto);
       return await this.productLineRepository.save(productLine);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi cập nhật dòng sản phẩm:', error.message);
       throw new InternalServerErrorException(
         'Không thể cập nhật dòng sản phẩm',
@@ -176,6 +205,13 @@ export class ProductLinesService {
       await this.productLineRepository.softDelete(id);
       return productLine;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi xóa dòng sản phẩm với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể xóa dòng sản phẩm');
     }

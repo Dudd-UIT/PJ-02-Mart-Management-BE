@@ -25,8 +25,6 @@ export class InboundReceiptService {
   constructor(
     @InjectRepository(InboundReceipt)
     private inboundReceiptRepository: Repository<InboundReceipt>,
-    @InjectRepository(Batch)
-    private batchRepository: Repository<Batch>,
     private usersService: UsersService,
     private suppliersService: SuppliersService,
     @Inject(forwardRef(() => BatchsService))
@@ -51,6 +49,13 @@ export class InboundReceiptService {
 
       return await this.inboundReceiptRepository.save(inboundReceipt);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo đơn nhập hàng và lô hàng:', error.message);
       throw new InternalServerErrorException(
         'Có lỗi xảy ra trong quá trình tạo đơn nhập hàng và lô hàng.',
@@ -81,6 +86,13 @@ export class InboundReceiptService {
 
       return await this.inboundReceiptRepository.save(inboundReceipt);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo đơn nhập hàng:', error.message);
       throw new InternalServerErrorException(
         'Không thể tạo đơn nhập hàng, vui lòng thử lại sau.',
@@ -88,7 +100,7 @@ export class InboundReceiptService {
     }
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(query: any, current: number, pageSize: number) {
     try {
       const { filter } = aqp(query);
       const { staffName, supplierName, startDate, endDate } = filter;
@@ -150,6 +162,13 @@ export class InboundReceiptService {
         results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi truy vấn đơn nhập hàng:', error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu đơn nhập hàng, vui lòng thử lại sau.',
@@ -169,6 +188,13 @@ export class InboundReceiptService {
 
       return inboundReceipt;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi tìm đơn nhập hàng với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu đơn nhập hàng, vui lòng thử lại sau.',
@@ -198,6 +224,13 @@ export class InboundReceiptService {
 
       return await this.inboundReceiptRepository.findOne({ where: { id } });
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(
         'Lỗi khi cập nhật đơn nhập hàng và lô hàng:',
         error.message,
@@ -232,6 +265,13 @@ export class InboundReceiptService {
       Object.assign(inboundReceipt, updateInboundReceiptDto);
       return await this.inboundReceiptRepository.save(inboundReceipt);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi cập nhật đơn nhập hàng:', error.message);
       throw new InternalServerErrorException(
         'Không thể cập nhật đơn nhập hàng, vui lòng thử lại sau.',
@@ -248,6 +288,13 @@ export class InboundReceiptService {
       await this.inboundReceiptRepository.softDelete(id);
       return inboundReceipt;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi xóa đơn nhập hàng với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể xóa đơn nhập hàng, vui lòng thử lại sau.',

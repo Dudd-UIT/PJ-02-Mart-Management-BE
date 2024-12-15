@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
@@ -35,9 +37,7 @@ export class ProductUnitsService {
         const productSample =
           await this.productSamplesService.findOne(productSampleId);
         if (!productSample) {
-          throw new NotFoundException(
-            `Không tìm thấy mẫu sản phẩm với id ${productSampleId}`,
-          );
+          throw new NotFoundException(`Không tìm thấy mẫu sản phẩm`);
         }
         productUnit.productSample = productSample;
       }
@@ -45,7 +45,7 @@ export class ProductUnitsService {
       if (unitId) {
         const unit = await this.unitsService.findOne(unitId);
         if (!unit) {
-          throw new NotFoundException(`Không tìm thấy đơn vị với id ${unitId}`);
+          throw new NotFoundException(`Không tìm thấy đơn vị tính`);
         }
         productUnit.unit = unit;
       }
@@ -53,7 +53,7 @@ export class ProductUnitsService {
       if (compareUnitId) {
         const compareUnit = await this.unitsService.findOne(compareUnitId);
         if (!compareUnit) {
-          throw new NotFoundException(`Không tìm thấy đơn vị với id ${unitId}`);
+          throw new NotFoundException(`Không tìm thấy đơn vị tính`);
         }
         productUnit.compareUnit = compareUnit;
       }
@@ -63,13 +63,20 @@ export class ProductUnitsService {
         await this.productUnitRepository.save(productUnit);
       return savedProductUnit;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo productUnit', error);
       throw new Error('Có lỗi xảy ra khi tạo productUnit');
     }
   }
 
   async findAll(
-    query: string,
+    query: any,
     current: number,
     pageSize: number,
     productLineId: number,
@@ -181,13 +188,13 @@ export class ProductUnitsService {
     };
   }
 
-  async findAllByIds(unitIds: number[]) {
-    const roles = await this.productUnitRepository.findBy({
-      id: In(unitIds),
-    });
+  // async findAllByIds(unitIds: number[]) {
+  //   const roles = await this.productUnitRepository.findBy({
+  //     id: In(unitIds),
+  //   });
 
-    return roles;
-  }
+  //   return roles;
+  // }
 
   async findOne(id: number) {
     const productSample = await this.productUnitRepository.findOne({

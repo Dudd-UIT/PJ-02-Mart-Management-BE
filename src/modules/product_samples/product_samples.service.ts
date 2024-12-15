@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
@@ -50,6 +51,13 @@ export class ProductSamplesService {
 
       return savedProductUnit;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo mẫu sản phẩm:', error.message);
       throw new InternalServerErrorException(
         'Có lỗi xảy ra trong quá trình tạo mẫu sản phẩm.',
@@ -84,7 +92,7 @@ export class ProductSamplesService {
     return savedProductSample;
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(query: any, current: number, pageSize: number) {
     const { filter, sort } = aqp(query);
 
     if (!current) current = 1;
@@ -161,6 +169,13 @@ export class ProductSamplesService {
         results: results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Error in findByProductType:', error);
       throw error;
     }
@@ -273,6 +288,13 @@ export class ProductSamplesService {
         results: transformedResults,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Error in findAllUnits:', error);
       throw error;
     }
@@ -323,6 +345,13 @@ export class ProductSamplesService {
       Object.assign(productSample, updateProductSampleDto);
       return await this.productSampleRepository.save(productSample);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(
         `Lỗi khi cập nhật mẫu sản phẩm với id: ${id}`,
         error.message,
@@ -377,6 +406,13 @@ export class ProductSamplesService {
 
       return savedProductSample;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi cập nhật mẫu sản phẩm:', error.message);
 
       // Rollback transaction nếu có lỗi

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateProductTypeDto } from './dto/create-product_type.dto';
 import { UpdateProductTypeDto } from './dto/update-product_type.dto';
@@ -32,12 +33,19 @@ export class ProductTypesService {
         this.productTypeRepository.create(createProductTypeDto);
       return await this.productTypeRepository.save(productType);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo loại sản phẩm:', error.message);
       throw new InternalServerErrorException('Không thể tạo loại sản phẩm');
     }
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(query: any, current: number, pageSize: number) {
     try {
       const { filter, sort } = aqp(query);
 
@@ -76,6 +84,13 @@ export class ProductTypesService {
         results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tìm kiếm các loại sản phẩm:', error.message);
       throw new InternalServerErrorException(
         'Không thể tìm kiếm các loại sản phẩm',
@@ -95,6 +110,13 @@ export class ProductTypesService {
 
       return productType;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi tìm loại sản phẩm với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể tìm loại sản phẩm');
     }
@@ -123,6 +145,13 @@ export class ProductTypesService {
       Object.assign(productType, updateProductTypeDto);
       return await this.productTypeRepository.save(productType);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi cập nhật loại sản phẩm:', error.message);
       throw new InternalServerErrorException(
         'Không thể cập nhật loại sản phẩm',
@@ -140,6 +169,13 @@ export class ProductTypesService {
       await this.productTypeRepository.softDelete(id);
       return productType;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi xóa loại sản phẩm với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể xóa loại sản phẩm');
     }
