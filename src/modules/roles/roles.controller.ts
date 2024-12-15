@@ -21,7 +21,7 @@ export class RolesController {
   @ResponseMessage('Trả về danh sách các vai trò thành công')
   @Get()
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {

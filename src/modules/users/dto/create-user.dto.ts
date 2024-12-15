@@ -14,7 +14,7 @@ export class CreateUserDto {
   password: string;
 
   @IsOptional()
-  score: number;
+  score?: number;
 
   @IsNotEmpty()
   @IsString()

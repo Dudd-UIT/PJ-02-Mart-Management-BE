@@ -38,7 +38,7 @@ export class ProductSamplesController {
   @Get()
   @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {

@@ -43,7 +43,7 @@ export class OrdersController {
   @Public()
   @Get()
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {

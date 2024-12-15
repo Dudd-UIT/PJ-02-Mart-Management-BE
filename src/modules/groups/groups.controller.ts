@@ -29,7 +29,7 @@ export class GroupsController {
   @ResponseMessage('Trả về danh sách các nhóm người dùng thành công')
   @Get()
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {

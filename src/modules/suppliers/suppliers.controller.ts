@@ -28,7 +28,7 @@ export class SuppliersController {
   @ResponseMessage('Trả về danh sách các nhà cung cấp thành công')
   @Get()
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {

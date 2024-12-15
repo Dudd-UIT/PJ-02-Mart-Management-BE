@@ -43,7 +43,7 @@ export class InboundReceiptController {
   @ResponseMessage('Trả về danh sách các đơn nhập hàng thành công')
   @Get()
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {

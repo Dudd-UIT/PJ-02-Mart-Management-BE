@@ -11,7 +11,7 @@ import { Batch } from '../batchs/entities/batch.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([InboundReceipt, Batch]),
+    TypeOrmModule.forFeature([InboundReceipt]),
     UsersModule,
     SuppliersModule,
     forwardRef(() => BatchsModule), // Use forwardRef here
