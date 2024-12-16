@@ -150,10 +150,12 @@ export class ProductLinesService {
         where: { id },
         relations: ['productType'],
       });
+
       if (!productLine) {
         throw new NotFoundException('Không tìm thấy dòng sản phẩm');
       }
 
+      // Kiểm tra tên có bị trùng không
       if (
         updateProductLineDto.name &&
         updateProductLineDto.name !== productLine.name
@@ -167,9 +169,10 @@ export class ProductLinesService {
         }
       }
 
-      if (productLine.productType.id !== updateProductLineDto.productTypeId) {
+      // Cập nhật productType nếu productTypeId được truyền vào
+      if (updateProductLineDto.productTypeId) {
         const newProductType = await this.productTypesService.findOne(
-          +updateProductLineDto.productTypeId,
+          updateProductLineDto.productTypeId,
         );
 
         if (!newProductType) {
@@ -179,7 +182,10 @@ export class ProductLinesService {
         productLine.productType = newProductType;
       }
 
-      Object.assign(productLine, updateProductLineDto);
+      // Chỉ cập nhật các trường hợp lệ từ DTO (loại bỏ productTypeId)
+      const { productTypeId, ...validFields } = updateProductLineDto;
+      Object.assign(productLine, validFields);
+
       return await this.productLineRepository.save(productLine);
     } catch (error) {
       if (

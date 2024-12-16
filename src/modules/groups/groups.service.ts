@@ -43,9 +43,7 @@ export class GroupsService {
         throw error;
       }
       console.error('Lỗi khi tạo nhóm người dùng:', error.message);
-      throw new InternalServerErrorException(
-        'Không thể tạo nhóm người dùng, vui lòng thử lại sau.',
-      );
+      throw new InternalServerErrorException('Không thể tạo nhóm người dùng');
     }
   }
 
@@ -92,7 +90,7 @@ export class GroupsService {
       }
       console.error('Lỗi khi truy vấn nhóm người dùng:', error.message);
       throw new InternalServerErrorException(
-        'Không thể truy xuất dữ liệu nhóm người dùng, vui lòng thử lại sau.',
+        'Không thể truy xuất dữ liệu nhóm người dùng',
       );
     }
   }
@@ -168,6 +166,13 @@ export class GroupsService {
       await this.groupRepository.softDelete(id);
       return group;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi xóa nhóm người dùng với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể xóa nhóm người dùng, vui lòng thử lại sau.',

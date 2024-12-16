@@ -30,8 +30,8 @@ describe('RolesService', () => {
     repository = module.get<Repository<Role>>(getRepositoryToken(Role));
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('findAll', () => {
@@ -53,6 +53,28 @@ describe('RolesService', () => {
       expect(mockRepository.count).toHaveBeenCalled();
     });
 
+    it('should apply default pagination when current and pageSize are undefined', async () => {
+      const result = [{ id: 1, url: '/role-1', description: 'Role 1' }];
+      mockRepository.find.mockResolvedValue(result);
+      mockRepository.count.mockResolvedValue(1);
+
+      const response = await service.findAll({}, undefined, undefined);
+
+      expect(response.meta).toEqual({
+        current: 1,
+        pageSize: 10,
+        pages: 1,
+        total: 1,
+      });
+      expect(response.results).toEqual(result);
+      expect(mockRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: 10,
+          skip: 0,
+        }),
+      );
+    });
+
     it('should return an empty list if no roles are found', async () => {
       mockRepository.find.mockResolvedValue([]);
       mockRepository.count.mockResolvedValue(0);
@@ -63,6 +85,26 @@ describe('RolesService', () => {
         meta: { current: 1, pageSize: 10, pages: 0, total: 0 },
         results: [],
       });
+    });
+
+    it('should filter roles by name in query', async () => {
+      const query = { name: 'Role A' };
+      const result = [
+        { id: 1, url: '/role-a', description: 'Role A description' },
+      ];
+
+      mockRepository.find.mockResolvedValue(result);
+      mockRepository.count.mockResolvedValue(1);
+
+      const response = await service.findAll(query, 1, 10);
+
+      expect(response.meta.total).toBe(1);
+      expect(response.results).toEqual(result);
+      expect(mockRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { name: 'Role A' },
+        }),
+      );
     });
 
     it('should throw InternalServerErrorException on database error', async () => {
@@ -97,6 +139,16 @@ describe('RolesService', () => {
       expect(mockRepository.findBy).toHaveBeenCalledWith({
         id: In([999, 1000]),
       });
+    });
+
+    it('should throw InternalServerErrorException if repository fails', async () => {
+      mockRepository.findBy.mockRejectedValue(
+        new InternalServerErrorException('Database error'),
+      );
+
+      await expect(service.findByIds([1, 2])).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 });

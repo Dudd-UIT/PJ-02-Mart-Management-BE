@@ -179,7 +179,7 @@ export class BatchsService {
         throw error;
       }
       console.error('Lỗi khi cập nhật lô hàng:', error.message);
-      throw new BadRequestException(
+      throw new InternalServerErrorException(
         'Dữ liệu không hợp lệ, không thể cập nhật lô hàng.',
       );
     }

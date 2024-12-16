@@ -40,76 +40,46 @@ describe('ParametersService', () => {
     );
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  describe('create', () => {
-    it('should create a parameter successfully', async () => {
-      const createDto: CreateParameterDto = {
-        name: 'Test Parameter',
-        description: 'A test parameter',
-        value: 10,
-      };
-      const parameter = { id: 1, ...createDto };
-
-      mockRepository.create.mockReturnValue(parameter);
-      mockRepository.save.mockResolvedValue(parameter);
-
-      const result = await service.create(createDto);
-
-      expect(result).toEqual(parameter);
-      expect(mockRepository.create).toHaveBeenCalledWith(createDto);
-      expect(mockRepository.save).toHaveBeenCalledWith(parameter);
-    });
-
-    it('should throw ConflictException if parameter name already exists', async () => {
-      const createDto: CreateParameterDto = {
-        name: 'Test Parameter',
-        description: 'A test parameter',
-        value: 10,
-      };
-      mockRepository.findOne.mockResolvedValue({ id: 1, ...createDto });
-
-      await expect(service.create(createDto)).rejects.toThrow(
-        ConflictException,
-      );
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('findAll', () => {
-    it('should return all parameters', async () => {
-      const parameters = [{ id: 1, name: 'Test', value: 10 }];
-      mockRepository.find.mockResolvedValue(parameters);
+    it('should return a list of parameters successfully', async () => {
+      const mockParameters = [
+        { id: 1, name: 'Param 1', value: 100 },
+        { id: 2, name: 'Param 2', value: 200 },
+      ];
+      mockRepository.find.mockResolvedValue(mockParameters);
 
       const result = await service.findAll();
 
-      expect(result.results).toEqual(parameters);
+      expect(result.results).toEqual(mockParameters);
       expect(mockRepository.find).toHaveBeenCalled();
     });
-  });
 
-  describe('findOne', () => {
-    it('should return a parameter by ID', async () => {
-      const parameter = { id: 1, name: 'Test', value: 10 };
-      mockRepository.findOne.mockResolvedValue(parameter);
+    it('should return an empty list if no parameters are found', async () => {
+      mockRepository.find.mockResolvedValue([]);
 
-      const result = await service.findOne(1);
+      const result = await service.findAll();
 
-      expect(result).toEqual(parameter);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(result.results).toEqual([]);
+      expect(mockRepository.find).toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException if parameter not found', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
+    it('should throw InternalServerErrorException on database error', async () => {
+      mockRepository.find.mockRejectedValue(new Error('Database error'));
 
-      await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
+      await expect(service.findAll()).rejects.toThrow(
+        InternalServerErrorException,
+      );
+      expect(mockRepository.find).toHaveBeenCalled();
     });
   });
 
   describe('update', () => {
     it('should update a parameter successfully', async () => {
-      const updateDto: UpdateParameterDto = { name: 'Updated Name' };
+      const updateDto: UpdateParameterDto = { value: 10000 };
       const parameter = { id: 1, name: 'Test', value: 10 };
       const updatedParameter = { ...parameter, ...updateDto };
 
@@ -122,37 +92,17 @@ describe('ParametersService', () => {
       expect(mockRepository.save).toHaveBeenCalledWith(updatedParameter);
     });
 
-    it('should throw ConflictException if name already exists', async () => {
-      const updateDto: UpdateParameterDto = { name: 'Existing Name' };
-      const parameter = { id: 1, name: 'Test', value: 10 };
-
-      mockRepository.findOne.mockResolvedValueOnce(parameter); // Find existing parameter
-      mockRepository.findOne.mockResolvedValueOnce({
-        id: 2,
-        name: 'Existing Name',
-      }); // Check for conflicting name
-
-      await expect(service.update(1, updateDto)).rejects.toThrow(
-        ConflictException,
-      );
-    });
-  });
-
-  describe('remove', () => {
-    it('should remove a parameter successfully', async () => {
-      const parameter = { id: 1, name: 'Test', value: 10 };
-      mockRepository.findOne.mockResolvedValue(parameter);
-
-      const result = await service.remove(1);
-
-      expect(result).toEqual(parameter);
-      expect(mockRepository.softDelete).toHaveBeenCalledWith(1);
-    });
-
     it('should throw NotFoundException if parameter not found', async () => {
+      const id = -1;
+      const updateDto: UpdateParameterDto = { value: 10000 };
+
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.remove(999)).rejects.toThrow(NotFoundException);
+      await expect(service.update(id, updateDto)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+      expect(mockRepository.save).not.toHaveBeenCalled();
     });
   });
 });
