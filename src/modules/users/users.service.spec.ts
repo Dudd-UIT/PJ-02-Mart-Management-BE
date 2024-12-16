@@ -228,7 +228,7 @@ describe('UsersService', () => {
     });
 
     it('should throw InternalServerErrorException if database query fails', async () => {
-      const phone = 'errorphone';
+      const phone = '0987654321';
 
       mockRepository.findOne.mockImplementation(() => {
         throw new Error('Database Error');

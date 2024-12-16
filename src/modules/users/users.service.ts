@@ -27,9 +27,7 @@ export class UsersService {
       return !!user;
     } catch (error) {
       console.error('Lỗi khi kiểm tra email tồn tại:', error.message);
-      throw new InternalServerErrorException(
-        'Không thể kiểm tra email, vui lòng thử lại sau.',
-      );
+      throw new InternalServerErrorException('Không thể kiểm tra email');
     }
   }
 
@@ -39,9 +37,7 @@ export class UsersService {
       return !!user;
     } catch (error) {
       console.error('Lỗi khi kiểm tra phone tồn tại:', error.message);
-      throw new InternalServerErrorException(
-        'Không thể kiểm tra phone, vui lòng thử lại sau.',
-      );
+      throw new InternalServerErrorException('Không thể kiểm tra phone');
     }
   }
 
