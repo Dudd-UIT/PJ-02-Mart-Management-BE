@@ -93,57 +93,56 @@ export class ProductSamplesService {
   }
 
   async findAll(query: any, current: number, pageSize: number) {
-    const { filter, sort } = aqp(query);
-
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-    delete filter.current;
-    delete filter.pageSize;
-
-    const productSampleNameFilter = filter.name ? filter.name : null;
-
-    const totalItems = await this.productSampleRepository.count({
-      where: filter,
-    });
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const skip = (current - 1) * pageSize;
-
-    // const options = {
-    //   where: filter,
-    //   relations: ['productUnits', 'productLine'],
-    //   take: pageSize,
-    //   skip: skip,
-    // };
-
-    const results = await this.productSampleRepository
-      .createQueryBuilder('productSample')
-      .leftJoinAndSelect('productSample.productUnits', 'productUnits')
-      .leftJoinAndSelect('productUnits.unit', 'unit')
-      .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
-      .leftJoinAndSelect('productSample.productLine', 'productLine')
-      .leftJoinAndSelect('productLine.productType', 'productType')
-      .where((qb) => {
-        qb.where(filter);
-        if (productSampleNameFilter) {
-          qb.andWhere('productSample.name LIKE :name', {
-            name: `%${productSampleNameFilter}%`,
-          });
-        }
-      })
-      .take(pageSize)
-      .skip(skip)
-      .getMany();
-
-    return {
-      meta: {
-        current,
-        pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      results,
-    };
+    try {
+      const { filter, sort } = aqp(query);
+  
+      if (!current) current = 1;
+      if (!pageSize) pageSize = 10;
+      delete filter.current;
+      delete filter.pageSize;
+  
+      const productSampleNameFilter = filter.name ? filter.name : null;
+  
+      const totalItems = await this.productSampleRepository.count({
+        where: filter,
+      });
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const skip = (current - 1) * pageSize;
+  
+      const results = await this.productSampleRepository
+        .createQueryBuilder('productSample')
+        .leftJoinAndSelect('productSample.productUnits', 'productUnits')
+        .leftJoinAndSelect('productUnits.unit', 'unit')
+        .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
+        .leftJoinAndSelect('productSample.productLine', 'productLine')
+        .leftJoinAndSelect('productLine.productType', 'productType')
+        .where((qb) => {
+          qb.where(filter);
+          if (productSampleNameFilter) {
+            qb.andWhere('productSample.name LIKE :name', {
+              name: `%${productSampleNameFilter}%`,
+            });
+          }
+        })
+        .take(pageSize)
+        .skip(skip)
+        .getMany();
+  
+      return {
+        meta: {
+          current,
+          pageSize,
+          pages: totalPages,
+          total: totalItems,
+        },
+        results,
+      };
+    } catch (error) {
+      console.error('Lỗi khi tìm kiếm các mẫu sản phẩm:', error.message);
+      throw new InternalServerErrorException('Không thể tìm kiếm các mẫu sản phẩm');
+    }
   }
+  
 
   async findByProductType(
     productTypeId: number,
@@ -563,12 +562,24 @@ export class ProductSamplesService {
 
   async remove(id: number) {
     console.log('id', id);
-    const productSample = await this.findOne(id);
-    if (!productSample) {
-      throw new NotFoundException('Không tìm thấy mẫu sản phẩm');
+    try {
+      const productSample = await this.findOne(id);
+  
+      if (!productSample) {
+        throw new NotFoundException('Không tìm thấy mẫu sản phẩm');
+      }
+  
+      await this.productSampleRepository.softDelete(id); // Soft delete product sample
+  
+      return productSample;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Lỗi khi xóa mẫu sản phẩm:', error.message);
+      throw new InternalServerErrorException('Có lỗi xảy ra trong quá trình xóa mẫu sản phẩm.');
     }
-    await this.productSampleRepository.softDelete(id); // Soft delete product sample
-
-    return productSample;
   }
+  
+  
 }
