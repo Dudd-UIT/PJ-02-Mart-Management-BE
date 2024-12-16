@@ -653,126 +653,91 @@ describe('ProductSamplesService', () => {
   
 
 
+
 describe('updateProductSampleAndProductUnits', () => {
   const id = 1;
   const updateDto = {
-    productSampleDto: {
-      name: 'Sample updated',
-      description: 'desc updated',
-      productLineId: 2,
-    },
+    productSampleDto: { name: 'Sample updated', description: 'desc updated', productLineId: 2 },
     productUnitsDto: [
-      {
-        sellPrice: 200,
-        conversionRate: 2,
-        unitId: 2,
-        compareUnitId: 3,
-        volumne: '500ml',
-        image: 'sample-image.png',
-      },
+      { sellPrice: 200, conversionRate: 2, unitId: 2, compareUnitId: 3, volumne: '50ml', image: 'image.png' },
     ],
   };
 
-  const mockProductSample = {
+  const existingProductSample = {
     id: 1,
     name: 'Sample 1',
-    productUnits: [
-      { id: 1, sellPrice: 100, conversionRate: 1, unitId: 1, compareUnitId: 2 },
-    ],
+    productUnits: [{ id: 1 }, { id: 2 }],
   };
 
   beforeEach(() => {
-    mockProductSampleRepository.manager.connection.createQueryRunner = jest
-      .fn()
-      .mockReturnValue(mockQueryRunner);
-  
-    mockQueryRunner.connect.mockClear();
+    jest.clearAllMocks();
     mockQueryRunner.startTransaction.mockClear();
     mockQueryRunner.commitTransaction.mockClear();
     mockQueryRunner.rollbackTransaction.mockClear();
-    mockQueryRunner.release.mockClear();
-  });
-  
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
-  it('UTCID01 - should update productSample and productUnits successfully', async () => {
-    mockProductSampleRepository.findOne.mockResolvedValueOnce(mockProductSample);
+  it('UTCID01: should update productSample and productUnits successfully', async () => {
+    mockProductSampleRepository.findOne.mockResolvedValue(existingProductSample);
     mockProductLinesService.findOne.mockResolvedValue({ id: 2 });
-    mockProductUnitsService.remove.mockResolvedValue(undefined);
-    mockProductUnitsService.create.mockResolvedValue({ id: 1 });
-    mockQueryRunner.manager.save.mockResolvedValue({ id: 1, name: 'Sample updated' });
-  
+    mockProductUnitsService.remove.mockResolvedValue(true);
+    mockProductUnitsService.create.mockResolvedValue({ id: 3 });
+    mockQueryRunner.manager.save.mockResolvedValue({
+      ...existingProductSample,
+      productUnits: [{ id: 3 }],
+    });
+
     const result = await service.updateProductSampleAndProductUnits(id, updateDto);
-  
-    expect(result).toEqual({ id: 1, name: 'Sample updated' });
-    expect(mockQueryRunner.connect).toHaveBeenCalled();
+
+    expect(result).toEqual({
+      ...existingProductSample,
+      productUnits: [{ id: 3 }],
+    });
     expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
     expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
-    expect(mockQueryRunner.release).toHaveBeenCalled();
+    expect(mockQueryRunner.rollbackTransaction).not.toHaveBeenCalled();
   });
-  
 
-  it('UTCID02 - should throw ConflictException when productSample name already exists', async () => {
+  it('UTCID02: should throw ConflictException when productSample name already exists', async () => {
     mockProductSampleRepository.findOne
-      .mockResolvedValueOnce(mockProductSample)
-      .mockResolvedValueOnce({ id: 2, name: 'Sample updated' });
+      .mockResolvedValueOnce(existingProductSample) // findOne by ID
+      .mockResolvedValueOnce({ id: 2, name: 'Sample updated' }); // Duplicate name
 
-    await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(
-      ConflictException,
-    );
+    await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(ConflictException);
 
     expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
   });
 
-  it('UTCID03 - should throw NotFoundException when productLine does not exist', async () => {
+  it('UTCID03: should throw NotFoundException when productLine does not exist', async () => {
     mockProductLinesService.findOne.mockResolvedValue(null);
 
-    await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(NotFoundException);
 
     expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
   });
 
-  it('UTCID04 - should throw NotFoundException when productSample is not found', async () => {
+  it('UTCID04: should throw NotFoundException when productSample is not found', async () => {
     mockProductSampleRepository.findOne.mockResolvedValue(null);
 
-    await expect(service.updateProductSampleAndProductUnits(99, updateDto)).rejects.toThrow(
+    await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(
       NotFoundException,
     );
 
     expect(mockQueryRunner.rollbackTransaction).not.toHaveBeenCalled();
   });
 
-  it('UTCID05 - should throw NotFoundException when productUnitsDto contain invalid unitId', async () => {
-    mockProductUnitsService.create.mockRejectedValue(new NotFoundException());
-  
-    const invalidDto = {
-      ...updateDto,
-      productUnitsDto: [
-        {
-          sellPrice: 200,
-          conversionRate: 2,
-          unitId: null,
-          compareUnitId: 3,
-          volumne: '500ml',
-          image: 'sample-image.png',
-        },
-      ],
-    };
-  
-    await expect(service.updateProductSampleAndProductUnits(id, invalidDto)).rejects.toThrow(
+  it('UTCID05: should throw NotFoundException when productUnitsDto contain invalid unitId', async () => {
+    mockProductSampleRepository.findOne.mockResolvedValue(existingProductSample);
+    mockProductUnitsService.create.mockRejectedValue(new NotFoundException('Unit not found'));
+
+    await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(
       NotFoundException,
     );
-  
+
     expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
   });
-  
 
-  it('UTCID06 - should throw InternalServerErrorException when QueryRunner fails', async () => {
+  it('UTCID06: should throw InternalServerErrorException when QueryRunner fails', async () => {
+    mockProductSampleRepository.findOne.mockResolvedValue(existingProductSample);
     mockQueryRunner.startTransaction.mockRejectedValue(new Error('Transaction start failed'));
 
     await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(
@@ -782,8 +747,9 @@ describe('updateProductSampleAndProductUnits', () => {
     expect(mockQueryRunner.rollbackTransaction).not.toHaveBeenCalled();
   });
 
-  it('UTCID07 - should throw InternalServerErrorException on unexpected error during create', async () => {
-    mockProductUnitsService.create.mockRejectedValue(new Error('Create failed'));
+  it('UTCID07: should throw InternalServerErrorException on unexpected error during create', async () => {
+    mockProductSampleRepository.findOne.mockResolvedValue(existingProductSample);
+    mockProductUnitsService.create.mockRejectedValue(new Error('Unexpected create error'));
 
     await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(
       InternalServerErrorException,
@@ -792,8 +758,8 @@ describe('updateProductSampleAndProductUnits', () => {
     expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
   });
 
-  it('UTCID08 - should throw InternalServerErrorException when database connection fails', async () => {
-    mockProductSampleRepository.findOne.mockRejectedValue(new Error('Database connection failed'));
+  it('UTCID08: should throw InternalServerErrorException when database connection fails', async () => {
+    mockProductSampleRepository.findOne.mockRejectedValue(new Error('DB connection failed'));
 
     await expect(service.updateProductSampleAndProductUnits(id, updateDto)).rejects.toThrow(
       InternalServerErrorException,
@@ -802,6 +768,8 @@ describe('updateProductSampleAndProductUnits', () => {
     expect(mockQueryRunner.rollbackTransaction).not.toHaveBeenCalled();
   });
 });
+
+
 
 
 

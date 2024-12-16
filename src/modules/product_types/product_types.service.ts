@@ -105,7 +105,7 @@ export class ProductTypesService {
       });
 
       if (!productType) {
-        throw new NotFoundException('Không tìm thấy loại sản phẩm');
+        throw new BadRequestException('Không tìm thấy loại sản phẩm');
       }
 
       return productType;
@@ -118,7 +118,7 @@ export class ProductTypesService {
         throw error;
       }
       console.error(`Lỗi khi tìm loại sản phẩm với ID ${id}:`, error.message);
-      throw new InternalServerErrorException('Không thể tìm loại sản phẩm');
+      throw new ConflictException('Không thể tìm loại sản phẩm');
     }
   }
 

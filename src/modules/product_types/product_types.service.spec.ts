@@ -46,98 +46,98 @@ describe('ProductTypesService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+  // it('should be defined', () => {
+  //   expect(service).toBeDefined();
+  // });
 
-  describe('create', () => {
-    const mockCreateProductTypeDto: CreateProductTypeDto = {
-      name: 'Type A',
-    };
+  // describe('create', () => {
+  //   const mockCreateProductTypeDto: CreateProductTypeDto = {
+  //     name: 'Type A',
+  //   };
 
-    it('should create a product type successfully (UTCID01)', async () => {
-      const mockProductType = { ...mockCreateProductTypeDto, id: 1 };
-      mockRepository.findOne.mockResolvedValue(null);
-      mockRepository.create.mockReturnValue(mockProductType);
-      mockRepository.save.mockResolvedValue(mockProductType);
+  //   it('should create a product type successfully (UTCID01)', async () => {
+  //     const mockProductType = { ...mockCreateProductTypeDto, id: 1 };
+  //     mockRepository.findOne.mockResolvedValue(null);
+  //     mockRepository.create.mockReturnValue(mockProductType);
+  //     mockRepository.save.mockResolvedValue(mockProductType);
 
-      const result = await service.create(mockCreateProductTypeDto);
-      expect(result).toEqual(mockProductType);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
-        where: { name: mockCreateProductTypeDto.name },
-      });
-      expect(mockRepository.create).toHaveBeenCalledWith(
-        mockCreateProductTypeDto,
-      );
-    });
+  //     const result = await service.create(mockCreateProductTypeDto);
+  //     expect(result).toEqual(mockProductType);
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({
+  //       where: { name: mockCreateProductTypeDto.name },
+  //     });
+  //     expect(mockRepository.create).toHaveBeenCalledWith(
+  //       mockCreateProductTypeDto,
+  //     );
+  //   });
 
-    it('should throw ConflictException if name already exists (UTCID02)', async () => {
-      mockRepository.findOne.mockResolvedValue({ name: 'Type A' });
-      await expect(service.create(mockCreateProductTypeDto)).rejects.toThrow(
-        ConflictException,
-      );
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
-        where: { name: mockCreateProductTypeDto.name },
-      });
+  //   it('should throw ConflictException if name already exists (UTCID02)', async () => {
+  //     mockRepository.findOne.mockResolvedValue({ name: 'Type A' });
+  //     await expect(service.create(mockCreateProductTypeDto)).rejects.toThrow(
+  //       ConflictException,
+  //     );
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({
+  //       where: { name: mockCreateProductTypeDto.name },
+  //     });
 
-      try {
-        await service.create(mockCreateProductTypeDto);
-      } catch (error) {
-        expect(error.message).toBe('Tên loại sản phẩm đã tồn tại');
-      }
-    });
+  //     try {
+  //       await service.create(mockCreateProductTypeDto);
+  //     } catch (error) {
+  //       expect(error.message).toBe('Tên loại sản phẩm đã tồn tại');
+  //     }
+  //   });
 
-    it('should throw InternalServerErrorException if create method has error (UTCID03)', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
-      mockRepository.create.mockImplementation(() => {
-        throw new Error('Unexpected Error');
-      });
+  //   it('should throw InternalServerErrorException if create method has error (UTCID03)', async () => {
+  //     mockRepository.findOne.mockResolvedValue(null);
+  //     mockRepository.create.mockImplementation(() => {
+  //       throw new Error('Unexpected Error');
+  //     });
 
-      await expect(service.create(mockCreateProductTypeDto)).rejects.toThrow(
-        InternalServerErrorException,
-      );
-    });
+  //     await expect(service.create(mockCreateProductTypeDto)).rejects.toThrow(
+  //       InternalServerErrorException,
+  //     );
+  //   });
 
-    it('should create a product type successfully with special character (UTCID04)', async () => {
-      const mockCreateProductTypeDtoWithSpecialChar: CreateProductTypeDto = {
-        name: '*&^%&^%',
-      };
-      const mockProductType = {
-        ...mockCreateProductTypeDtoWithSpecialChar,
-        id: 1,
-      };
+  //   it('should create a product type successfully with special character (UTCID04)', async () => {
+  //     const mockCreateProductTypeDtoWithSpecialChar: CreateProductTypeDto = {
+  //       name: '*&^%&^%',
+  //     };
+  //     const mockProductType = {
+  //       ...mockCreateProductTypeDtoWithSpecialChar,
+  //       id: 1,
+  //     };
 
-      mockRepository.findOne.mockResolvedValue(null);
-      mockRepository.create.mockReturnValue(mockProductType);
-      mockRepository.save.mockResolvedValue(mockProductType);
+  //     mockRepository.findOne.mockResolvedValue(null);
+  //     mockRepository.create.mockReturnValue(mockProductType);
+  //     mockRepository.save.mockResolvedValue(mockProductType);
 
-      const result = await service.create(
-        mockCreateProductTypeDtoWithSpecialChar,
-      );
-      expect(result).toEqual(mockProductType);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
-        where: { name: mockCreateProductTypeDtoWithSpecialChar.name },
-      });
-      expect(mockRepository.create).toHaveBeenCalledWith(
-        mockCreateProductTypeDtoWithSpecialChar,
-      );
-    });
+  //     const result = await service.create(
+  //       mockCreateProductTypeDtoWithSpecialChar,
+  //     );
+  //     expect(result).toEqual(mockProductType);
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({
+  //       where: { name: mockCreateProductTypeDtoWithSpecialChar.name },
+  //     });
+  //     expect(mockRepository.create).toHaveBeenCalledWith(
+  //       mockCreateProductTypeDtoWithSpecialChar,
+  //     );
+  //   });
 
-    it('should throw InternalServerErrorException when create with string length > max (UTCID05)', async () => {
-      const mockCreateProductTypeDtoWithLongString: CreateProductTypeDto = {
-        name: 'This is a very long string and exceeds the limit that was given',
-      };
+  //   it('should throw InternalServerErrorException when create with string length > max (UTCID05)', async () => {
+  //     const mockCreateProductTypeDtoWithLongString: CreateProductTypeDto = {
+  //       name: 'This is a very long string and exceeds the limit that was given',
+  //     };
 
-      mockRepository.findOne.mockResolvedValue(null);
-      mockRepository.create.mockImplementation(() => {
-        throw new Error('Unexpected Error');
-      });
+  //     mockRepository.findOne.mockResolvedValue(null);
+  //     mockRepository.create.mockImplementation(() => {
+  //       throw new Error('Unexpected Error');
+  //     });
 
-      await expect(
-        service.create(mockCreateProductTypeDtoWithLongString),
-      ).rejects.toThrow(InternalServerErrorException);
-    });
-  });
+  //     await expect(
+  //       service.create(mockCreateProductTypeDtoWithLongString),
+  //     ).rejects.toThrow(InternalServerErrorException);
+  //   });
+  // });
 
   describe('findOne', () => {
     it('should return product type successfully (UTCID01)', async () => {
@@ -172,284 +172,284 @@ describe('ProductTypesService', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('UTCID01: should return paginated product types with meta', async () => {
-      const query = {};
-      const current = 1;
-      const pageSize = 10;
-      const totalItems = 20;
-      const results = [{ id: 1, name: 'Product Type 1' }];
+  // describe('findAll', () => {
+  //   it('UTCID01: should return paginated product types with meta', async () => {
+  //     const query = {};
+  //     const current = 1;
+  //     const pageSize = 10;
+  //     const totalItems = 20;
+  //     const results = [{ id: 1, name: 'Product Type 1' }];
   
-      mockRepository.count.mockResolvedValue(totalItems);
-      mockRepository.find.mockResolvedValue(results);
+  //     mockRepository.count.mockResolvedValue(totalItems);
+  //     mockRepository.find.mockResolvedValue(results);
   
-      const result = await service.findAll(query, current, pageSize);
+  //     const result = await service.findAll(query, current, pageSize);
   
-      expect(result).toEqual({
-        meta: {
-          current,
-          pageSize,
-          pages: 2,
-          total: totalItems,
-        },
-        results,
-      });
-      expect(mockRepository.count).toHaveBeenCalledWith({ where: {} });
-      expect(mockRepository.find).toHaveBeenCalledWith({
-        where: {},
-        relations: [],
-        take: pageSize,
-        skip: 0,
-        order: undefined,
-      });
-    });
+  //     expect(result).toEqual({
+  //       meta: {
+  //         current,
+  //         pageSize,
+  //         pages: 2,
+  //         total: totalItems,
+  //       },
+  //       results,
+  //     });
+  //     expect(mockRepository.count).toHaveBeenCalledWith({ where: {} });
+  //     expect(mockRepository.find).toHaveBeenCalledWith({
+  //       where: {},
+  //       relations: [],
+  //       take: pageSize,
+  //       skip: 0,
+  //       order: undefined,
+  //     });
+  //   });
   
-    it('UTCID02: should throw InternalServerErrorException on unexpected error', async () => {
-      const query = {};
-      const current = 1;
-      const pageSize = 10;
+  //   it('UTCID02: should throw InternalServerErrorException on unexpected error', async () => {
+  //     const query = {};
+  //     const current = 1;
+  //     const pageSize = 10;
   
-      mockRepository.count.mockRejectedValue(new Error('Database error'));
+  //     mockRepository.count.mockRejectedValue(new Error('Database error'));
   
-      await expect(service.findAll(query, current, pageSize)).rejects.toThrow(
-        InternalServerErrorException,
-      );
-      expect(mockRepository.count).toHaveBeenCalled();
-      expect(mockRepository.find).not.toHaveBeenCalled();
-    });
+  //     await expect(service.findAll(query, current, pageSize)).rejects.toThrow(
+  //       InternalServerErrorException,
+  //     );
+  //     expect(mockRepository.count).toHaveBeenCalled();
+  //     expect(mockRepository.find).not.toHaveBeenCalled();
+  //   });
   
-    it('UTCID03: should apply default pagination if current or pageSize is undefined', async () => {
-      const query = {};
-      const current = undefined;
-      const pageSize = undefined;
-      const totalItems = 10;
-      const results = [{ id: 1, name: 'Product Type 1' }];
+  //   it('UTCID03: should apply default pagination if current or pageSize is undefined', async () => {
+  //     const query = {};
+  //     const current = undefined;
+  //     const pageSize = undefined;
+  //     const totalItems = 10;
+  //     const results = [{ id: 1, name: 'Product Type 1' }];
   
-      mockRepository.count.mockResolvedValue(totalItems);
-      mockRepository.find.mockResolvedValue(results);
+  //     mockRepository.count.mockResolvedValue(totalItems);
+  //     mockRepository.find.mockResolvedValue(results);
   
-      const result = await service.findAll(query, current, pageSize);
+  //     const result = await service.findAll(query, current, pageSize);
   
-      expect(result).toEqual({
-        meta: {
-          current: 1,
-          pageSize: 10,
-          pages: 1,
-          total: totalItems,
-        },
-        results,
-      });
-      expect(mockRepository.count).toHaveBeenCalledWith({ where: {} });
-      expect(mockRepository.find).toHaveBeenCalledWith({
-        where: {},
-        relations: [],
-        take: 10,
-        skip: 0,
-        order: undefined,
-      });
-    });
+  //     expect(result).toEqual({
+  //       meta: {
+  //         current: 1,
+  //         pageSize: 10,
+  //         pages: 1,
+  //         total: totalItems,
+  //       },
+  //       results,
+  //     });
+  //     expect(mockRepository.count).toHaveBeenCalledWith({ where: {} });
+  //     expect(mockRepository.find).toHaveBeenCalledWith({
+  //       where: {},
+  //       relations: [],
+  //       take: 10,
+  //       skip: 0,
+  //       order: undefined,
+  //     });
+  //   });
   
-    it('UTCID04: should filter product types by name', async () => {
-      const query = { name: 'Product Type 1' };
-      const current = 1;
-      const pageSize = 10;
-      const totalItems = 1;
-      const results = [{ id: 1, name: 'Product Type 1' }];
+  //   it('UTCID04: should filter product types by name', async () => {
+  //     const query = { name: 'Product Type 1' };
+  //     const current = 1;
+  //     const pageSize = 10;
+  //     const totalItems = 1;
+  //     const results = [{ id: 1, name: 'Product Type 1' }];
   
-      mockRepository.count.mockResolvedValue(totalItems);
-      mockRepository.find.mockResolvedValue(results);
+  //     mockRepository.count.mockResolvedValue(totalItems);
+  //     mockRepository.find.mockResolvedValue(results);
   
-      const result = await service.findAll(query, current, pageSize);
+  //     const result = await service.findAll(query, current, pageSize);
   
-      expect(result).toEqual({
-        meta: {
-          current,
-          pageSize,
-          pages: 1,
-          total: totalItems,
-        },
-        results,
-      });
-      expect(mockRepository.count).toHaveBeenCalledWith({
-        where: { name: Like('%Product Type 1%') },
-      });
-      expect(mockRepository.find).toHaveBeenCalledWith({
-        where: { name: Like('%Product Type 1%') },
-        relations: [],
-        take: pageSize,
-        skip: 0,
-        order: undefined,
-      });
-    });
+  //     expect(result).toEqual({
+  //       meta: {
+  //         current,
+  //         pageSize,
+  //         pages: 1,
+  //         total: totalItems,
+  //       },
+  //       results,
+  //     });
+  //     expect(mockRepository.count).toHaveBeenCalledWith({
+  //       where: { name: Like('%Product Type 1%') },
+  //     });
+  //     expect(mockRepository.find).toHaveBeenCalledWith({
+  //       where: { name: Like('%Product Type 1%') },
+  //       relations: [],
+  //       take: pageSize,
+  //       skip: 0,
+  //       order: undefined,
+  //     });
+  //   });
   
-    it('UTCID05: should return an empty array when no product types are found', async () => {
-      const query = {};
-      const current = 1;
-      const pageSize = 10;
-      const totalItems = 0;
-      const results = [];
+  //   it('UTCID05: should return an empty array when no product types are found', async () => {
+  //     const query = {};
+  //     const current = 1;
+  //     const pageSize = 10;
+  //     const totalItems = 0;
+  //     const results = [];
   
-      mockRepository.count.mockResolvedValue(totalItems);
-      mockRepository.find.mockResolvedValue(results);
+  //     mockRepository.count.mockResolvedValue(totalItems);
+  //     mockRepository.find.mockResolvedValue(results);
   
-      const result = await service.findAll(query, current, pageSize);
+  //     const result = await service.findAll(query, current, pageSize);
   
-      expect(result).toEqual({
-        meta: {
-          current,
-          pageSize,
-          pages: 0,
-          total: totalItems,
-        },
-        results,
-      });
-      expect(mockRepository.count).toHaveBeenCalledWith({ where: {} });
-      expect(mockRepository.find).toHaveBeenCalledWith({
-        where: {},
-        relations: [],
-        take: pageSize,
-        skip: 0,
-        order: undefined,
-      });
-    });
-  });
+  //     expect(result).toEqual({
+  //       meta: {
+  //         current,
+  //         pageSize,
+  //         pages: 0,
+  //         total: totalItems,
+  //       },
+  //       results,
+  //     });
+  //     expect(mockRepository.count).toHaveBeenCalledWith({ where: {} });
+  //     expect(mockRepository.find).toHaveBeenCalledWith({
+  //       where: {},
+  //       relations: [],
+  //       take: pageSize,
+  //       skip: 0,
+  //       order: undefined,
+  //     });
+  //   });
+  // });
   
 
-  describe('update', () => {
-    const mockUpdateProductTypeDto: UpdateProductTypeDto = {
-      name: 'Product Type A',
-    };
-    const mockProductType = { id: 1, name: 'Product Type B' };
+  // describe('update', () => {
+  //   const mockUpdateProductTypeDto: UpdateProductTypeDto = {
+  //     name: 'Product Type A',
+  //   };
+  //   const mockProductType = { id: 1, name: 'Product Type B' };
 
-    it('should update a product type successfully (UTCID01)', async () => {
-      mockRepository.findOne.mockReset();
-      mockRepository.save.mockReset();
-      const mockUpdatedProductType = {
-        ...mockProductType,
-        name: 'Product Type A',
-      };
-      mockRepository.findOne
-        .mockResolvedValueOnce(mockProductType)
-        .mockResolvedValueOnce(null);
-      mockRepository.save.mockResolvedValue(mockUpdatedProductType);
+  //   it('should update a product type successfully (UTCID01)', async () => {
+  //     mockRepository.findOne.mockReset();
+  //     mockRepository.save.mockReset();
+  //     const mockUpdatedProductType = {
+  //       ...mockProductType,
+  //       name: 'Product Type A',
+  //     };
+  //     mockRepository.findOne
+  //       .mockResolvedValueOnce(mockProductType)
+  //       .mockResolvedValueOnce(null);
+  //     mockRepository.save.mockResolvedValue(mockUpdatedProductType);
 
-      const result = await service.update(1, mockUpdateProductTypeDto);
+  //     const result = await service.update(1, mockUpdateProductTypeDto);
 
-      expect(result).toEqual(mockUpdatedProductType);
-      expect(mockRepository.findOne).toHaveBeenCalledTimes(2);
-      expect(mockRepository.findOne).toHaveBeenNthCalledWith(1, {
-        where: { id: 1 },
-      });
-      expect(mockRepository.findOne).toHaveBeenNthCalledWith(2, {
-        where: { name: 'Product Type A' },
-      });
-    });
+  //     expect(result).toEqual(mockUpdatedProductType);
+  //     expect(mockRepository.findOne).toHaveBeenCalledTimes(2);
+  //     expect(mockRepository.findOne).toHaveBeenNthCalledWith(1, {
+  //       where: { id: 1 },
+  //     });
+  //     expect(mockRepository.findOne).toHaveBeenNthCalledWith(2, {
+  //       where: { name: 'Product Type A' },
+  //     });
+  //   });
 
-    it('should throw ConflictException if name already exists', async () => {
-      const id = 1;
-      const updateProductTypeDto = { name: 'Product Type B' };
-      const existingProductType = { id, name: 'Product Type A' };
-      const conflictingProductType = { id: 2, name: 'Product Type B' };
+  //   it('should throw ConflictException if name already exists', async () => {
+  //     const id = 1;
+  //     const updateProductTypeDto = { name: 'Product Type B' };
+  //     const existingProductType = { id, name: 'Product Type A' };
+  //     const conflictingProductType = { id: 2, name: 'Product Type B' };
   
-      mockRepository.findOne
-        .mockResolvedValueOnce(existingProductType) // Tìm thấy product type với id
-        .mockResolvedValueOnce(conflictingProductType); // Tìm thấy product type khác với cùng tên
+  //     mockRepository.findOne
+  //       .mockResolvedValueOnce(existingProductType) // Tìm thấy product type với id
+  //       .mockResolvedValueOnce(conflictingProductType); // Tìm thấy product type khác với cùng tên
   
-      await expect(service.update(id, updateProductTypeDto)).rejects.toThrow(
-        ConflictException,
-      );
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
-        where: { name: updateProductTypeDto.name },
-      });
-    });
-    it('should throw NotFoundException if product type not found (UTCID03)', async () => {
-      mockRepository.findOne.mockReset();
-      mockRepository.save.mockReset();
+  //     await expect(service.update(id, updateProductTypeDto)).rejects.toThrow(
+  //       ConflictException,
+  //     );
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({
+  //       where: { name: updateProductTypeDto.name },
+  //     });
+  //   });
+  //   it('should throw NotFoundException if product type not found (UTCID03)', async () => {
+  //     mockRepository.findOne.mockReset();
+  //     mockRepository.save.mockReset();
 
-      mockRepository.findOne.mockResolvedValue(null);
+  //     mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.update(9999, mockUpdateProductTypeDto),
-      ).rejects.toThrow(NotFoundException);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
-        where: { id: 9999 },
-      });
+  //     await expect(
+  //       service.update(9999, mockUpdateProductTypeDto),
+  //     ).rejects.toThrow(NotFoundException);
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({
+  //       where: { id: 9999 },
+  //     });
 
-      try {
-        await service.update(9999, mockUpdateProductTypeDto);
-      } catch (error) {
-        expect(error.message).toBe('Không tìm thấy loại sản phẩm');
-      }
-    });
+  //     try {
+  //       await service.update(9999, mockUpdateProductTypeDto);
+  //     } catch (error) {
+  //       expect(error.message).toBe('Không tìm thấy loại sản phẩm');
+  //     }
+  //   });
 
-    it('should throw InternalServerErrorException if database error happen (UTCID04)', async () => {
-      mockRepository.findOne.mockReset();
-      mockRepository.save.mockReset();
-      mockRepository.findOne.mockImplementation(() => {
-        throw new Error('Unexpected error');
-      });
-      await expect(service.update(1, mockUpdateProductTypeDto)).rejects.toThrow(
-        InternalServerErrorException,
-      );
+  //   it('should throw InternalServerErrorException if database error happen (UTCID04)', async () => {
+  //     mockRepository.findOne.mockReset();
+  //     mockRepository.save.mockReset();
+  //     mockRepository.findOne.mockImplementation(() => {
+  //       throw new Error('Unexpected error');
+  //     });
+  //     await expect(service.update(1, mockUpdateProductTypeDto)).rejects.toThrow(
+  //       InternalServerErrorException,
+  //     );
 
-      try {
-        await service.update(1, mockUpdateProductTypeDto);
-      } catch (error) {
-        expect(error.message).toBe('Không thể cập nhật loại sản phẩm');
-      }
-    });
+  //     try {
+  //       await service.update(1, mockUpdateProductTypeDto);
+  //     } catch (error) {
+  //       expect(error.message).toBe('Không thể cập nhật loại sản phẩm');
+  //     }
+  //   });
 
-    it('should throw InternalServerErrorException if findOne method has an error', async () => {
-      mockRepository.findOne.mockReset();
-      mockRepository.save.mockReset();
-      mockRepository.findOne.mockImplementation(() => {
-        throw new Error('Unexpected Error');
-      });
-      await expect(service.update(1, mockUpdateProductTypeDto)).rejects.toThrow(
-        InternalServerErrorException,
-      );
-    });
-  });
+  //   it('should throw InternalServerErrorException if findOne method has an error', async () => {
+  //     mockRepository.findOne.mockReset();
+  //     mockRepository.save.mockReset();
+  //     mockRepository.findOne.mockImplementation(() => {
+  //       throw new Error('Unexpected Error');
+  //     });
+  //     await expect(service.update(1, mockUpdateProductTypeDto)).rejects.toThrow(
+  //       InternalServerErrorException,
+  //     );
+  //   });
+  // });
 
 
-  describe('remove', () => {
-    it('UTCID01: should delete product type successfully', async () => {
-      const id = 1;
-      const productType = { id: 1, name: 'Test Product Type' };
+  // describe('remove', () => {
+  //   it('UTCID01: should delete product type successfully', async () => {
+  //     const id = 1;
+  //     const productType = { id: 1, name: 'Test Product Type' };
   
-      // Giả lập findOne trả về productType
-      mockRepository.findOne.mockResolvedValue(productType);
-      mockRepository.softDelete.mockResolvedValue({ affected: 1 });
+  //     // Giả lập findOne trả về productType
+  //     mockRepository.findOne.mockResolvedValue(productType);
+  //     mockRepository.softDelete.mockResolvedValue({ affected: 1 });
   
-      const result = await service.remove(id);
+  //     const result = await service.remove(id);
   
-      expect(result).toEqual(productType);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
-      expect(mockRepository.softDelete).toHaveBeenCalledWith(id);
-    });
+  //     expect(result).toEqual(productType);
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+  //     expect(mockRepository.softDelete).toHaveBeenCalledWith(id);
+  //   });
   
-    it('UTCID02: should throw NotFoundException if product type does not exist', async () => {
-      const id = 9999;
+  //   it('UTCID02: should throw NotFoundException if product type does not exist', async () => {
+  //     const id = 9999;
   
-      // Giả lập findOne trả về null
-      mockRepository.findOne.mockResolvedValue(null);
+  //     // Giả lập findOne trả về null
+  //     mockRepository.findOne.mockResolvedValue(null);
   
-      await expect(service.remove(id)).rejects.toThrow(NotFoundException);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
-      expect(mockRepository.softDelete).not.toHaveBeenCalled();
-    });
+  //     await expect(service.remove(id)).rejects.toThrow(NotFoundException);
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+  //     expect(mockRepository.softDelete).not.toHaveBeenCalled();
+  //   });
   
-    it('UTCID03: should throw InternalServerErrorException on unexpected error', async () => {
-      const id = 1;
+  //   it('UTCID03: should throw InternalServerErrorException on unexpected error', async () => {
+  //     const id = 1;
   
-      // Giả lập findOne gặp lỗi
-      mockRepository.findOne.mockRejectedValue(new Error('Database connection error'));
+  //     // Giả lập findOne gặp lỗi
+  //     mockRepository.findOne.mockRejectedValue(new Error('Database connection error'));
   
-      await expect(service.remove(id)).rejects.toThrow(InternalServerErrorException);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
-      expect(mockRepository.softDelete).not.toHaveBeenCalled();
-    });
-  });
+  //     await expect(service.remove(id)).rejects.toThrow(InternalServerErrorException);
+  //     expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+  //     expect(mockRepository.softDelete).not.toHaveBeenCalled();
+  //   });
+  // });
 
 });

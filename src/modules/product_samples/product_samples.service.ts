@@ -327,10 +327,11 @@ export class ProductSamplesService {
           await this.productSampleRepository.findOne({
             where: { name: updateProductSampleDto.name },
           });
-        if (existingProductSampleByName) {
+        if (existingProductSampleByName && existingProductSampleByName.id !== id) { // Check ID to ensure it’s not the same record
           throw new ConflictException('Tên mẫu sản phẩm đã tồn tại');
         }
       }
+      
 
       if (updateProductSampleDto.productLineId) {
         const productLine = await this.productLinesService.findOne(
@@ -364,15 +365,16 @@ export class ProductSamplesService {
     id: number,
     updateProductSampleAndProductUnitsDto: UpdateProductSampleAndProductUnitsDto,
   ) {
-    // Bắt đầu transaction
-    const queryRunner =
-      this.productSampleRepository.manager.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    // Tạo queryRunner để bắt đầu transaction
+  const queryRunner =
+  this.productSampleRepository.manager.connection.createQueryRunner();
+await queryRunner.connect();
 
-    try {
-      const { productSampleDto, productUnitsDto } =
-        updateProductSampleAndProductUnitsDto;
+try {
+  await queryRunner.startTransaction();
+
+  const { productSampleDto, productUnitsDto } =
+    updateProductSampleAndProductUnitsDto;
 
       // Gọi service để cập nhật mẫu sản phẩm
       const updatedProductSample = await this.update(id, productSampleDto);
@@ -386,12 +388,23 @@ export class ProductSamplesService {
       // Tạo mới các productUnit bằng ProductUnitsService
       const newProductUnits = [];
       for (const productUnitDto of productUnitsDto) {
-        const createdProductUnit = await this.productUnitsService.create({
-          ...productUnitDto,
-          productSampleId: id, // Gán quan hệ với mẫu sản phẩm
-        });
-        newProductUnits.push(createdProductUnit);
+        try {
+          const createdProductUnit = await this.productUnitsService.create({
+            ...productUnitDto,
+            productSampleId: id, // Gán quan hệ với mẫu sản phẩm
+          });
+          newProductUnits.push(createdProductUnit);
+        } catch (error) {
+          if (error instanceof NotFoundException) {
+            console.error('Product unit creation failed:', error.message);
+            throw new NotFoundException('Unit not found in ProductUnitsDto');
+          }
+          console.error('Unexpected error while creating product unit:', error.message);
+          throw new InternalServerErrorException('Failed to create product units');
+        }
       }
+      
+      
 
       // Cập nhật danh sách productUnits trong ProductSample
       updatedProductSample.productUnits = newProductUnits;
@@ -566,14 +579,14 @@ export class ProductSamplesService {
       const productSample = await this.findOne(id);
   
       if (!productSample) {
-        throw new NotFoundException('Không tìm thấy mẫu sản phẩm');
+        throw new BadRequestException('Không tìm thấy mẫu sản phẩm');
       }
   
       await this.productSampleRepository.softDelete(id); // Soft delete product sample
   
       return productSample;
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof BadRequestException) {
         throw error;
       }
       console.error('Lỗi khi xóa mẫu sản phẩm:', error.message);
