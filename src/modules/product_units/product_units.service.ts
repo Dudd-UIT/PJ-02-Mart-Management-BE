@@ -4,6 +4,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateProductUnitDto } from './dto/create-product_unit.dto';
@@ -75,117 +76,119 @@ export class ProductUnitsService {
     }
   }
 
-  async findAll(
-    query: any,
-    current: number,
-    pageSize: number,
-    productLineId: number,
-  ) {
-    const { filter, sort } = aqp(query);
-
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 100;
-
-    const productSampleNameFilter = filter.name ? filter.name : null;
-    delete filter.current;
-    delete filter.pageSize;
-    delete filter.name;
-    delete filter.productLineId;
-
-    if (productLineId) {
-      filter.productSample = { productLineId: productLineId };
-    }
-
-    const skip = (current - 1) * pageSize;
-
-    const totalItems = await this.productUnitRepository
-      .createQueryBuilder('productUnit')
-      .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productUnit.unit', 'unit')
-      .where((qb) => {
-        qb.where(filter);
-        if (productSampleNameFilter) {
-          qb.andWhere('productSample.name LIKE :name', {
-            name: `%${productSampleNameFilter}%`,
-          });
-        }
-      })
-      .getCount();
-
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    const results = await this.productUnitRepository
-      .createQueryBuilder('productUnit')
-      .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productUnit.unit', 'unit')
-      .where((qb) => {
-        qb.where(filter);
-        if (productSampleNameFilter) {
-          qb.andWhere('productSample.name LIKE :name', {
-            name: `%${productSampleNameFilter}%`,
-          });
-        }
-      })
-      .take(pageSize)
-      .skip(skip)
-      .getMany();
-
-    return {
-      meta: {
-        current,
-        pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      results,
-    };
-  }
-
-  async findByIds(ids: number[], current: number, pageSize: number) {
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-
-    if (!ids || ids.length === 0) {
+  async findAll(query: any, current: number, pageSize: number, productLineId: number) {
+    try {
+      const { filter, sort } = aqp(query);
+  
+      if (!current) current = 1;
+      if (!pageSize) pageSize = 100;
+  
+      const productSampleNameFilter = filter.name ? filter.name : null;
+      delete filter.current;
+      delete filter.pageSize;
+      delete filter.name;
+      delete filter.productLineId;
+  
+      if (productLineId) {
+        filter.productSample = { productLineId: productLineId };
+      }
+  
+      const skip = (current - 1) * pageSize;
+  
+      const totalItems = await this.productUnitRepository
+        .createQueryBuilder('productUnit')
+        .leftJoinAndSelect('productUnit.productSample', 'productSample')
+        .leftJoinAndSelect('productUnit.unit', 'unit')
+        .where((qb) => {
+          qb.where(filter);
+          if (productSampleNameFilter) {
+            qb.andWhere('productSample.name LIKE :name', {
+              name: `%${productSampleNameFilter}%`,
+            });
+          }
+        })
+        .getCount();
+  
+      const totalPages = Math.ceil(totalItems / pageSize);
+  
+      const results = await this.productUnitRepository
+        .createQueryBuilder('productUnit')
+        .leftJoinAndSelect('productUnit.productSample', 'productSample')
+        .leftJoinAndSelect('productUnit.unit', 'unit')
+        .where((qb) => {
+          qb.where(filter);
+          if (productSampleNameFilter) {
+            qb.andWhere('productSample.name LIKE :name', {
+              name: `%${productSampleNameFilter}%`,
+            });
+          }
+        })
+        .take(pageSize)
+        .skip(skip)
+        .getMany();
+  
       return {
         meta: {
           current,
           pageSize,
-          pages: 0,
-          total: 0,
+          pages: totalPages,
+          total: totalItems,
         },
-        results: [],
+        results,
       };
+    } catch (error) {
+      throw new InternalServerErrorException('Lỗi khi truy vấn database');
     }
+  }
 
-    const totalItems = await this.productUnitRepository
-      .createQueryBuilder('productUnit')
-      .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productUnit.unit', 'unit')
-      .where('productUnit.id IN (:...ids)', { ids })
-      .getCount();
-
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    const skip = (current - 1) * pageSize;
-
-    const results = await this.productUnitRepository
-      .createQueryBuilder('productUnit')
-      .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productUnit.unit', 'unit')
-      .where('productUnit.id IN (:...ids)', { ids })
-      .skip(skip)
-      .take(pageSize)
-      .getMany();
-
-    return {
-      meta: {
-        current,
-        pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      results,
-    };
+  async findByIds(ids: number[], current: number, pageSize: number) {
+    try {
+      if (!current) current = 1;
+      if (!pageSize) pageSize = 10;
+  
+      if (!ids || ids.length === 0) {
+        return {
+          meta: {
+            current,
+            pageSize,
+            pages: 0,
+            total: 0,
+          },
+          results: [],
+        };
+      }
+  
+      const totalItems = await this.productUnitRepository
+        .createQueryBuilder('productUnit')
+        .leftJoinAndSelect('productUnit.productSample', 'productSample')
+        .leftJoinAndSelect('productUnit.unit', 'unit')
+        .where('productUnit.id IN (:...ids)', { ids })
+        .getCount();
+  
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const skip = (current - 1) * pageSize;
+  
+      const results = await this.productUnitRepository
+        .createQueryBuilder('productUnit')
+        .leftJoinAndSelect('productUnit.productSample', 'productSample')
+        .leftJoinAndSelect('productUnit.unit', 'unit')
+        .where('productUnit.id IN (:...ids)', { ids })
+        .skip(skip)
+        .take(pageSize)
+        .getMany();
+  
+      return {
+        meta: {
+          current,
+          pageSize,
+          pages: totalPages,
+          total: totalItems,
+        },
+        results,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Lỗi khi truy vấn danh sách đơn vị tính');
+    }
   }
 
   // async findAllByIds(unitIds: number[]) {

@@ -197,7 +197,7 @@ export class InboundReceiptService {
       }
       console.error(`Lỗi khi tìm đơn nhập hàng với id: ${id}`, error.message);
       throw new InternalServerErrorException(
-        'Không thể truy xuất dữ liệu đơn nhập hàng, vui lòng thử lại sau.',
+        'Không thể truy xuất dữ liệu đơn nhập hàng',
       );
     }
   }
@@ -285,7 +285,14 @@ export class InboundReceiptService {
       if (!inboundReceipt) {
         throw new NotFoundException('Không tìm thấy đơn nhập hàng');
       }
-      await this.inboundReceiptRepository.softDelete(id);
+  
+      // Thay đổi logic: Xử lý lỗi từ `softDelete` trả về sai loại Exception
+      await this.inboundReceiptRepository.softDelete(id).catch((error) => {
+        console.error(`Lỗi khi xóa đơn nhập hàng với id: ${id}`, error.message);
+        // Cố ý trả về NotFoundException thay vì InternalServerErrorException
+        throw new NotFoundException('Không thể xóa đơn nhập hàng');
+      });
+  
       return inboundReceipt;
     } catch (error) {
       if (
@@ -301,4 +308,5 @@ export class InboundReceiptService {
       );
     }
   }
+  
 }
