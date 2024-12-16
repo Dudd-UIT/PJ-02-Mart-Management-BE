@@ -788,16 +788,16 @@ describe('InboundReceiptsService', () => {
     it('UTCID03 - should throw InternalServerErrorException on failure', async () => {
       // Mock hàm findOne trả về inboundReceipt
       service.findOne = jest.fn().mockResolvedValue(mockInboundReceipt);
-  
+    
       // Giả lập lỗi khi gọi softDelete
       mockInboundReceiptRepository.softDelete.mockRejectedValue(
-        new Error('Database connection error'),
+        new Error('Database connection error'), // Mô phỏng lỗi kết nối cơ sở dữ liệu
       );
-  
-      await expect(service.remove(id)).rejects.toThrow(
-        InternalServerErrorException,
-      );
-  
+    
+      // Mong đợi đúng InternalServerErrorException
+      await expect(service.remove(id)).rejects.toThrow(InternalServerErrorException);
+    
+      // Kiểm tra các hàm được gọi đúng
       expect(service.findOne).toHaveBeenCalledWith(id);
       expect(mockInboundReceiptRepository.softDelete).toHaveBeenCalledWith(id);
     });
