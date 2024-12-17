@@ -113,10 +113,10 @@ INSERT INTO role_group (groupId, roleId) VALUES
 (3, 3);
 
 -- Insert Users
-INSERT INTO `user` (id, name, username, email, password, score, address, phone, groupId, createdAt) VALUES
-(1, 'Nguyễn Văn Admin', 'admin', 'admin@mini.mart', '$2a$10$encrypted', 0, 'Hà Nội', '0901234567', 1, NOW()),
-(2, 'Trần Thị Nhân Viên', 'staff1', 'staff1@mini.mart', '$2a$10$encrypted', 0, 'Hà Nội', '0901234568', 2, NOW()),
-(3, 'Lê Văn Khách', 'customer1', 'customer1@gmail.com', '$2a$10$encrypted', 100, 'Hà Nội', '0901234569', 3, NOW());
+INSERT INTO `user` (id, name, email, password, score, address, phone, groupId, createdAt) VALUES
+(1, 'Nguyễn Văn Admin', 'admin@mini.mart', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 0, 'Hà Nội', '0901234567', 1, NOW()),
+(2, 'Trần Thị Nhân Viên', 'staff1@mini.mart', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 0, 'Hà Nội', '0901234568', 2, NOW()),
+(3, 'Lê Văn Khách', 'customer1@gmail.com', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 100, 'Hà Nội', '0901234569', 3, NOW());
 
 -- Insert Suppliers
 INSERT INTO supplier (id, name, phone, address, country, createdAt) VALUES
@@ -132,9 +132,10 @@ INSERT INTO supplier_product (id, supplierId, productUnitId, status) VALUES
 (5, 2, 5, 'active');
 
 -- Insert Inbound Receipts
-INSERT INTO inbound_receipt (id, totalPrice, isReceived, isPaid, staffId, supplierId, createdAt) VALUES
-(1, 5000000, 1, 1, 2, 1, NOW()),
-(2, 3000000, 1, 1, 2, 2, NOW());
+INSERT INTO inbound_receipt (id, totalPrice, isReceived, isPaid, discount, staffId, supplierId, createdAt) VALUES
+(1, 5000000, 1, 1, 0, 2, 1, NOW()),
+(2, 3000000, 1, 1, 0, 2, 2, NOW());
+
 
 -- Insert Batches
 INSERT INTO batch (id, inboundPrice, sellPrice, discount, quantity, inboundQuantity, expiredAt, inboundReceiptId, productUnitId, createdAt) VALUES

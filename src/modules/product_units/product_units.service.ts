@@ -57,23 +57,41 @@ export class ProductUnitsService {
 
     // Extract the name filter if present for productSample.name
     const productSampleNameFilter = filter.name ? filter.name : null;
+    const productLineNameFilter = filter.productLineName ? filter.productLineName : null;
+    const productTypeNameFilter = filter.productTypeName ? filter.productTypeName : null;
+
     delete filter.current;
     delete filter.pageSize;
     delete filter.name;
+    delete filter.productLineName; 
+    delete filter.productTypeName;
 
     // Calculate pagination details
     const skip = (current - 1) * pageSize;
 
-    // Count total items with the productSample.name filter if provided
+    // Count total items with the filters
     const totalItems = await this.productUnitRepository
       .createQueryBuilder('productUnit')
       .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productUnit.unit', 'unit') // Include the unit relation
+      .leftJoinAndSelect('productSample.productLine', 'productLine')
+      .leftJoinAndSelect('productLine.productType', 'productType') // Include the necessary joins
       .where((qb) => {
         qb.where(filter);
         if (productSampleNameFilter) {
           qb.andWhere('productSample.name LIKE :name', {
             name: `%${productSampleNameFilter}%`,
+          });
+        }
+
+        if (productLineNameFilter) {
+          qb.andWhere('productLine.name LIKE :productLineName', {
+            productLineName: `%${productLineNameFilter}%`, // Sử dụng alias `productLine.name`
+          });
+        }
+
+        if (productTypeNameFilter) {
+          qb.andWhere('productType.name LIKE :productTypeName', {
+            productTypeName: `%${productTypeNameFilter}%`,
           });
         }
       })
@@ -85,12 +103,25 @@ export class ProductUnitsService {
     const results = await this.productUnitRepository
       .createQueryBuilder('productUnit')
       .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productUnit.unit', 'unit') // Include the unit relation
+      .leftJoinAndSelect('productSample.productLine', 'productLine')
+      .leftJoinAndSelect('productLine.productType', 'productType')
       .where((qb) => {
         qb.where(filter);
         if (productSampleNameFilter) {
           qb.andWhere('productSample.name LIKE :name', {
             name: `%${productSampleNameFilter}%`,
+          });
+        }
+
+        if (productLineNameFilter) {
+          qb.andWhere('productLine.name LIKE :productLineName', {
+            productLineName: `%${productLineNameFilter}%`,
+          });
+        }
+
+        if (productTypeNameFilter) {
+          qb.andWhere('productType.name LIKE :productTypeName', {
+            productTypeName: `%${productTypeNameFilter}%`,
           });
         }
       })
