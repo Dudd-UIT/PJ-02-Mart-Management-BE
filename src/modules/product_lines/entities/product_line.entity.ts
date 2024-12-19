@@ -8,6 +8,7 @@ import {
   OneToMany,
   CreateDateColumn,
   DeleteDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -15,18 +16,38 @@ export class ProductLine {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    unique: true,
+  })
   name: string;
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: string;
+  deletedAt: Date;
 
-  @ManyToOne(() => ProductType, (productType) => productType.productLines, { createForeignKeyConstraints: false })
+  @ManyToOne(() => ProductType, (productType) => productType.productLines, {
+    createForeignKeyConstraints: false,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: false,
+  })
+  @JoinColumn()
   productType: ProductType;
 
-  @OneToMany(() => ProductSample, (productSample) => productSample.productLine, { createForeignKeyConstraints: false })
+  @OneToMany(
+    () => ProductSample,
+    (productSample) => productSample.productLine,
+    {
+      createForeignKeyConstraints: false,
+      cascade: true,
+      onDelete: 'RESTRICT',
+      onUpdate: 'CASCADE',
+    },
+  )
   productSamples?: ProductSample[];
 }

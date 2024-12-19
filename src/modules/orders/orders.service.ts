@@ -1,6 +1,10 @@
 import {
+  BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -10,13 +14,49 @@ import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import aqp from 'api-query-params';
 import { UsersService } from '../users/users.service';
+import { OrderDetailsService } from '../order_details/order_details.service';
+import { CreateOrderAndOrderDetailsDto } from './dto/create-order_order-detail.dto';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => OrderDetailsService))
+    private readonly orderDetailsService: OrderDetailsService,
   ) {}
+
+  async createOrderAndOrderDetails(
+    createOrderAndOrderDetailsDto: CreateOrderAndOrderDetailsDto,
+  ) {
+    try {
+      const { orderDto, orderDetailsDto } = createOrderAndOrderDetailsDto;
+      const order = await this.create(orderDto);
+
+      const orderId = order.id;
+
+      for (const orderDetail of orderDetailsDto) {
+        await this.orderDetailsService.create({
+          ...orderDetail,
+          orderId,
+        });
+      }
+
+      return await this.orderRepository.save(order);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi tạo đơn hàng:', error.message);
+      throw new InternalServerErrorException(
+        'Có lỗi xảy ra trong quá trình tạo đơn hàng.',
+      );
+    }
+  }
 
   async create(createOrderDto: CreateOrderDto) {
     const order = this.orderRepository.create(createOrderDto);
@@ -41,7 +81,7 @@ export class OrdersService {
     return savedOrder;
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(query: any, current: number, pageSize: number) {
     const { filter, sort } = aqp(query);
 
     if (!current) current = 1;
@@ -49,13 +89,22 @@ export class OrdersService {
     delete filter.current;
     delete filter.pageSize;
 
-    const totalItems = await this.orderRepository.count(filter);
+    const totalItems = await this.orderRepository.count({
+      where: filter,
+    });
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
     const options = {
       where: {},
-      relations: [],
+      relations: [
+        'customer',
+        'staff',
+        'orderDetails',
+        'orderDetails.productUnit',
+        'orderDetails.productUnit.productSample',
+        'orderDetails.productUnit.unit',
+      ],
       take: pageSize,
       skip: skip,
     };
@@ -115,9 +164,9 @@ export class OrdersService {
   }
 
   async remove(id: number) {
-    const order = await this.usersService.findOneById(id);
+    const order = await this.findOne(id);
     if (!order) {
-      throw new NotFoundException('Không tìm thấy người dùng');
+      throw new NotFoundException('Không tìm thấy đơn hàng');
     }
 
     return await this.orderRepository.softDelete(id);

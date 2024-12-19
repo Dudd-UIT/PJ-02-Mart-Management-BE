@@ -11,7 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GroupsService } from '../groups/groups.service';
 import { User } from './entities/user.entity';
-import { hashPasswordHelper } from 'src/hepers/utils';
+import { hashPasswordHelper } from 'src/helpers/utils';
 import aqp from 'api-query-params';
 
 @Injectable()
@@ -50,11 +50,11 @@ export class UsersService {
       const { name, email, password, score, phone, address } = createUserDto;
 
       if (await this.isEmailExist(email)) {
-        throw new BadRequestException(`Email đã tồn tại: ${email}`);
+        throw new ConflictException(`Email đã tồn tại`);
       }
 
       if (await this.isPhoneExist(phone)) {
-        throw new BadRequestException(`Số điện thoại đã tồn tại: ${phone}`);
+        throw new ConflictException(`Số điện thoại đã tồn tại`);
       }
 
       const hashPassword = await hashPasswordHelper(password);
@@ -68,11 +68,14 @@ export class UsersService {
       });
 
       const group = await this.groupsService.findOne(+createUserDto.groupId);
+      if (!group) {
+        throw new NotFoundException('Không tìm thấy nhóm người dùng');
+      }
       user.group = group;
 
       return await this.userRepository.save(user);
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error instanceof ConflictException || NotFoundException) {
         throw error;
       }
       console.error('Lỗi khi tạo người dùng:', error.message);
@@ -103,17 +106,27 @@ export class UsersService {
 
       return await this.userRepository.save(customer);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo khách hàng:', error.message);
       throw new InternalServerErrorException('Không thể tạo khách hàng');
     }
   }
 
   async findAll(
-    query: string,
+    query: any,
     current: number,
     pageSize: number,
     groupId: number,
   ) {
+    console.log('query', query);
+    console.log('type of query', typeof query);
+
     try {
       const { filter, sort } = aqp(query);
 
@@ -153,6 +166,13 @@ export class UsersService {
         results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tìm tất cả người dùng:', error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu người dùng',
@@ -163,9 +183,16 @@ export class UsersService {
   async findOneById(id: number) {
     try {
       const user = await this.userRepository.findOne({ where: { id } });
-      if (!user) throw new NotFoundException(`Không tìm thấy người dùng ${id}`);
+      if (!user) throw new NotFoundException(`Không tìm thấy người dùng`);
       return user;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi tìm người dùng với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể tìm người dùng');
     }
@@ -177,11 +204,19 @@ export class UsersService {
         where: { email },
         relations: ['group'],
       });
-      if (!user)
-        throw new NotFoundException(`Không tìm thấy người dùng ${email}`);
+      if (!user) {
+        throw new NotFoundException(`Không tìm thấy người dùng`);
+      }
       return user;
     } catch (error) {
-      console.error(`Lỗi khi tìm người dùng với ID ${email}:`, error.message);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      console.error(
+        `Lỗi khi tìm người dùng với email ${email}:`,
+        error.message,
+      );
       throw new InternalServerErrorException('Không thể tìm người dùng');
     }
   }
@@ -189,7 +224,9 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
       const user = await this.findOneById(id);
-
+      if (!user) {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
       if (updateUserDto.email && updateUserDto.email !== user.email) {
         const existingUserByEmail = await this.userRepository.findOne({
           where: { email: updateUserDto.email },
@@ -210,12 +247,22 @@ export class UsersService {
 
       if (updateUserDto.groupId) {
         const group = await this.groupsService.findOne(updateUserDto.groupId);
+        if (!group) {
+          throw new NotFoundException('Không tìm thấy nhóm người dùng');
+        }
         user.group = group;
       }
 
       Object.assign(user, updateUserDto);
       return await this.userRepository.save(user);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi cập nhật người dùng:', error.message);
       throw new InternalServerErrorException('Không thể cập nhật người dùng');
     }
@@ -229,6 +276,13 @@ export class UsersService {
       await this.userRepository.softDelete(id);
       return user;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi xóa người dùng với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể xóa người dùng');
     }

@@ -29,6 +29,7 @@ export class AppService implements OnModuleInit {
         console.log('result[0].count: ', count);
         console.log('Bang chua co du lieu tien hanh insert du lieu moi: ');
         const sql = readFileSync(join('src/dump/dump.sql'), 'utf8');
+
         const statements = sql.split(';').filter((stmt) => stmt.trim() !== '');
 
         for (const statement of statements) {
@@ -40,9 +41,5 @@ export class AppService implements OnModuleInit {
     } finally {
       await queryRunner.release();
     }
-  }
-
-  getHello(): string {
-    return 'Hello World!';
   }
 }

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -34,6 +35,13 @@ export class GroupsService {
       const group = this.groupRepository.create(createGroupDto);
       return await this.groupRepository.save(group);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo nhóm người dùng:', error.message);
       throw new InternalServerErrorException(
         'Không thể tạo nhóm người dùng, vui lòng thử lại sau.',
@@ -41,7 +49,7 @@ export class GroupsService {
     }
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(query: any, current: number, pageSize: number) {
     try {
       const { filter } = aqp(query);
 
@@ -50,7 +58,9 @@ export class GroupsService {
       delete filter.current;
       delete filter.pageSize;
 
-      const totalItems = await this.groupRepository.count(filter);
+      const totalItems = await this.groupRepository.count({
+        where: filter,
+      });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
@@ -73,6 +83,13 @@ export class GroupsService {
         results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi truy vấn nhóm người dùng:', error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu nhóm người dùng, vui lòng thử lại sau.',
@@ -92,6 +109,13 @@ export class GroupsService {
 
       return group;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi tìm nhóm người dùng với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu nhóm người dùng, vui lòng thử lại sau.',
@@ -118,6 +142,13 @@ export class GroupsService {
       Object.assign(group, updateGroupDto);
       return await this.groupRepository.save(group);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(
         `Lỗi khi cập nhật nhóm người dùng với id: ${id}`,
         error.message,
@@ -167,6 +198,13 @@ export class GroupsService {
 
       return await this.groupRepository.save(group);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(
         `Lỗi khi gán vai trò cho nhóm người dùng với ID ${id}:`,
         error.message,

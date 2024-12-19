@@ -15,25 +15,42 @@ export class ProductSample {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    unique: true,
+  })
   name: string;
 
-  @Column()
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   description: string;
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: string;
+  deletedAt: Date;
+
+  @Column()
+  productLineId: number;
 
   @OneToMany(() => ProductUnit, (productUnit) => productUnit.productSample, {
     createForeignKeyConstraints: false,
+    cascade: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   })
   productUnits?: ProductUnit[];
 
   @ManyToOne(() => ProductLine, (productLine) => productLine.productSamples, {
     createForeignKeyConstraints: false,
+    nullable: false,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   productLine?: ProductLine;
 }

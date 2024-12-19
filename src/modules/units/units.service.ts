@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUnitDto } from './dto/create-unit.dto';
@@ -18,89 +19,136 @@ export class UnitsService {
   ) {}
 
   async create(createUnitDto: CreateUnitDto) {
-    const existingUnit = await this.unitRepository.findOne({
-      where: { name: createUnitDto.name },
-    });
+    try {
+      const existingUnit = await this.unitRepository.findOne({
+        where: { name: createUnitDto.name },
+      });
 
-    if (existingUnit) {
-      throw new ConflictException('Đơn vị tính đã tồn tại');
+      if (existingUnit) {
+        throw new ConflictException('Đơn vị tính đã tồn tại');
+      }
+
+      const unit = this.unitRepository.create(createUnitDto);
+      const savedUnit = await this.unitRepository.save(unit);
+      return savedUnit;
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi tạo đơn vị tính:', error.message);
+      throw new InternalServerErrorException('Không thể tạo đơn vị tính');
     }
-
-    const unit = this.unitRepository.create(createUnitDto);
-    const savedUnit = this.unitRepository.save(unit);
-    return savedUnit;
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
-    const { filter, sort } = aqp(query);
+  async findAll(query: any, current: number, pageSize: number) {
+    try {
+      const { filter, sort } = aqp(query);
 
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-    delete filter.current;
-    delete filter.pageSize;
+      if (!current) current = 1;
+      if (!pageSize) pageSize = 10;
+      delete filter.current;
+      delete filter.pageSize;
 
-    const totalItems = await this.unitRepository.count(filter);
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const skip = (current - 1) * pageSize;
+      const totalItems = await this.unitRepository.count({
+        where: filter,
+      });
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const skip = (current - 1) * pageSize;
 
-    const options = {
-      where: {},
-      relations: [],
-      take: pageSize,
-      skip: skip,
-    };
+      const options = {
+        where: filter,
+        relations: [],
+        take: pageSize,
+        skip: skip,
+      };
 
-    const results = await this.unitRepository.find(options);
+      const results = await this.unitRepository.find(options);
 
-    return {
-      meta: {
-        current,
-        pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      results,
-    };
+      return {
+        meta: {
+          current,
+          pageSize,
+          pages: totalPages,
+          total: totalItems,
+        },
+        results,
+      };
+    } catch (error) {
+      console.error('Lỗi khi truy xuất danh sách đơn vị tính:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể truy xuất dữ liệu đơn vị tính',
+      );
+    }
   }
 
   async findOne(id: number) {
-    const unit = await this.unitRepository.findOne({
-      where: { id },
-    });
+    try {
+      const unit = await this.unitRepository.findOne({
+        where: { id },
+      });
 
-    if (!unit) {
-      throw new NotFoundException('Không tìm thấy đơn vị tính');
+      if (!unit) {
+        throw new NotFoundException('Không tìm thấy đơn vị tính');
+      }
+
+      return unit;
+    } catch (error) {
+      console.error(`Lỗi khi tìm đơn vị tính với ID ${id}:`, error.message);
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException('Không thể tìm đơn vị tính');
     }
-
-    return unit;
   }
 
   async update(id: number, updateUnitDto: UpdateUnitDto) {
-    const unit = await this.findOne(id);
-    if (!unit) {
-      throw new NotFoundException('Không tìm thấy đơn vị tính');
-    }
-
-    if (updateUnitDto.name && updateUnitDto.name !== unit.name) {
-      const existingUnitByName = await this.unitRepository.findOne({
-        where: { name: updateUnitDto.name },
-      });
-      if (existingUnitByName) {
-        throw new ConflictException('Đơn vị tính đã tồn tại');
+    try {
+      const unit = await this.findOne(id);
+      if (!unit) {
+        throw new NotFoundException('Không tìm thấy đơn vị tính');
       }
-    }
 
-    Object.assign(unit, updateUnitDto);
-    const savedUser = await this.unitRepository.save(unit);
-    return savedUser;
+      if (updateUnitDto.name && updateUnitDto.name !== unit.name) {
+        const existingUnitByName = await this.unitRepository.findOne({
+          where: { name: updateUnitDto.name },
+        });
+        if (existingUnitByName) {
+          throw new ConflictException('Đơn vị tính đã tồn tại');
+        }
+      }
+
+      Object.assign(unit, updateUnitDto);
+      const savedUnit = await this.unitRepository.save(unit);
+      return savedUnit;
+    } catch (error) {
+      console.error(
+        `Lỗi khi cập nhật đơn vị tính với ID ${id}:`,
+        error.message,
+      );
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Không thể cập nhật đơn vị tính');
+    }
   }
 
   async remove(id: number) {
-    const unit = await this.findOne(id);
-    if (!unit) {
-      throw new NotFoundException('Không tìm thấy đơn vị tính');
+    try {
+      const unit = await this.findOne(id);
+      if (!unit) {
+        throw new NotFoundException('Không tìm thấy đơn vị tính');
+      }
+
+      await this.unitRepository.softDelete(id);
+      return unit;
+    } catch (error) {
+      console.error(`Lỗi khi xóa đơn vị tính với ID ${id}:`, error.message);
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException('Không thể xóa đơn vị tính');
     }
-    await this.unitRepository.softDelete(id);
-    return unit;
   }
 }

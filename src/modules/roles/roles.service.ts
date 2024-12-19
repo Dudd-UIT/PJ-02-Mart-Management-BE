@@ -1,4 +1,10 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
@@ -11,7 +17,7 @@ export class RolesService {
     private roleRepository: Repository<Role>,
   ) {}
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(query: any, current: number, pageSize: number) {
     try {
       const { filter, sort } = aqp(query);
 
@@ -20,7 +26,9 @@ export class RolesService {
       delete filter.current;
       delete filter.pageSize;
 
-      const totalItems = await this.roleRepository.count(filter);
+      const totalItems = await this.roleRepository.count({
+        where: filter,
+      });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
@@ -44,6 +52,13 @@ export class RolesService {
         results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tìm kiếm vai trò:', error.message);
       throw new InternalServerErrorException('Không thể tìm kiếm vai trò');
     }

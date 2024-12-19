@@ -28,11 +28,17 @@ export class ProductLinesController {
   @Get()
   @ResponseMessage('Trả về danh sách các dòng sản phẩm thành công')
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
+    @Query('productTypeId') productTypeId: string,
   ) {
-    return this.productLinesService.findAll(query, +current, +pageSize);
+    return this.productLinesService.findAll(
+      query,
+      +current,
+      +pageSize,
+      +productTypeId,
+    );
   }
 
   @Get(':id')

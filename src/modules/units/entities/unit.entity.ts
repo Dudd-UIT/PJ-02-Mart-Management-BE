@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 
 @Entity()
@@ -13,7 +14,12 @@ export class Unit {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: false,
+    unique: true,
+  })
   name: string;
 
   @CreateDateColumn()
@@ -22,6 +28,10 @@ export class Unit {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToMany(() => ProductUnit, (productUnit) => productUnit.unit, { createForeignKeyConstraints: false })
+  @OneToMany(() => ProductUnit, (productUnit) => productUnit.unit, {
+    createForeignKeyConstraints: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
   productUnits?: ProductUnit[];
 }

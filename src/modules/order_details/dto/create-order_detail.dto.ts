@@ -3,15 +3,6 @@ import { IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 export class CreateOrderDetailDto {
   @IsNotEmpty()
   @IsNumber()
-  orderId: number;
-
-  @IsNotEmpty()
-  details: OrderDetailDto[];
-}
-
-export class OrderDetailDto {
-  @IsNotEmpty()
-  @IsNumber()
   productUnitId: number;
 
   @IsNotEmpty()
@@ -23,4 +14,8 @@ export class OrderDetailDto {
   @IsNumber()
   @IsPositive()
   currentPrice: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  orderId?: number;
 }

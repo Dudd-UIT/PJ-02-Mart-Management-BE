@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
@@ -51,6 +52,13 @@ export class BatchsService {
       const savedBatch = await this.batchRepository.save(batch);
       return savedBatch;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo lô hàng:', error.message);
       throw new InternalServerErrorException(
         'Không thể tạo lô hàng, vui lòng thử lại sau.',
@@ -58,7 +66,7 @@ export class BatchsService {
     }
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async findAll(query: any, current: number, pageSize: number) {
     try {
       const { filter, sort } = aqp(query);
 
@@ -67,7 +75,9 @@ export class BatchsService {
       delete filter.current;
       delete filter.pageSize;
 
-      const totalItems = await this.batchRepository.count(filter);
+      const totalItems = await this.batchRepository.count({
+        where: filter,
+      });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
@@ -90,6 +100,13 @@ export class BatchsService {
         results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tìm tất cả các lô hàng:', error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu lô hàng, vui lòng thử lại sau.',
@@ -109,6 +126,13 @@ export class BatchsService {
 
       return batch;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi tìm lô hàng với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu lô hàng, vui lòng thử lại sau.',
@@ -147,6 +171,13 @@ export class BatchsService {
       const savedBatch = await this.batchRepository.save(batch);
       return savedBatch;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi cập nhật lô hàng:', error.message);
       throw new BadRequestException(
         'Dữ liệu không hợp lệ, không thể cập nhật lô hàng.',
@@ -163,6 +194,13 @@ export class BatchsService {
       await this.batchRepository.softDelete(id);
       return batch;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi xóa lô hàng với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể xóa lô hàng, vui lòng thử lại sau.',

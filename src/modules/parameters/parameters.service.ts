@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -7,14 +8,14 @@ import {
 import { CreateParameterDto } from './dto/create-parameter.dto';
 import { UpdateParameterDto } from './dto/update-parameter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Parameters } from './entities/parameter.entity';
+import { Parameter } from './entities/parameter.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class ParametersService {
   constructor(
-    @InjectRepository(Parameters)
-    private parametersRepository: Repository<Parameters>,
+    @InjectRepository(Parameter)
+    private parametersRepository: Repository<Parameter>,
   ) {}
 
   async create(createParameterDto: CreateParameterDto) {
@@ -30,6 +31,13 @@ export class ParametersService {
       const parameter = this.parametersRepository.create(createParameterDto);
       return await this.parametersRepository.save(parameter);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi tạo tham số:', error.message);
       throw new InternalServerErrorException(
         'Không thể tạo tham số, vui lòng thử lại sau.',
@@ -45,6 +53,13 @@ export class ParametersService {
         results,
       };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('Lỗi khi truy vấn tham số:', error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu tham số, vui lòng thử lại sau.',
@@ -64,6 +79,13 @@ export class ParametersService {
 
       return parameter;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi tìm tham số với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể truy xuất dữ liệu tham số, vui lòng thử lại sau.',
@@ -95,6 +117,13 @@ export class ParametersService {
       Object.assign(parameter, updateParameterDto);
       return await this.parametersRepository.save(parameter);
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi cập nhật tham số với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể cập nhật tham số, vui lòng thử lại sau.',
@@ -111,6 +140,13 @@ export class ParametersService {
       await this.parametersRepository.softDelete(id);
       return parameter;
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error(`Lỗi khi xóa tham số với id: ${id}`, error.message);
       throw new InternalServerErrorException(
         'Không thể xóa tham số, vui lòng thử lại sau.',

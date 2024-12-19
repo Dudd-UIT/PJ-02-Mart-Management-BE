@@ -28,7 +28,7 @@ export class ProductTypesController {
   @Get()
   @ResponseMessage('Trả về danh sách các loại sản phẩm thành công')
   findAll(
-    @Query() query: string,
+    @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {
