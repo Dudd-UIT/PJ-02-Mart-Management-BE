@@ -14,6 +14,7 @@ import { ProductUnit } from './entities/product_unit.entity';
 import { ProductSamplesService } from '../product_samples/product_samples.service';
 import { UnitsService } from '../units/units.service';
 import aqp from 'api-query-params';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class ProductUnitsService {
@@ -23,10 +24,23 @@ export class ProductUnitsService {
     @Inject(forwardRef(() => ProductSamplesService))
     private productSamplesService: ProductSamplesService,
     private unitsService: UnitsService,
+    private uploadService: UploadService,
   ) {}
 
-  async create(createProductUnitDto: CreateProductUnitDto) {
+  async create(createProductUnitDto: CreateProductUnitDto, file?: Express.Multer.File) {
     try {
+      let imageUrl = null;
+      if(file) {
+        imageUrl = await this.uploadService.uploadFile(file);
+      }
+
+      console.log('imageUrl::::', imageUrl);
+
+      if (imageUrl) {
+        createProductUnitDto.image = imageUrl;
+      }
+
+
       const { unitId, productSampleId, compareUnitId, ...rest } =
         createProductUnitDto;
 
