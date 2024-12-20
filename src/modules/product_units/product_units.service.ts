@@ -27,17 +27,23 @@ export class ProductUnitsService {
     private uploadService: UploadService,
   ) {}
 
-  async create(createProductUnitDto: CreateProductUnitDto, file?: Express.Multer.File) {
+  private convertBase64ToMulterFile(base64String: string): Express.Multer.File {
+    const buffer = Buffer.from(base64String, 'base64');
+    return {
+      originalname: `image-${Date.now()}.jpg`,
+      buffer,
+      mimetype: 'image/jpeg',
+    } as Express.Multer.File;
+
+  }
+
+  async create(createProductUnitDto: CreateProductUnitDto) {
     try {
-      let imageUrl = null;
-      if(file) {
-        imageUrl = await this.uploadService.uploadFile(file);
-      }
-
-      console.log('imageUrl::::', imageUrl);
-
-      if (imageUrl) {
-        createProductUnitDto.image = imageUrl;
+      if (createProductUnitDto.image && !createProductUnitDto.image.startsWith('http')) {
+        const uploadedImageUrl = await this.uploadService.uploadFile(
+          this.convertBase64ToMulterFile(createProductUnitDto.image),
+        );
+        createProductUnitDto.image = uploadedImageUrl; // Cập nhật URL của ảnh
       }
 
 
@@ -248,7 +254,6 @@ export class ProductUnitsService {
   async findOne(id: number) {
     const productSample = await this.productUnitRepository.findOne({
       where: { id },
-      relations: ['productUnits'],
     });
 
     if (!productSample) {

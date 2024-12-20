@@ -24,13 +24,11 @@ export class ProductUnitsController {
   constructor(private readonly productUnitsService: ProductUnitsService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
   @ResponseMessage('Thêm mới đơn vị tính cho mẫu sản phẩm thành công')
   create(
-    @UploadedFile() file: Express.Multer.File,
     @Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto
   ) {
-    return this.productUnitsService.create(createProductSampleDto, file);
+    return this.productUnitsService.create(createProductSampleDto);
   }
 
   @Get()
