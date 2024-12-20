@@ -34,4 +34,5 @@ jobs:
       run: |
         git fetch origin
         git checkout release || git checkout --orphan release
+        git merge --no-ff develop -m "Merge develop into release"
         git push origin release --force
