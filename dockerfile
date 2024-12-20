@@ -1,32 +1,16 @@
-#################
-## DEVELOPMENT ##
-#################
+# Dockerfile for NestJS backend
+FROM node:18-alpine
 
-FROM node:18-alpine AS development
+WORKDIR /usr/src/app
 
-WORKDIR /app
-
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 RUN npm install
 
 COPY . .
 
-RUN npm install -g @nestjs/cli
+RUN npm run build
 
-################
-## PRODUCTION ##
-################
+EXPOSE 4000
 
-FROM node:18-alpine AS production
-
-ARG NODE_ENV='production'
-ENV NODE_ENV=${NODE_ENV}
-
-WORKDIR /src/app
-
-COPY --from=development /src/app/ .
-
-EXPOSE 8081
-
-CMD [ "node" , "dist/main" ]
+CMD ["npm", "run", "start:prod"]

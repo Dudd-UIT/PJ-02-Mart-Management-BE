@@ -44,15 +44,36 @@ import { Unit } from './modules/units/entities/unit.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    // TypeOrmModule.forRoot({
+    //   type: 'mysql',
+    //   host: process.env.DB_HOST,
+    //   port: parseInt(process.env.DB_PORT, 10) || 3306,
+    //   username: process.env.DB_USERNAME,
+    //   password: process.env.DB_PASSWORD,
+    //   database: process.env.DB_DATABASE,
+    //   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    //   synchronize: true,
+    // }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT, 10) || 3306,
+      port: 3307,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
+    }),
+    TypeOrmModule.forRoot({
+      name: 'slaveConnection',
+      type: 'mysql',
+      host: process.env.DB_HOST,
+      port: 3308,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: false,
     }),
     TypeOrmModule.forFeature([
       Batch,
