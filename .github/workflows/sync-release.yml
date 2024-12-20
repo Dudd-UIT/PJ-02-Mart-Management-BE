@@ -32,5 +32,6 @@ jobs:
     - name: Sync develop to release
       if: success()
       run: |
+        git fetch origin
         git checkout release || git checkout --orphan release
         git push origin release --force
