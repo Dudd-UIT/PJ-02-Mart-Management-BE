@@ -9,6 +9,7 @@ import {
   ValidationPipe,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductSamplesService } from './product_samples.service';
 import { CreateProductSampleDto } from './dto/create-product_sample.dto';
@@ -19,6 +20,8 @@ import { UpdateProductUnitDto } from '../product_units/dto/update-product_unit.d
 import { ResponseMessage } from 'src/decorators/customDecorator';
 import { CreateProductSampleAndProductUnitDto } from './dto/create-productSample_productUnit.dto';
 import { UpdateProductSampleAndProductUnitsDto } from './dto/update-productSample_productUnit.dto';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller('product-samples')
 export class ProductSamplesController {
@@ -26,6 +29,8 @@ export class ProductSamplesController {
 
   @Post()
   @ResponseMessage('Tạo mẫu sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('create_product-sample')
   create(
     @Body(ValidationPipe)
     createProductSampleAndProductUnitDto: CreateProductSampleAndProductUnitDto,
@@ -37,6 +42,8 @@ export class ProductSamplesController {
 
   @Get()
   @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('view_product-samples')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -45,42 +52,18 @@ export class ProductSamplesController {
     return this.productSamplesService.findAll(query, +current, +pageSize);
   }
 
-  @Get('by-type')
-  findByProductType(
-    @Query('productTypeId') productTypeId: string,
-    @Query('name') name: string,
-  ) {
-    const parsedProductTypeId = productTypeId
-      ? parseInt(productTypeId, 10)
-      : null;
-
-    return this.productSamplesService.findByProductType(
-      parsedProductTypeId,
-      name,
-    );
-  }
-
-  @Post('find-all-units')
-  findAllUnits(
-    @Body() findProductSampleUnitsByIdsDto: FindProductSampleUnitsByIdsDto,
-    @Query('current') current: string,
-    @Query('pageSize') pageSize: string,
-  ) {
-    return this.productSamplesService.findAllUnits(
-      findProductSampleUnitsByIdsDto.productUnitIds,
-      +current,
-      +pageSize,
-    );
-  }
-
   @Get(':id')
   @ResponseMessage('Trả về thông tin chi tiết mẫu sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('view_product-sample')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productSamplesService.findOne(id);
   }
 
   @Patch(':id')
   @ResponseMessage('Cập nhật thông tin chi tiết mẫu sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('update_product-sample')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe)
@@ -93,6 +76,8 @@ export class ProductSamplesController {
   @ResponseMessage(
     'Cập nhật thông tin chi tiết mẫu sản phẩm và các đơn vị thành công',
   )
+  @UseGuards(RoleGuard)
+  @Roles('update_product-sample')
   updateProductSampleAndProductUnits(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe)
@@ -106,6 +91,8 @@ export class ProductSamplesController {
 
   @Delete(':id')
   @ResponseMessage('Xóa mẫu dòng sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('delete_product-sample')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productSamplesService.remove(id);
   }

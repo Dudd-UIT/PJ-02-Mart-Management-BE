@@ -9,10 +9,13 @@ import {
   Query,
   ParseIntPipe,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { UpdateRoleGroupDto } from '../groups/dto/update-role-group.dto';
 import { ResponseMessage } from 'src/decorators/customDecorator';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller('roles')
 export class RolesController {
@@ -20,6 +23,8 @@ export class RolesController {
 
   @ResponseMessage('Trả về danh sách các vai trò thành công')
   @Get()
+  @UseGuards(RoleGuard)
+  @Roles('view_roles')
   findAll(
     @Query() query: any,
     @Query('current') current: string,

@@ -1,5 +1,7 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { SupplierProductsService } from './supplier_products.service';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
 
 @Controller('supplier-products')
 export class SupplierProductsController {
@@ -8,6 +10,8 @@ export class SupplierProductsController {
   ) {}
 
   @Get()
+  @UseGuards(RoleGuard)
+  @Roles('view_supplier-products')
   findAll(
     @Query() query: any,
     @Query('current') current: string,

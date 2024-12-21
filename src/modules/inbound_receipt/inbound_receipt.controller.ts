@@ -9,6 +9,7 @@ import {
   ValidationPipe,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { InboundReceiptService } from './inbound_receipt.service';
 import { CreateInboundReceiptDto } from './dto/create-inbound_receipt.dto';
@@ -16,6 +17,8 @@ import { UpdateInboundReceiptDto } from './dto/update-inbound_receipt.dto';
 import { CreateInboundReceiptBatchsDto } from './dto/create-inbound_receipt-batchs.dto';
 import { ResponseMessage } from 'src/decorators/customDecorator';
 import { UpdateInboundReceiptBatchsDto } from './dto/update-inbound_receipt-batchs.dto';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller('inbound-receipt')
 export class InboundReceiptController {
@@ -23,6 +26,8 @@ export class InboundReceiptController {
 
   @ResponseMessage('Tạo mới đơn nhập hàng thành công')
   @Post()
+  @UseGuards(RoleGuard)
+  @Roles('create_inbound-receipt')
   create(
     @Body(ValidationPipe) createInboundReceiptDto: CreateInboundReceiptDto,
   ) {
@@ -31,6 +36,8 @@ export class InboundReceiptController {
 
   @ResponseMessage('Tạo mới đơn nhập hàng và các lô hàng thành công')
   @Post('inbound-receipt-batchs')
+  @UseGuards(RoleGuard)
+  @Roles('create_inbound-receipt')
   createInboundReceiptAndBatchs(
     @Body(ValidationPipe)
     createInboundReceiptBatchsDto: CreateInboundReceiptBatchsDto,
@@ -42,6 +49,8 @@ export class InboundReceiptController {
 
   @ResponseMessage('Trả về danh sách các đơn nhập hàng thành công')
   @Get()
+  @UseGuards(RoleGuard)
+  @Roles('view_inbound-receipts')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -52,12 +61,16 @@ export class InboundReceiptController {
 
   @ResponseMessage('Trả về thông tin chi tiết đơn nhập hàng thành công')
   @Get(':id')
+  @UseGuards(RoleGuard)
+  @Roles('view_inbound-receipt')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.inboundReceiptService.findOne(id);
   }
 
   @ResponseMessage('Cập nhật thông tin chi tiết đơn nhập hàng thành công')
   @Patch(':id')
+  @UseGuards(RoleGuard)
+  @Roles('update_inbound-receipt')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateInboundReceiptDto: UpdateInboundReceiptDto,
@@ -67,6 +80,8 @@ export class InboundReceiptController {
 
   @ResponseMessage('Cập nhật thông tin đơn nhập hàng và các lô hàng thành công')
   @Patch('inbound-receipt-batchs/:id')
+  @UseGuards(RoleGuard)
+  @Roles('update_inbound-receipt')
   updateInboundReceiptAndBatchs(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateInboundReceiptBatchsDto: UpdateInboundReceiptBatchsDto,
@@ -79,6 +94,8 @@ export class InboundReceiptController {
 
   @ResponseMessage('Xóa đơn nhập hàng thành công')
   @Delete(':id')
+  @UseGuards(RoleGuard)
+  @Roles('delete_inbound-receipt')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.inboundReceiptService.remove(id);
   }

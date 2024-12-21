@@ -107,20 +107,23 @@ export class ProductUnitsService {
     if (!pageSize) pageSize = 100;
 
     const productSampleNameFilter = filter.name ? filter.name : null;
-    const productLineNameFilter = filter.productLineName ? filter.productLineName : null;
-    const productTypeNameFilter = filter.productTypeName ? filter.productTypeName : null;
+    const productLineNameFilter = filter.productLineName
+      ? filter.productLineName
+      : null;
+    const productTypeNameFilter = filter.productTypeName
+      ? filter.productTypeName
+      : null;
 
     delete filter.current;
     delete filter.pageSize;
     delete filter.name;
-    delete filter.productLineName; 
+    delete filter.productLineName;
     delete filter.productTypeName;
     delete filter.productLineId;
 
     if (productLineId) {
       filter.productSample = { productLineId: productLineId };
     }
-
 
     const skip = (current - 1) * pageSize;
 

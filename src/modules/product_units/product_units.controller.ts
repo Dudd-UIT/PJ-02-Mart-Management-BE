@@ -9,6 +9,7 @@ import {
   ValidationPipe,
   Query,
   ParseIntPipe,
+  UseGuards,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
@@ -17,6 +18,8 @@ import { CreateProductUnitDto } from './dto/create-product_unit.dto';
 import { UpdateProductUnitDto } from './dto/update-product_unit.dto';
 import { FindProductUnitsByIdsDto } from './dto/find-product_units-by-ids.dto';
 import { ResponseMessage } from 'src/decorators/customDecorator';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('product-units')
@@ -25,6 +28,9 @@ export class ProductUnitsController {
 
   @Post()
   @ResponseMessage('Thêm mới đơn vị tính cho mẫu sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('create_product-unit')
+  create(@Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto) {
   create(
     @Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto
   ) {
@@ -35,6 +41,8 @@ export class ProductUnitsController {
   @ResponseMessage(
     'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
   )
+  @UseGuards(RoleGuard)
+  @Roles('view_product-units')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -50,6 +58,8 @@ export class ProductUnitsController {
   }
 
   @Get(':id')
+  @UseGuards(RoleGuard)
+  @Roles('view_product-unit')
   @ResponseMessage(
     'Trả về thông tin chi tiết một đơn vị tính cho mẫu sản phẩm thành công',
   )
@@ -58,6 +68,8 @@ export class ProductUnitsController {
   }
 
   @Post('find-by-ids')
+  @UseGuards(RoleGuard)
+  @Roles('view_product-units')
   async findByIds(
     @Body() findProductUnitsByIdsDto: FindProductUnitsByIdsDto,
     @Query('current') current: string,
@@ -72,6 +84,8 @@ export class ProductUnitsController {
 
   @Patch(':id')
   @ResponseMessage('Cập nhật đơn vị tính cho mẫu sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('update_product-unit')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductUnitDto: UpdateProductUnitDto,
@@ -80,6 +94,8 @@ export class ProductUnitsController {
   }
 
   @Delete(':id')
+  @UseGuards(RoleGuard)
+  @Roles('delete_product-unit')
   @ResponseMessage('Xóa đơn vị tính cho mẫu dòng sản phẩm thành công')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productUnitsService.remove(id);
