@@ -34,18 +34,19 @@ export class ProductUnitsService {
       buffer,
       mimetype: 'image/jpeg',
     } as Express.Multer.File;
-
   }
 
   async create(createProductUnitDto: CreateProductUnitDto) {
     try {
-      if (createProductUnitDto.image && !createProductUnitDto.image.startsWith('http')) {
+      if (
+        createProductUnitDto.image &&
+        !createProductUnitDto.image.startsWith('http')
+      ) {
         const uploadedImageUrl = await this.uploadService.uploadFile(
           this.convertBase64ToMulterFile(createProductUnitDto.image),
         );
         createProductUnitDto.image = uploadedImageUrl; // Cập nhật URL của ảnh
       }
-
 
       const { unitId, productSampleId, compareUnitId, ...rest } =
         createProductUnitDto;

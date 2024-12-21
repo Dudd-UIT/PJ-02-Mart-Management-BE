@@ -31,9 +31,6 @@ export class ProductUnitsController {
   @UseGuards(RoleGuard)
   @Roles('create_product-unit')
   create(@Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto) {
-  create(
-    @Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto
-  ) {
     return this.productUnitsService.create(createProductSampleDto);
   }
 
