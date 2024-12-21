@@ -9,12 +9,15 @@ import {
   ValidationPipe,
   Query,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ProductUnitsService } from './product_units.service';
 import { CreateProductUnitDto } from './dto/create-product_unit.dto';
 import { UpdateProductUnitDto } from './dto/update-product_unit.dto';
 import { FindProductUnitsByIdsDto } from './dto/find-product_units-by-ids.dto';
 import { ResponseMessage } from 'src/decorators/customDecorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('product-units')
 export class ProductUnitsController {
@@ -22,7 +25,9 @@ export class ProductUnitsController {
 
   @Post()
   @ResponseMessage('Thêm mới đơn vị tính cho mẫu sản phẩm thành công')
-  create(@Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto) {
+  create(
+    @Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto
+  ) {
     return this.productUnitsService.create(createProductSampleDto);
   }
 

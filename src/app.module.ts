@@ -40,6 +40,7 @@ import { Role } from './modules/roles/entities/role.entity';
 import { SupplierProduct } from './modules/supplier_products/entities/supplier_product.entity';
 import { Supplier } from './modules/suppliers/entities/supplier.entity';
 import { Unit } from './modules/units/entities/unit.entity';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import { Unit } from './modules/units/entities/unit.entity';
     InboundReceiptModule,
     AuthsModule,
     ProductUnitsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [

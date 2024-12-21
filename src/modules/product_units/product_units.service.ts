@@ -14,6 +14,7 @@ import { ProductUnit } from './entities/product_unit.entity';
 import { ProductSamplesService } from '../product_samples/product_samples.service';
 import { UnitsService } from '../units/units.service';
 import aqp from 'api-query-params';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class ProductUnitsService {
@@ -23,10 +24,29 @@ export class ProductUnitsService {
     @Inject(forwardRef(() => ProductSamplesService))
     private productSamplesService: ProductSamplesService,
     private unitsService: UnitsService,
+    private uploadService: UploadService,
   ) {}
+
+  private convertBase64ToMulterFile(base64String: string): Express.Multer.File {
+    const buffer = Buffer.from(base64String, 'base64');
+    return {
+      originalname: `image-${Date.now()}.jpg`,
+      buffer,
+      mimetype: 'image/jpeg',
+    } as Express.Multer.File;
+
+  }
 
   async create(createProductUnitDto: CreateProductUnitDto) {
     try {
+      if (createProductUnitDto.image && !createProductUnitDto.image.startsWith('http')) {
+        const uploadedImageUrl = await this.uploadService.uploadFile(
+          this.convertBase64ToMulterFile(createProductUnitDto.image),
+        );
+        createProductUnitDto.image = uploadedImageUrl; // Cập nhật URL của ảnh
+      }
+
+
       const { unitId, productSampleId, compareUnitId, ...rest } =
         createProductUnitDto;
 
@@ -234,7 +254,6 @@ export class ProductUnitsService {
   async findOne(id: number) {
     const productSample = await this.productUnitRepository.findOne({
       where: { id },
-      relations: ['productUnits'],
     });
 
     if (!productSample) {
