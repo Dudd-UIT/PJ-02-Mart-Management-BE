@@ -41,6 +41,8 @@ import { SupplierProduct } from './modules/supplier_products/entities/supplier_p
 import { Supplier } from './modules/suppliers/entities/supplier.entity';
 import { Unit } from './modules/units/entities/unit.entity';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { UploadModule } from './modules/upload/upload.module';
+
 
 @Module({
   imports: [
@@ -87,6 +89,7 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
     InboundReceiptModule,
     AuthsModule,
     ProductUnitsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [
