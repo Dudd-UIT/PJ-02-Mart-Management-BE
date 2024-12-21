@@ -1,16 +1,15 @@
-# Dockerfile for NestJS backend
+# Base image
 FROM node:18-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package.json package-lock.json ./
-
 RUN npm install
 
 COPY . .
 
 RUN npm run build
 
-EXPOSE 4000
+EXPOSE 8081
 
 CMD ["npm", "run", "start:prod"]
