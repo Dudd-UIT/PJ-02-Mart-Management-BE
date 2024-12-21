@@ -21,6 +21,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: payload.sub,
       name: payload.name,
+      group: payload.group, // Đính kèm roles vào request.user
+      roles: payload.roles, // Đính kèm permissions vào request.user
     };
   }
 }

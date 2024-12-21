@@ -105,16 +105,124 @@ INSERT INTO `group` (id, name, description) VALUES
 
 -- Insert Roles
 INSERT INTO role (id, url, description) VALUES
-(1, '/admin/*', 'Quyền quản trị'),
-(2, '/sales/*', 'Quyền bán hàng'),
-(3, '/customer/*', 'Quyền khách hàng');
+(1, 'create_batch', 'Tạo mới lô hàng'),
+(2, 'view_batchs', 'Xem danh sách lô hàng'),
+(3, 'view_batch', 'Xem chi tiết lô hàng'),
+(4, 'update_batch', 'Cập nhật lô hàng'),
+(5, 'delete_batch', 'Xóa lô hàng'),
+
+(6, 'create_group', 'Tạo mới nhóm người dùng'),
+(7, 'view_groups', 'Xem danh sách nhóm người dùng'),
+(8, 'view_group', 'Xem chi tiết nhóm người dùng'),
+(9, 'update_group', 'Cập nhật nhóm người dùng'),
+(10, 'delete_group', 'Xóa nhóm người dùng'),
+(11, 'assign-roles', 'Phân quyền nhóm người dùng'),
+
+(12, 'create_inbound-receipt', 'Tạo mới đơn nhập hàng'),
+(13, 'view_inbound-receipts', 'Xem danh sách đơn nhập hàng'),
+(14, 'view_inbound-receipt', 'Xem chi tiết đơn nhập hàng'),
+(15, 'update_inbound-receipt', 'Cập nhật đơn nhập hàng'),
+(16, 'delete_inbound-receipt', 'Xóa đơn nhập hàng'),
+
+(17, 'create_order', 'Tạo mới hóa đơn'),
+(18, 'view_orders', 'Xem danh sách hóa đơn'),
+(19, 'view_order', 'Xem chi tiết hóa đơn'),
+(20, 'update_order', 'Cập nhật hóa đơn'),
+(21, 'delete_order', 'Xóa hóa đơn'),
+
+(22, 'view_parameters', 'Xem danh sách tham số'),
+(23, 'view_parameter', 'Xem chi tiết tham số'),
+(24, 'update_parameter', 'Cập nhật tham số'),
+
+(25, 'create_product-line', 'Tạo mới dòng sản phẩm'),
+(26, 'view_product-lines', 'Xem danh sách dòng sản phẩm'),
+(27, 'view_product-line', 'Xem chi tiết dòng sản phẩm'),
+(28, 'update_product-line', 'Cập nhật dòng sản phẩm'),
+(29, 'delete_product-line', 'Xóa dòng sản phẩm'),
+
+(30, 'create_product-sample', 'Tạo mới mẫu sản phẩm'),
+(31, 'view_product-samples', 'Xem danh sách mẫu sản phẩm'),
+(32, 'view_product-sample', 'Xem chi tiết mẫu sản phẩm'),
+(33, 'update_product-sample', 'Cập nhật mẫu sản phẩm'),
+(34, 'delete_product-sample', 'Xóa mẫu sản phẩm'),
+
+(35, 'create_product-type', 'Tạo mới loại sản phẩm'),
+(36, 'view_product-types', 'Xem danh sách loại sản phẩm'),
+(37, 'view_product-type', 'Xem chi tiết loại sản phẩm'),
+(38, 'update_product-type', 'Cập nhật loại sản phẩm'),
+(39, 'delete_product-type', 'Xóa loại sản phẩm'),
+
+(40, 'create_product-unit', 'Tạo mới đơn vị sản phẩm'),
+(41, 'view_product-units', 'Xem danh sách đơn vị sản phẩm'),
+(42, 'view_product-unit', 'Xem chi tiết đơn vị sản phẩm'),
+(43, 'update_product-unit', 'Cập nhật đơn vị sản phẩm'),
+(44, 'delete_product-unit', 'Xóa đơn vị sản phẩm'),
+
+(45, 'view_roles', 'Xem danh sách các vai trò'),
+
+(46, 'view_supplier-products', 'Xem danh sách các sản phẩm của một nhà cung cấp'),
+
+(47, 'create_supplier', 'Tạo mới nhà cung cấp'),
+(48, 'view_suppliers', 'Xem danh sách nhà cung cấp'),
+(49, 'view_supplier', 'Xem chi tiết nhà cung cấp'),
+(50, 'update_supplier', 'Cập nhật nhà cung cấp'),
+(51, 'delete_supplier', 'Xóa nhà cung cấp'),
+
+(52, 'create_unit', 'Tạo mới đơn vị tính'),
+(53, 'view_units', 'Xem danh sách đơn vị tính'),
+(54, 'view_unit', 'Xem chi tiết đơn vị tính'),
+(55, 'update_unit', 'Cập nhật đơn vị tính'),
+(56, 'delete_unit', 'Xóa đơn vị tính'),
+
+(57, 'create_customer', 'Tạo mới khách hàng'),
+(58, 'view_customers', 'Xem danh sách khách hàng'),
+(59, 'view_customer', 'Xem chi tiết khách hàng'),
+(60, 'update_customer', 'Cập nhật khách hàng'),
+(61, 'delete_customer', 'Xóa khách hàng'),
+
+(62, 'create_staff', 'Tạo mới nhân viên'),
+(63, 'view_staffs', 'Xem danh sách nhân viên'),
+(64, 'view_staff', 'Xem chi tiết nhân viên'),
+(65, 'update_staff', 'Cập nhật nhân viên'),
+(66, 'delete_staff', 'Xóa nhân viên');
 
 -- Insert role_group
 INSERT INTO role_group (groupId, roleId) VALUES
 (1, 1),
 (1, 2),
-(2, 2),
-(3, 3);
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(1, 13),
+(1, 14),
+(1, 15),
+(1, 16),
+(1, 17),
+(1, 18),
+(1, 22),
+(1, 26),
+(1, 31),
+(1, 36),
+(1, 41),
+(1, 45),
+(1, 46),
+(1, 48),
+(1, 53),
+(1, 59),
+(1, 60),
+(1, 64),
+
+(2, 53),
+(2, 59),
+(2, 60),
+(2, 64);
 
 -- Insert Users
 INSERT INTO `user` (id, name, email, password, score, address, phone, groupId, createdAt) VALUES

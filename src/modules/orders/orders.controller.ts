@@ -9,20 +9,24 @@ import {
   ValidationPipe,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Public, ResponseMessage } from 'src/decorators/customDecorator';
 import { CreateOrderAndOrderDetailsDto } from './dto/create-order_order-detail.dto';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @ResponseMessage('Tạo mới đơn hàng thành công')
-  @Public()
   @Post('order-details')
+  @UseGuards(RoleGuard)
+  @Roles('create_order')
   createOrderAndOrderDetails(
     @Body(ValidationPipe)
     createOrderAndOrderDetailsDto: CreateOrderAndOrderDetailsDto,
@@ -33,33 +37,38 @@ export class OrdersController {
   }
 
   @ResponseMessage('Tạo mới đơn hàng thành công')
-  @Public()
   @Post()
+  @UseGuards(RoleGuard)
+  @Roles('create_order')
   create(@Body(ValidationPipe) createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);
   }
 
   @ResponseMessage('Trả về danh sách các đơn hàng thành công')
-  @Public()
   @Get()
+  @UseGuards(RoleGuard)
+  @Roles('view_orders')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {
+    console.log('view_orders');
     return this.ordersService.findAll(query, +current, +pageSize);
   }
 
   @ResponseMessage('Trả về thông tin chi tiết đơn hàng thành công')
-  @Public()
   @Get(':id')
+  @UseGuards(RoleGuard)
+  @Roles('view_order')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.ordersService.findOne(id);
   }
 
   @ResponseMessage('Cập nhật thông tin chi tiết đơn hàng thành công')
-  @Public()
   @Patch(':id')
+  @UseGuards(RoleGuard)
+  @Roles('update_order')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe) updateOrderDto: UpdateOrderDto,
@@ -68,8 +77,9 @@ export class OrdersController {
   }
 
   @ResponseMessage('Xóa đơn hàng thành công')
-  @Public()
   @Delete(':id')
+  @UseGuards(RoleGuard)
+  @Roles('delete_order')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.ordersService.remove(id);
   }

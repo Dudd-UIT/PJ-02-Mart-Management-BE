@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -40,6 +40,7 @@ import { Role } from './modules/roles/entities/role.entity';
 import { SupplierProduct } from './modules/supplier_products/entities/supplier_product.entity';
 import { Supplier } from './modules/suppliers/entities/supplier.entity';
 import { Unit } from './modules/units/entities/unit.entity';
+import { LoggerMiddleware } from './middleware/logger.middleware';
 
 @Module({
   imports: [
@@ -90,10 +91,10 @@ import { Unit } from './modules/units/entities/unit.entity';
   controllers: [AppController],
   providers: [
     AppService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
@@ -104,4 +105,8 @@ import { Unit } from './modules/units/entities/unit.entity';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*'); // Áp dụng middleware cho tất cả các routes
+  }
+}
