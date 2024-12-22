@@ -202,7 +202,7 @@ export class UsersService {
     try {
       const user = await this.userRepository.findOne({
         where: { email },
-        relations: ['group'],
+        relations: ['group', 'group.roles'],
       });
       if (!user) {
         throw new NotFoundException(`Không tìm thấy người dùng`);
