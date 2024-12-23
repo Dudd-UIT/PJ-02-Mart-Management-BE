@@ -10,7 +10,7 @@ import {
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import aqp from 'api-query-params';
 import { UsersService } from '../users/users.service';
@@ -170,5 +170,97 @@ export class OrdersService {
     }
 
     return await this.orderRepository.softDelete(id);
+  }
+
+  async getRevenueByDate(date: string): Promise<number> {
+    const startOfDay = new Date(date).setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date).setHours(23, 59, 59, 999);
+
+    const revenue = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.totalPrice)', 'total')
+      .where('order.isPaid = :isPaid', { isPaid: true })
+      .andWhere('order.createdAt BETWEEN :start AND :end', {
+        start: new Date(startOfDay),
+        end: new Date(endOfDay),
+      })
+      .getRawOne();
+
+    return revenue.total || 0;
+  }
+
+  async getRevenueByMonth(year: number, month: number): Promise<number> {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0);
+
+    const revenue = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.totalPrice)', 'total')
+      .where('order.isPaid = :isPaid', { isPaid: true })
+      .andWhere('order.createdAt BETWEEN :start AND :end', {
+        start: startOfMonth,
+        end: endOfMonth,
+      })
+      .getRawOne();
+
+    return revenue.total || 0;
+  }
+
+  async getRevenueByYear(year: number): Promise<number> {
+    const startOfYear = new Date(year, 0, 1);
+    const endOfYear = new Date(year, 11, 31);
+
+    const revenue = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.totalPrice)', 'total')
+      .where('order.isPaid = :isPaid', { isPaid: true })
+      .andWhere('order.createdAt BETWEEN :start AND :end', {
+        start: startOfYear,
+        end: endOfYear,
+      })
+      .getRawOne();
+
+    return revenue.total || 0;
+  }
+
+  async getOrderCountByDate(date: string): Promise<number> {
+    const startOfDay = new Date(date).setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date).setHours(23, 59, 59, 999);
+
+    return this.orderRepository.count({
+      where: {
+        createdAt: Between(new Date(startOfDay), new Date(endOfDay)),
+      },
+    });
+  }
+
+  async getOrderCountByMonth(year: number, month: number): Promise<number> {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0);
+
+    return this.orderRepository.count({
+      where: {
+        createdAt: Between(startOfMonth, endOfMonth),
+      },
+    });
+  }
+
+  async getOrderCountByYear(year: number): Promise<number> {
+    const startOfYear = new Date(year, 0, 1);
+    const endOfYear = new Date(year, 11, 31);
+
+    return this.orderRepository.count({
+      where: {
+        createdAt: Between(startOfYear, endOfYear),
+      },
+    });
+  }
+
+  async getYearsWithOrders(): Promise<number[]> {
+    const result = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('DISTINCT(YEAR(order.createdAt))', 'year')
+      .getRawMany();
+    return result.map((item) => item.year);
   }
 }

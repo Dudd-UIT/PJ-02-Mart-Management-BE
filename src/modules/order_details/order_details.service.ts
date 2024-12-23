@@ -63,4 +63,36 @@ export class OrderDetailsService {
       );
     }
   }
+
+  async getTopSellingProducts(limit: number, date?: string): Promise<any[]> {
+    try {
+      const query = this.orderDetailRepository
+        .createQueryBuilder('orderDetail')
+        .select('productSample.name', 'productName')
+        .addSelect('SUM(orderDetail.quantity)', 'totalSold')
+        .innerJoin('orderDetail.productUnit', 'productUnit')
+        .innerJoin('productUnit.productSample', 'productSample')
+        .groupBy('productSample.name')
+        .orderBy('totalSold', 'DESC')
+        .limit(limit);
+
+      // Filter by date range if provided
+      if (date) {
+        const startOfDay = new Date(date).setHours(0, 0, 0, 0);
+        const endOfDay = new Date(date).setHours(23, 59, 59, 999);
+        query.andWhere('orderDetail.createdAt BETWEEN :start AND :end', {
+          start: new Date(startOfDay),
+          end: new Date(endOfDay),
+        });
+      }
+
+      const result = await query.getRawMany();
+      return result;
+    } catch (error) {
+      console.error('Error fetching top-selling products:', error);
+      throw new InternalServerErrorException(
+        'Failed to fetch top-selling products',
+      );
+    }
+  }
 }

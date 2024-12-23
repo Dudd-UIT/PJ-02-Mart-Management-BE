@@ -301,4 +301,52 @@ export class InboundReceiptService {
       );
     }
   }
+
+  async getInboundCostByDate(date: string): Promise<number> {
+    const startOfDay = new Date(date).setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date).setHours(23, 59, 59, 999);
+
+    const totalCost = await this.inboundReceiptRepository
+      .createQueryBuilder('inbound')
+      .select('SUM(inbound.totalPrice)', 'total')
+      .where('inbound.createdAt BETWEEN :start AND :end', {
+        start: new Date(startOfDay),
+        end: new Date(endOfDay),
+      })
+      .getRawOne();
+
+    return totalCost.total || 0;
+  }
+
+  async getInboundCostByMonth(year: number, month: number): Promise<number> {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0);
+
+    const totalCost = await this.inboundReceiptRepository
+      .createQueryBuilder('inbound')
+      .select('SUM(inbound.totalPrice)', 'total')
+      .where('inbound.createdAt BETWEEN :start AND :end', {
+        start: startOfMonth,
+        end: endOfMonth,
+      })
+      .getRawOne();
+
+    return totalCost.total || 0;
+  }
+
+  async getInboundCostByYear(year: number): Promise<number> {
+    const startOfYear = new Date(year, 0, 1);
+    const endOfYear = new Date(year, 11, 31);
+
+    const totalCost = await this.inboundReceiptRepository
+      .createQueryBuilder('inbound')
+      .select('SUM(inbound.totalPrice)', 'total')
+      .where('inbound.createdAt BETWEEN :start AND :end', {
+        start: startOfYear,
+        end: endOfYear,
+      })
+      .getRawOne();
+
+    return totalCost.total || 0;
+  }
 }
