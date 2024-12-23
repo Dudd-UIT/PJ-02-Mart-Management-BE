@@ -42,6 +42,7 @@ import { Supplier } from './modules/suppliers/entities/supplier.entity';
 import { Unit } from './modules/units/entities/unit.entity';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { UploadModule } from './modules/upload/upload.module';
+import { StatisticModule } from './modules/statistic/statistic.module';
 
 
 @Module({
@@ -90,6 +91,7 @@ import { UploadModule } from './modules/upload/upload.module';
     AuthsModule,
     ProductUnitsModule,
     UploadModule,
+    StatisticModule,
   ],
   controllers: [AppController],
   providers: [

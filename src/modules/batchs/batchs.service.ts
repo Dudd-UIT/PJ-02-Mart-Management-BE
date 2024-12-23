@@ -212,4 +212,16 @@ export class BatchsService {
       );
     }
   }
+
+  async getInventoryValue(): Promise<number> {
+    const batches = await this.batchRepository.find({
+      select: ['inboundPrice', 'inventQuantity'],
+    });
+
+    const totalValue = batches.reduce((sum, batch) => {
+      return sum + batch.inboundPrice * batch.inventQuantity;
+    }, 0);
+
+    return totalValue;
+  }
 }
