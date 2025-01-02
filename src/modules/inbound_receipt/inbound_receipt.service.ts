@@ -301,4 +301,20 @@ export class InboundReceiptService {
       );
     }
   }
+
+  async getInboundCostByRange(start?: Date, end?: Date): Promise<number> {
+    const query = this.inboundReceiptRepository
+      .createQueryBuilder('inboundReceipt')
+      .select('SUM(inboundReceipt.totalPrice)', 'total');
+
+    if (start) {
+      query.andWhere('inboundReceipt.createdAt >= :start', { start });
+    }
+    if (end) {
+      query.andWhere('inboundReceipt.createdAt <= :end', { end });
+    }
+
+    const result = await query.getRawOne();
+    return parseFloat(result.total || '0');
+  }
 }

@@ -20,5 +20,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  // "include": ["src/**/*"], // Bao gồm tất cả các file trong src
+  // "exclude": ["node_modules", "dist"]
 }
