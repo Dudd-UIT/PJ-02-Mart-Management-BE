@@ -97,6 +97,68 @@ export class GroupsService {
     }
   }
 
+
+  async findAllEmployee(query: any, current: number, pageSize: number) {
+    try {
+      const { filter } = aqp(query);
+  
+      if (!current) current = 1;
+      if (!pageSize) pageSize = 10;
+      delete filter.current;
+      delete filter.pageSize;
+  
+      // Tính toán phân trang
+      const skip = (current - 1) * pageSize;
+  
+      // Sử dụng query builder để lọc group có name là 'nhân viên'
+      const queryBuilder = this.groupRepository.createQueryBuilder('group');
+  
+      queryBuilder.where('group.name = :groupName', { groupName: 'nhân viên' });
+  
+      // Áp dụng các bộ lọc khác từ filter (nếu có)
+      Object.keys(filter).forEach((key) => {
+        queryBuilder.andWhere(`group.${key} = :${key}`, { [key]: filter[key] });
+      });
+  
+      // Đếm tổng số items
+      const totalItems = await queryBuilder.getCount();
+  
+      // Truy vấn dữ liệu với phân trang
+      const results = await queryBuilder
+        .take(pageSize)
+        .skip(skip)
+        .getMany();
+  
+      // Tổng số trang
+      const totalPages = Math.ceil(totalItems / pageSize);
+  
+      return {
+        meta: {
+          current,
+          pageSize,
+          pages: totalPages,
+          total: totalItems,
+        },
+        results,
+      };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi truy vấn nhóm người dùng:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể truy xuất dữ liệu nhóm người dùng, vui lòng thử lại sau.',
+      );
+    }
+  }
+  
+  
+  
+
   async findOne(id: number) {
     try {
       const group = await this.groupRepository.findOne({
