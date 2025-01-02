@@ -94,7 +94,8 @@ INSERT INTO product_unit (id, sellPrice, conversionRate, compareUnitId, image, v
 (17, 35000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-2L581_Fmf-h87orbYar6cg0Wmss93tJ3Mg&s', '1L', 17, 5, NOW()),
 (18, 38000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG_mCa8SZ0ilroESF12s1rxV6t8C4bOOGkCg&s', '1L', 18, 5, NOW()),
 (19, 25000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLJsXsGamM-MVngdc3qPPxD7RNDQy1hQSGdw&s', '380g', 19, 5, NOW()),
-(20, 6000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '100g', 20, 5, NOW());
+(20, 6000, null, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '100g', 20, 5, NOW()),
+(21, 200000, 24, 4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '4 kg', 13, 6, NOW());
 
 
 -- Insert Groups
@@ -475,7 +476,8 @@ INSERT INTO `order` (id, totalPrice, paymentMethod, paymentTime, isPaid, isRecei
     (43, 11050000, 'Tiền mặt', '2024-12-22 17:30:00', 1, 1, 4, 2, '2024-12-22 17:35:00'),
     (44, 12800000, 'Chuyển khoản', '2024-12-25 10:30:00', 1, 1, 5, 3, '2024-12-25 10:35:00'),
     (45, 15900000, 'Tiền mặt', '2024-12-28 19:30:00', 1, 1, 6, 4, '2024-12-28 19:35:00'),
-    (46, 9300000, 'Chuyển khoản', '2024-12-30 12:30:00', 1, 1, 4, 2, '2024-12-30 12:35:00');
+    (46, 9300000, 'Chuyển khoản', '2024-12-30 12:30:00', 1, 1, 4, 2, '2024-12-30 12:35:00'),
+    (47, 200000, 'Chuyển khoản', '2024-12-26 12:30:00', 1, 1, 4, 2, '2024-12-26 12:35:00');
 
 -- Thêm Order Details (Tổng >20 chi tiết đơn hàng)
 INSERT INTO order_detail (id, quantity, currentPrice, orderId, productUnitId) VALUES
@@ -690,7 +692,10 @@ INSERT INTO order_detail (id, quantity, currentPrice, orderId, productUnitId) VA
 
 -- Đơn hàng 46
 (85, 30, 10000, 46, 13), -- Tăng từ 8 lên 30 chai Coca-Cola
-(86, 20, 65000, 46, 3);  -- Tăng từ 6 lên 20 kg đùi gà
+(86, 20, 65000, 46, 3),  -- Tăng từ 6 lên 20 kg đùi gà
+
+-- Đơn hàng 47
+(200, 1, 200000, 47, 21); -- 1 thùng Coca
 
 INSERT INTO parameter (name, description, value) VALUES
 ('pointConversionRate', 'Tỷ lệ đổi từ điểm sang VND, bao nhiêu điểm thì được 1 VND', 100),
