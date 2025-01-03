@@ -46,7 +46,7 @@ export class GroupsController {
   @ResponseMessage('Trả về danh sách các nhóm người dùng nhân viên thành công')
   @Get('/employees')
   @UseGuards(RoleGuard)
-  @Roles('view_employees')
+  @Roles('v_groups')
   findAllEmployee(
     @Query() query: any,
     @Query('current') current: string,

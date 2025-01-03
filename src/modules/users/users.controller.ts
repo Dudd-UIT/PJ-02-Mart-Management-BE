@@ -10,20 +10,28 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateCustomerDto, CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ResponseMessage } from 'src/decorators/customDecorator';
+import { Public, ResponseMessage } from 'src/decorators/customDecorator';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
+import { Response } from 'express'; // Import từ Express
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  @Post('verify-email')
-  async verifyEmail(@Query('token') token: string) {
-    return this.usersService.verifyEmail(token);
+
+  @Public()
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string, @Res() res: Response) {
+    const htmlContent = await this.usersService.verifyEmail(token);
+
+    // Thiết lập Content-Type là text/html và trả về HTML
+    res.setHeader('Content-Type', 'text/html');
+    res.send(htmlContent);
   }
 
   @ResponseMessage('Tạo mới khách hàng thành công')
