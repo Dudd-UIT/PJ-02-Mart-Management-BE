@@ -8,7 +8,7 @@ import {
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { Group } from './entities/group.entity';
 import aqp from 'api-query-params';
 import { UpdateRoleGroupDto } from './dto/update-role-group.dto';
@@ -51,6 +51,7 @@ export class GroupsService {
 
   async findAll(query: any, current: number, pageSize: number) {
     try {
+      console.log('query',query);
       const { filter } = aqp(query);
 
       if (!current) current = 1;
@@ -58,14 +59,22 @@ export class GroupsService {
       delete filter.current;
       delete filter.pageSize;
 
+      const { name } = filter;
+
+      const whereConditions: any = {};
+
+      if(name) {
+        whereConditions.name = Like(`%${name}%`);
+      }
+
       const totalItems = await this.groupRepository.count({
-        where: filter,
+        where: whereConditions,
       });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
       const options = {
-        where: filter,
+        where: whereConditions,
         relations: ['roles'],
         take: pageSize,
         skip: skip,
