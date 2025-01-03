@@ -11,7 +11,7 @@ export class SupplierProductsController {
 
   @Get()
   @UseGuards(RoleGuard)
-  @Roles('view_supplier-products')
+  @Roles('v_sups')
   findAll(
     @Query() query: any,
     @Query('current') current: string,

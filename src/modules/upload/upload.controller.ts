@@ -3,10 +3,13 @@ import {
   Controller,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
 
 @Controller('upload')
 export class UploadController {
@@ -14,6 +17,8 @@ export class UploadController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
+  @UseGuards(RoleGuard)
+  @Roles('c_pdsam', 'v_pdsams', 'u_pdsam', 'd_pdsam')
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
   ): Promise<{ url: string }> {

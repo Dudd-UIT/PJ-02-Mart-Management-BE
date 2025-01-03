@@ -26,7 +26,7 @@ export class OrdersController {
   @ResponseMessage('Tạo mới đơn hàng thành công')
   @Post('order-details')
   @UseGuards(RoleGuard)
-  @Roles('create_order')
+  @Roles('c_order')
   createOrderAndOrderDetails(
     @Body(ValidationPipe)
     createOrderAndOrderDetailsDto: CreateOrderAndOrderDetailsDto,
@@ -39,7 +39,7 @@ export class OrdersController {
   @ResponseMessage('Tạo mới đơn hàng thành công')
   @Post()
   @UseGuards(RoleGuard)
-  @Roles('create_order')
+  @Roles('c_order')
   create(@Body(ValidationPipe) createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);
   }
@@ -47,20 +47,19 @@ export class OrdersController {
   @ResponseMessage('Trả về danh sách các đơn hàng thành công')
   @Get()
   @UseGuards(RoleGuard)
-  @Roles('view_orders')
+  @Roles('v_orders')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {
-    console.log('view_orders');
     return this.ordersService.findAll(query, +current, +pageSize);
   }
 
   @ResponseMessage('Trả về thông tin chi tiết đơn hàng thành công')
   @Get(':id')
   @UseGuards(RoleGuard)
-  @Roles('view_order')
+  @Roles('v_orders')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.ordersService.findOne(id);
   }
@@ -68,7 +67,7 @@ export class OrdersController {
   @ResponseMessage('Cập nhật thông tin chi tiết đơn hàng thành công')
   @Patch(':id')
   @UseGuards(RoleGuard)
-  @Roles('update_order')
+  @Roles('u_order')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe) updateOrderDto: UpdateOrderDto,
@@ -79,7 +78,7 @@ export class OrdersController {
   @ResponseMessage('Xóa đơn hàng thành công')
   @Delete(':id')
   @UseGuards(RoleGuard)
-  @Roles('delete_order')
+  @Roles('d_order')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.ordersService.remove(id);
   }

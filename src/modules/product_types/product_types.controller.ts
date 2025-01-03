@@ -25,7 +25,7 @@ export class ProductTypesController {
   @Post()
   @ResponseMessage('Tạo loại sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('create_product-type')
+  @Roles('c_pdtype')
   create(@Body(ValidationPipe) createProductTypeDto: CreateProductTypeDto) {
     return this.productTypesService.create(createProductTypeDto);
   }
@@ -33,7 +33,7 @@ export class ProductTypesController {
   @Get()
   @ResponseMessage('Trả về danh sách các loại sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('view_product-types')
+  @Roles('v_pdtypes')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -45,7 +45,7 @@ export class ProductTypesController {
   @Get(':id')
   @ResponseMessage('Trả về thông tin chi tiết loại sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('view_product-type')
+  @Roles('v_pdtypes')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productTypesService.findOne(id);
   }
@@ -53,7 +53,7 @@ export class ProductTypesController {
   @Patch(':id')
   @ResponseMessage('Cập nhật thông tin chi tiết loại sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('update_product-type')
+  @Roles('u_pdtype')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductTypeDto: UpdateProductTypeDto,
@@ -64,7 +64,7 @@ export class ProductTypesController {
   @Delete(':id')
   @ResponseMessage('Xóa dòng loại sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('delete_product-type')
+  @Roles('d_pdtype')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productTypesService.remove(id);
   }

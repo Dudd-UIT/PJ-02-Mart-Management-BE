@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
@@ -43,15 +43,14 @@ import { Unit } from './modules/units/entities/unit.entity';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { UploadModule } from './modules/upload/upload.module';
 import { StatisticModule } from './modules/statistic/statistic.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        '.env', // File mặc định
-        `.env.${process.env.NODE_ENV}`, // File theo môi trường, ví dụ .env.production
-      ],
+      envFilePath: ['.env', `.env.${process.env.NODE_ENV}`],
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -79,6 +78,31 @@ import { StatisticModule } from './modules/statistic/statistic.module';
       Unit,
       User,
     ]),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: configService.get<string>('MAIL_USER'),
+            pass: configService.get<string>('MAIL_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: '"No Reply" <no-reply@localhost>',
+        },
+        template: {
+          dir: process.cwd() + '/src/mail/templates/',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+      inject: [ConfigService],
+    }),
     UsersModule,
     GroupsModule,
     RolesModule,

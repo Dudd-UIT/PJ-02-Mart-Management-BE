@@ -1,6 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { Public } from 'src/decorators/customDecorator';
 import { StatisticsService } from './statistic.service';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
 
 @Controller('statistics')
 export class StatisticsController {
@@ -12,8 +14,9 @@ export class StatisticsController {
     return this.statisticsService.getRevenue();
   }
 
-  @Public()
   @Get('revenue-detail')
+  @UseGuards(RoleGuard)
+  @Roles('v_statis')
   async getRevenueDetail(
     @Query('level') level: string,
     @Query('startDate') startDate?: string,
@@ -40,8 +43,9 @@ export class StatisticsController {
     return this.statisticsService.getInventoryValue();
   }
 
-  @Public()
   @Get('top-selling-products')
+  @UseGuards(RoleGuard)
+  @Roles('v_statis')
   async getTopSellingProducts(
     @Query('limit') limit: number = 10,
     @Query('startDate') startDate?: string,
@@ -58,8 +62,9 @@ export class StatisticsController {
     );
   }
 
-  @Public()
   @Get('order-statistics')
+  @UseGuards(RoleGuard)
+  @Roles('v_statis')
   async getOrderStatistics(
     @Query('level') level: string = '1',
     @Query('startDate') startDate?: string,
@@ -72,8 +77,9 @@ export class StatisticsController {
     );
   }
 
-  @Public()
   @Get('order-value-distribution')
+  @UseGuards(RoleGuard)
+  @Roles('v_statis')
   async getOrderValueDistribution(
     @Query('level') level: string = '1',
     @Query('startDate') startDate?: string,

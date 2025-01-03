@@ -9,7 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ParametersService } from './parameters.service';
-import { CreateParameterDto } from './dto/create-parameter.dto';
 import { UpdateParameterDto } from './dto/update-parameter.dto';
 import { ResponseMessage } from 'src/decorators/customDecorator';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
@@ -21,14 +20,14 @@ export class ParametersController {
 
   @Get()
   @UseGuards(RoleGuard)
-  @Roles('view_parameters')
+  @Roles('u_param')
   findAll() {
     return this.parametersService.findAll();
   }
 
   @Get(':id')
   @UseGuards(RoleGuard)
-  @Roles('view_parameter')
+  @Roles('u_param')
   findOne(@Param('id') id: string) {
     return this.parametersService.findOne(+id);
   }
@@ -36,7 +35,7 @@ export class ParametersController {
   @ResponseMessage('Cập nhật giá trị tham số thành công')
   @Patch(':id')
   @UseGuards(RoleGuard)
-  @Roles('update_parameter')
+  @Roles('u_param')
   update(
     @Param('id') id: string,
     @Body() updateParameterDto: UpdateParameterDto,

@@ -25,7 +25,7 @@ export class ProductLinesController {
   @Post()
   @ResponseMessage('Tạo dòng sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('create_product-line')
+  @Roles('c_pdline')
   create(@Body(ValidationPipe) createProductLineDto: CreateProductLineDto) {
     return this.productLinesService.create(createProductLineDto);
   }
@@ -33,7 +33,7 @@ export class ProductLinesController {
   @Get()
   @ResponseMessage('Trả về danh sách các dòng sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('view_product-lines')
+  @Roles('v_pdlines')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -51,7 +51,7 @@ export class ProductLinesController {
   @Get(':id')
   @ResponseMessage('Trả về thông tin chi tiết dòng sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('view_product-line')
+  @Roles('v_pdlines')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productLinesService.findOne(id);
   }
@@ -59,7 +59,7 @@ export class ProductLinesController {
   @Patch(':id')
   @ResponseMessage('Cập nhật thông tin chi tiết dòng sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('update_product-line')
+  @Roles('u_pdline')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductLineDto: UpdateProductLineDto,
@@ -70,7 +70,7 @@ export class ProductLinesController {
   @Delete(':id')
   @ResponseMessage('Xóa dòng dòng sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('delete_product-line')
+  @Roles('d_pdline')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productLinesService.remove(id);
   }

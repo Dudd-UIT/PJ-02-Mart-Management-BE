@@ -79,7 +79,6 @@ export class ProductUnitsService {
         productUnit.compareUnit = compareUnit;
       }
 
-      console.log('>>>productUnit', productUnit);
       const savedProductUnit =
         await this.productUnitRepository.save(productUnit);
       return savedProductUnit;
