@@ -8,7 +8,7 @@ import {
 import { CreateCustomerDto, CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { GroupsService } from '../groups/groups.service';
 import { User } from './entities/user.entity';
 import { hashPasswordHelper } from 'src/helpers/utils';
@@ -195,18 +195,30 @@ export class UsersService {
       delete filter.pageSize;
       delete filter.groupId;
 
+      const { name, phone } = filter;
+
+      const whereConditions: any = {};
+
       if (groupId) {
-        filter.group = { id: groupId };
+        whereConditions.group = { id: groupId };
+      }
+
+      if (name) {
+        whereConditions.name = Like(`%${name}%`);
+      }
+
+      if (phone) {
+        whereConditions.phone = Like(`%${phone}%`);
       }
 
       const totalItems = await this.userRepository.count({
-        where: filter,
+        where: whereConditions,
       });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
       const options = {
-        where: filter,
+        where: whereConditions,
         take: pageSize,
         relations: ['group'],
         skip: skip,

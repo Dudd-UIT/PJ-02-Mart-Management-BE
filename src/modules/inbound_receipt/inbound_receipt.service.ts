@@ -10,7 +10,7 @@ import {
 import { CreateInboundReceiptDto } from './dto/create-inbound_receipt.dto';
 import { UpdateInboundReceiptDto } from './dto/update-inbound_receipt.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, LessThanOrEqual, Like, MoreThanOrEqual, Repository } from 'typeorm';
 import { InboundReceipt } from './entities/inbound_receipt.entity';
 import aqp from 'api-query-params';
 import { UsersService } from '../users/users.service';
@@ -108,11 +108,11 @@ export class InboundReceiptService {
       const whereConditions: any = {};
 
       if (staffName) {
-        whereConditions.staff = { name: staffName };
+        whereConditions.staff = { name: Like(`%${staffName}%`) };
       }
 
       if (supplierName) {
-        whereConditions.supplier = { name: supplierName };
+        whereConditions.supplier = { name: Like(`%${supplierName}%`) };
       }
 
       if (startDate && endDate) {

@@ -11,7 +11,7 @@ import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Supplier } from './entities/supplier.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import aqp from 'api-query-params';
 import { SupplierProductsService } from '../supplier_products/supplier_products.service';
 
@@ -62,6 +62,7 @@ export class SuppliersService {
 
   async findAll(query: any, current: number, pageSize: number) {
     try {
+      console.log('query::: ', query);
       const { filter, sort } = aqp(query);
 
       if (!current) current = 1;
@@ -70,12 +71,26 @@ export class SuppliersService {
       delete filter.current;
       delete filter.pageSize;
 
-      const totalItems = await this.supplierRepository.count({ where: filter });
+      const { name, phone } = filter;
+
+      const whereConditions: any = {};
+
+      if (name) {
+        whereConditions.name = Like(`%${name}%`);
+      }
+
+      if (phone) {
+        whereConditions.phone = Like(`%${phone}%`);
+      }
+
+      const totalItems = await this.supplierRepository.count({
+        where: whereConditions,
+      });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
       const options = {
-        where: filter,
+        where: whereConditions,
         relations: ['supplierProducts'],
         take: pageSize,
         skip: skip,
