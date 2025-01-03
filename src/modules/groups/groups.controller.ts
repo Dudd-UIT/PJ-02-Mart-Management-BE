@@ -43,6 +43,18 @@ export class GroupsController {
     return this.groupsService.findAll(query, +current, +pageSize);
   }
 
+  @ResponseMessage('Trả về danh sách các nhóm người dùng nhân viên thành công')
+  @Get('/employees')
+  @UseGuards(RoleGuard)
+  @Roles('view_employees')
+  findAllEmployee(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.groupsService.findAllEmployee(query, +current, +pageSize);
+  }
+
   @ResponseMessage('Trả về thông tin chi tiết nhóm người dùng thành công')
   @Get(':id')
   @UseGuards(RoleGuard)
