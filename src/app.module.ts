@@ -45,6 +45,8 @@ import { UploadModule } from './modules/upload/upload.module';
 import { StatisticModule } from './modules/statistic/statistic.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
@@ -102,6 +104,9 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         },
       }),
       inject: [ConfigService],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'), // Đường dẫn tới thư mục tĩnh (nếu cần)
     }),
     UsersModule,
     GroupsModule,

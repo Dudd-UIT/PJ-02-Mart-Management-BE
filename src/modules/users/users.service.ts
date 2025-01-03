@@ -15,6 +15,9 @@ import { hashPasswordHelper } from 'src/helpers/utils';
 import aqp from 'api-query-params';
 import { CodeDto } from '../auths/dto/codeDto';
 import * as dayjs from 'dayjs';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as handlebars from 'handlebars';
 import { v4 as uuid4 } from 'uuid';
 import { MailerService } from '@nestjs-modules/mailer';
 
@@ -26,7 +29,7 @@ export class UsersService {
     private readonly mailerService: MailerService,
   ) {}
 
-  async verifyEmail(token: string) {
+  async verifyEmail(token: string): Promise<string> {
     try {
       const user = await this.userRepository.findOne({
         where: { codeId: token },
@@ -41,18 +44,36 @@ export class UsersService {
       }
 
       user.isActive = 1;
-      user.codeId = null; // Xóa token sau khi xác thực
+      user.codeId = null;
       user.codeExpired = null;
       await this.userRepository.save(user);
 
-      return { message: 'Xác thực tài khoản thành công' };
+      return this.renderTemplate('authen.hbs', {
+        title: 'Xác thực thành công',
+        message:
+          'Cảm ơn bạn đã xác thực tài khoản. Bây giờ bạn có thể đăng nhập.',
+      });
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
       console.error('Lỗi khi xác thực email:', error.message);
-      throw new InternalServerErrorException('Không thể xác thực email');
+
+      return this.renderTemplate('authen.hbs', {
+        title: 'Xác thực thất bại',
+        message: error.message || 'Token không hợp lệ hoặc đã hết hạn.',
+      });
     }
+  }
+
+  private renderTemplate(templateName: string, context: any): string {
+    const templatePath = path.join(
+      process.cwd(),
+      'src',
+      'public',
+      templateName,
+    );
+
+    const templateSource = fs.readFileSync(templatePath, 'utf8');
+    const template = handlebars.compile(templateSource);
+    return template(context);
   }
 
   async isEmailExist(email: string) {
@@ -118,7 +139,7 @@ export class UsersService {
       });
 
       // Gửi email xác thực
-      const verificationUrl = `${process.env.APP_URL}/verify-email?token=${codeId}`;
+      const verificationUrl = `${process.env.APP_URL}/v1/api/users/verify-email?token=${codeId}`;
       await this.mailerService.sendMail({
         to: email,
         subject: 'BMart Email Verification',
