@@ -1,0 +1,49 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Thông báo đơn nhập hàng</title>
+    <style>
+      table { width: 100%; border-collapse: collapse; } th, td { border: 1px
+      solid #ddd; padding: 8px; text-align: center; } th { background-color:
+      #f2f2f2; }
+    </style>
+  </head>
+  <body>
+    <h1>Xin chào {{supplierName}},</h1>
+    <p>Bạn có một đơn nhập hàng mới với thông tin sau:</p>
+    <ul>
+      <li>Tổng tiền: {{totalPrice}} VND</li>
+      <li>Ngày tạo: {{createdAt}}</li>
+    </ul>
+
+    <h2>Chi tiết đơn nhập hàng</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tên sản phẩm</th>
+          <th>Đơn vị</th>
+          <th>Số lượng</th>
+          <th>Giá nhập</th>
+          <th>Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each batches}}
+          <tr>
+            <td>{{@index}}</td>
+            <td>{{productSampleName}}</td>
+            <td>{{unitName}}</td>
+            <td>{{inboundQuantity}}</td>
+            <td>{{inboundPrice}}</td>
+            <td>{{total}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <p>Vui lòng kiểm tra và xử lý đơn nhập hàng này sớm nhất có thể.</p>
+    <p>Trân trọng,<br />Đội ngũ quản lý BMart</p>
+  </body>
+</html>

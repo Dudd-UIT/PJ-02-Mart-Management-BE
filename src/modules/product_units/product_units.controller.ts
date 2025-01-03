@@ -59,7 +59,7 @@ export class ProductUnitsController {
     'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
   )
   @UseGuards(RoleGuard)
-  @Roles('view_product-units-by-supplier')
+  @Roles('c_inbound')
   findBySupplier(
     @Param('id') id: string,
     @Query() query: any,

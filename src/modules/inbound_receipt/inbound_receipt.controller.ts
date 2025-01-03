@@ -19,6 +19,7 @@ import { ResponseMessage } from 'src/decorators/customDecorator';
 import { UpdateInboundReceiptBatchsDto } from './dto/update-inbound_receipt-batchs.dto';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
+import { SendMailDto } from './dto/send-mail.dto';
 
 @Controller('inbound-receipt')
 export class InboundReceiptController {
@@ -45,6 +46,18 @@ export class InboundReceiptController {
     return this.inboundReceiptService.createInboundReceiptAndBatchs(
       createInboundReceiptBatchsDto,
     );
+  }
+
+  @ResponseMessage('Gửi mail thành công')
+  @Post('send-mail')
+  @UseGuards(RoleGuard)
+  @Roles('c_inbound')
+  sendMail(
+    @Body(ValidationPipe)
+    sendMailDto: SendMailDto,
+  ) {
+    console.log('>>>');
+    return this.inboundReceiptService.sendEmailToSupplier(sendMailDto);
   }
 
   @ResponseMessage('Trả về danh sách các đơn nhập hàng thành công')
