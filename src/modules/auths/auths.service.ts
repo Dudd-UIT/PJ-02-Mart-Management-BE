@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { UsersService } from '../users/users.service';
 import { comparePasswordHelper } from 'src/helpers/utils';
 import { JwtService } from '@nestjs/jwt';
@@ -26,7 +24,13 @@ export class AuthsService {
   }
 
   login(user: any) {
-    const payload = { name: user.name, sub: user.id };
+    const payload = {
+      name: user.name,
+      sub: user.id,
+      group: user.group.name,
+      roles: user.group.roles.map((role) => role.url),
+    };
+    console.log('payload', payload);
     return {
       user: {
         id: user.id,
@@ -35,6 +39,7 @@ export class AuthsService {
         phone: user.phone,
         address: user.address,
         groupName: user.group.name,
+        roles: user.group.roles.map((role) => role.url),
       },
       access_token: this.jwtService.sign(payload),
     };

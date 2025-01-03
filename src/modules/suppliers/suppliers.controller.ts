@@ -9,11 +9,14 @@ import {
   Query,
   ValidationPipe,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { ResponseMessage } from 'src/decorators/customDecorator';
+import { RoleGuard } from '../auths/passport/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller('suppliers')
 export class SuppliersController {
@@ -21,12 +24,16 @@ export class SuppliersController {
 
   @ResponseMessage('Tạo nhà cung cấp thành công')
   @Post()
+  @UseGuards(RoleGuard)
+  @Roles('create_supplier')
   create(@Body(ValidationPipe) createSupplierDto: CreateSupplierDto) {
     return this.suppliersService.create(createSupplierDto);
   }
 
   @ResponseMessage('Trả về danh sách các nhà cung cấp thành công')
   @Get()
+  @UseGuards(RoleGuard)
+  @Roles('view_suppliers')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -37,12 +44,16 @@ export class SuppliersController {
 
   @ResponseMessage('Trả về thông tin chi tiết nhà cung cấp thành công')
   @Get(':id')
+  @UseGuards(RoleGuard)
+  @Roles('view_supplier')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.suppliersService.findOne(id);
   }
 
   @ResponseMessage('Cập nhật thông tin chi tiết nhà cung cấp thành công')
   @Patch(':id')
+  @UseGuards(RoleGuard)
+  @Roles('update_supplier')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateSupplierDto: UpdateSupplierDto,
@@ -52,6 +63,8 @@ export class SuppliersController {
 
   @ResponseMessage('Xóa nhà cung cấp thành công')
   @Delete(':id')
+  @UseGuards(RoleGuard)
+  @Roles('delete_supplier')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.suppliersService.remove(id);
   }

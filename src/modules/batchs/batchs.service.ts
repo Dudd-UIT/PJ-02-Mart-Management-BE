@@ -83,7 +83,12 @@ export class BatchsService {
 
       const options = {
         where: filter,
-        relations: ['inboundReceipt', 'productUnit'],
+        relations: [
+          'inboundReceipt',
+          'productUnit',
+          'productUnit.productSample',
+          'productUnit.unit',
+        ],
         take: pageSize,
         skip: skip,
       };

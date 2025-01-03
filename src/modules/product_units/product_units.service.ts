@@ -14,6 +14,7 @@ import { ProductUnit } from './entities/product_unit.entity';
 import { ProductSamplesService } from '../product_samples/product_samples.service';
 import { UnitsService } from '../units/units.service';
 import aqp from 'api-query-params';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class ProductUnitsService {
@@ -23,10 +24,30 @@ export class ProductUnitsService {
     @Inject(forwardRef(() => ProductSamplesService))
     private productSamplesService: ProductSamplesService,
     private unitsService: UnitsService,
+    private uploadService: UploadService,
   ) {}
+
+  private convertBase64ToMulterFile(base64String: string): Express.Multer.File {
+    const buffer = Buffer.from(base64String, 'base64');
+    return {
+      originalname: `image-${Date.now()}.jpg`,
+      buffer,
+      mimetype: 'image/jpeg',
+    } as Express.Multer.File;
+  }
 
   async create(createProductUnitDto: CreateProductUnitDto) {
     try {
+      if (
+        createProductUnitDto.image &&
+        !createProductUnitDto.image.startsWith('http')
+      ) {
+        const uploadedImageUrl = await this.uploadService.uploadFile(
+          this.convertBase64ToMulterFile(createProductUnitDto.image),
+        );
+        createProductUnitDto.image = uploadedImageUrl; // Cập nhật URL của ảnh
+      }
+
       const { unitId, productSampleId, compareUnitId, ...rest } =
         createProductUnitDto;
 
@@ -87,9 +108,18 @@ export class ProductUnitsService {
     if (!pageSize) pageSize = 100;
 
     const productSampleNameFilter = filter.name ? filter.name : null;
+    const productLineNameFilter = filter.productLineName
+      ? filter.productLineName
+      : null;
+    const productTypeNameFilter = filter.productTypeName
+      ? filter.productTypeName
+      : null;
+
     delete filter.current;
     delete filter.pageSize;
     delete filter.name;
+    delete filter.productLineName;
+    delete filter.productTypeName;
     delete filter.productLineId;
 
     if (productLineId) {
@@ -98,15 +128,30 @@ export class ProductUnitsService {
 
     const skip = (current - 1) * pageSize;
 
+    // Count total items with the filters
     const totalItems = await this.productUnitRepository
       .createQueryBuilder('productUnit')
-      .leftJoinAndSelect('productUnit.productSample', 'productSample')
       .leftJoinAndSelect('productUnit.unit', 'unit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productSample.productLine', 'productLine')
+      .leftJoinAndSelect('productLine.productType', 'productType') // Include the necessary joins
       .where((qb) => {
         qb.where(filter);
         if (productSampleNameFilter) {
           qb.andWhere('productSample.name LIKE :name', {
             name: `%${productSampleNameFilter}%`,
+          });
+        }
+
+        if (productLineNameFilter) {
+          qb.andWhere('productLine.name LIKE :productLineName', {
+            productLineName: `%${productLineNameFilter}%`, // Sử dụng alias `productLine.name`
+          });
+        }
+
+        if (productTypeNameFilter) {
+          qb.andWhere('productType.name LIKE :productTypeName', {
+            productTypeName: `%${productTypeNameFilter}%`,
           });
         }
       })
@@ -117,12 +162,26 @@ export class ProductUnitsService {
     const results = await this.productUnitRepository
       .createQueryBuilder('productUnit')
       .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productSample.productLine', 'productLine')
+      .leftJoinAndSelect('productLine.productType', 'productType')
       .leftJoinAndSelect('productUnit.unit', 'unit')
       .where((qb) => {
         qb.where(filter);
         if (productSampleNameFilter) {
           qb.andWhere('productSample.name LIKE :name', {
             name: `%${productSampleNameFilter}%`,
+          });
+        }
+
+        if (productLineNameFilter) {
+          qb.andWhere('productLine.name LIKE :productLineName', {
+            productLineName: `%${productLineNameFilter}%`,
+          });
+        }
+
+        if (productTypeNameFilter) {
+          qb.andWhere('productType.name LIKE :productTypeName', {
+            productTypeName: `%${productTypeNameFilter}%`,
           });
         }
       })
@@ -199,7 +258,6 @@ export class ProductUnitsService {
   async findOne(id: number) {
     const productSample = await this.productUnitRepository.findOne({
       where: { id },
-      relations: ['productUnits'],
     });
 
     if (!productSample) {
