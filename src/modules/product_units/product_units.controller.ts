@@ -29,7 +29,7 @@ export class ProductUnitsController {
   @Post()
   @ResponseMessage('Thêm mới đơn vị tính cho mẫu sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('create_product-unit')
+  @Roles('c_pdsam')
   create(@Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto) {
     return this.productUnitsService.create(createProductSampleDto);
   }
@@ -39,7 +39,7 @@ export class ProductUnitsController {
     'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
   )
   @UseGuards(RoleGuard)
-  @Roles('view_product-units')
+  @Roles('v_pdsams')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -54,9 +54,31 @@ export class ProductUnitsController {
     );
   }
 
+  @Get('/supplier/:id')
+  @ResponseMessage(
+    'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
+  )
+  @UseGuards(RoleGuard)
+  @Roles('c_inbound')
+  findBySupplier(
+    @Param('id') id: string,
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+    @Query('productLineId') productLineId: string,
+  ) {
+    return this.productUnitsService.findBySupplier(
+      +id,
+      query,
+      +current,
+      +pageSize,
+      +productLineId,
+    );
+  }
+
   @Get(':id')
   @UseGuards(RoleGuard)
-  @Roles('view_product-unit')
+  @Roles('v_pdsams')
   @ResponseMessage(
     'Trả về thông tin chi tiết một đơn vị tính cho mẫu sản phẩm thành công',
   )
@@ -66,7 +88,7 @@ export class ProductUnitsController {
 
   @Post('find-by-ids')
   @UseGuards(RoleGuard)
-  @Roles('view_product-units')
+  @Roles('v_pdsams')
   async findByIds(
     @Body() findProductUnitsByIdsDto: FindProductUnitsByIdsDto,
     @Query('current') current: string,
@@ -82,7 +104,7 @@ export class ProductUnitsController {
   @Patch(':id')
   @ResponseMessage('Cập nhật đơn vị tính cho mẫu sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('update_product-unit')
+  @Roles('u_pdsam')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductUnitDto: UpdateProductUnitDto,
@@ -92,7 +114,7 @@ export class ProductUnitsController {
 
   @Delete(':id')
   @UseGuards(RoleGuard)
-  @Roles('delete_product-unit')
+  @Roles('d_pdsam')
   @ResponseMessage('Xóa đơn vị tính cho mẫu dòng sản phẩm thành công')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productUnitsService.remove(id);

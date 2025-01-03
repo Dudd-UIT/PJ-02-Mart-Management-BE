@@ -23,14 +23,14 @@ export class UnitsController {
 
   @Post()
   @UseGuards(RoleGuard)
-  @Roles('create_unit')
+  @Roles('c_unit')
   create(@Body(ValidationPipe) createUnitDto: CreateUnitDto) {
     return this.unitsService.create(createUnitDto);
   }
 
   @Get()
   @UseGuards(RoleGuard)
-  @Roles('view_units')
+  @Roles('v_units')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -41,14 +41,14 @@ export class UnitsController {
 
   @Get(':id')
   @UseGuards(RoleGuard)
-  @Roles('view_unit')
+  @Roles('v_units')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.unitsService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(RoleGuard)
-  @Roles('update_unit')
+  @Roles('u_unit')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUnitDto: UpdateUnitDto,
@@ -58,7 +58,7 @@ export class UnitsController {
 
   @Delete(':id')
   @UseGuards(RoleGuard)
-  @Roles('delete_unit')
+  @Roles('d_unit')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.unitsService.remove(id);
   }

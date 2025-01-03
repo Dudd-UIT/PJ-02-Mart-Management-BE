@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
@@ -42,11 +42,18 @@ import { Supplier } from './modules/suppliers/entities/supplier.entity';
 import { Unit } from './modules/units/entities/unit.entity';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { UploadModule } from './modules/upload/upload.module';
-
+import { StatisticModule } from './modules/statistic/statistic.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', `.env.${process.env.NODE_ENV}`],
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
@@ -73,6 +80,34 @@ import { UploadModule } from './modules/upload/upload.module';
       Unit,
       User,
     ]),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: configService.get<string>('MAIL_USER'),
+            pass: configService.get<string>('MAIL_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: '"No Reply" <no-reply@localhost>',
+        },
+        template: {
+          dir: process.cwd() + '/src/mail/templates/',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'), // Đường dẫn tới thư mục tĩnh (nếu cần)
+    }),
     UsersModule,
     GroupsModule,
     RolesModule,
@@ -90,6 +125,7 @@ import { UploadModule } from './modules/upload/upload.module';
     AuthsModule,
     ProductUnitsModule,
     UploadModule,
+    StatisticModule,
   ],
   controllers: [AppController],
   providers: [

@@ -26,7 +26,7 @@ export class GroupsController {
   @ResponseMessage('Tạo nhóm người dùng thành công')
   @Post()
   @UseGuards(RoleGuard)
-  @Roles('create_group')
+  @Roles('c_group')
   create(@Body(ValidationPipe) createGroupDto: CreateGroupDto) {
     return this.groupsService.create(createGroupDto);
   }
@@ -34,7 +34,7 @@ export class GroupsController {
   @ResponseMessage('Trả về danh sách các nhóm người dùng thành công')
   @Get()
   @UseGuards(RoleGuard)
-  @Roles('view_groups')
+  @Roles('v_groups')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -43,10 +43,22 @@ export class GroupsController {
     return this.groupsService.findAll(query, +current, +pageSize);
   }
 
+  @ResponseMessage('Trả về danh sách các nhóm người dùng nhân viên thành công')
+  @Get('/employees')
+  @UseGuards(RoleGuard)
+  @Roles('v_groups')
+  findAllEmployee(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.groupsService.findAllEmployee(query, +current, +pageSize);
+  }
+
   @ResponseMessage('Trả về thông tin chi tiết nhóm người dùng thành công')
   @Get(':id')
   @UseGuards(RoleGuard)
-  @Roles('view_group')
+  @Roles('v_groups')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.groupsService.findOne(id);
   }
@@ -54,7 +66,7 @@ export class GroupsController {
   @ResponseMessage('Cập nhật thông tin chi tiết nhóm người dùng thành công')
   @Patch(':id')
   @UseGuards(RoleGuard)
-  @Roles('update_group')
+  @Roles('u_group')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateSupplierDto: UpdateGroupDto,
@@ -65,7 +77,7 @@ export class GroupsController {
   @ResponseMessage('Xóa nhóm người dùng thành công')
   @Delete(':id')
   @UseGuards(RoleGuard)
-  @Roles('delete_group')
+  @Roles('d_group')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.groupsService.remove(id);
   }
