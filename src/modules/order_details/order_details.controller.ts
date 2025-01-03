@@ -20,7 +20,7 @@ export class OrderDetailsController {
 
   @Post()
   @UseGuards(RoleGuard)
-  @Roles('create_order')
+  @Roles('c_order')
   create(@Body() createOrderDetailDto: CreateOrderDetailDto) {
     return this.orderDetailsService.create(createOrderDetailDto);
   }

@@ -24,7 +24,7 @@ export class RolesController {
   @ResponseMessage('Trả về danh sách các vai trò thành công')
   @Get()
   @UseGuards(RoleGuard)
-  @Roles('view_roles')
+  @Roles('assign-roles')
   findAll(
     @Query() query: any,
     @Query('current') current: string,

@@ -15,21 +15,17 @@ export class GroupGuard implements CanActivate {
       'groups',
       context.getHandler(),
     );
-    console.log('requiredGroups', requiredGroups);
     if (!requiredGroups) {
       return true;
     }
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    console.log('user', user);
     if (!user || !user.group) {
       return false;
     }
-    console.log('user.group', user.group);
 
     const result = requiredGroups.includes(user.group);
-    console.log('result', result);
 
     if (!result) {
       throw new ForbiddenException(

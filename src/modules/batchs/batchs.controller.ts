@@ -23,14 +23,14 @@ export class BatchsController {
 
   @Post()
   @UseGuards(RoleGuard)
-  @Roles('create_batch')
+  @Roles('c_batch')
   create(@Body(ValidationPipe) createBatchDto: CreateBatchDto) {
     return this.batchsService.create(createBatchDto);
   }
 
   @Get()
   @UseGuards(RoleGuard)
-  @Roles('view_batchs')
+  @Roles('v_batchs')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -41,14 +41,14 @@ export class BatchsController {
 
   @Get(':id')
   @UseGuards(RoleGuard)
-  @Roles('view_batch')
+  @Roles('v_batchs')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.batchsService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(RoleGuard)
-  @Roles('update_batch')
+  @Roles('u_batch')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBatchDto: UpdateBatchDto,
@@ -58,7 +58,7 @@ export class BatchsController {
 
   @Delete(':id')
   @UseGuards(RoleGuard)
-  @Roles('delete_batch')
+  @Roles('d_batch')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.batchsService.remove(id);
   }

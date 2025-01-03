@@ -12,11 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ProductSamplesService } from './product_samples.service';
-import { CreateProductSampleDto } from './dto/create-product_sample.dto';
 import { UpdateProductSampleDto } from './dto/update-product_sample.dto';
-import { FindProductSampleUnitsByIdsDto } from './dto/find-product-sample-unit-by-ids.dto';
-import { CreateProductUnitDto } from '../product_units/dto/create-product_unit.dto';
-import { UpdateProductUnitDto } from '../product_units/dto/update-product_unit.dto';
 import { ResponseMessage } from 'src/decorators/customDecorator';
 import { CreateProductSampleAndProductUnitDto } from './dto/create-productSample_productUnit.dto';
 import { UpdateProductSampleAndProductUnitsDto } from './dto/update-productSample_productUnit.dto';
@@ -30,7 +26,7 @@ export class ProductSamplesController {
   @Post()
   @ResponseMessage('Tạo mẫu sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('create_product-sample')
+  @Roles('c_pdsam')
   create(
     @Body(ValidationPipe)
     createProductSampleAndProductUnitDto: CreateProductSampleAndProductUnitDto,
@@ -43,7 +39,7 @@ export class ProductSamplesController {
   @Get()
   @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('view_product-samples')
+  @Roles('v_pdsams')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -55,7 +51,7 @@ export class ProductSamplesController {
   @Get(':id')
   @ResponseMessage('Trả về thông tin chi tiết mẫu sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('view_product-sample')
+  @Roles('v_pdsams')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productSamplesService.findOne(id);
   }
@@ -63,7 +59,7 @@ export class ProductSamplesController {
   @Patch(':id')
   @ResponseMessage('Cập nhật thông tin chi tiết mẫu sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('update_product-sample')
+  @Roles('u_pdsam')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe)
@@ -77,7 +73,7 @@ export class ProductSamplesController {
     'Cập nhật thông tin chi tiết mẫu sản phẩm và các đơn vị thành công',
   )
   @UseGuards(RoleGuard)
-  @Roles('update_product-sample')
+  @Roles('u_pdsam')
   updateProductSampleAndProductUnits(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe)
@@ -92,7 +88,7 @@ export class ProductSamplesController {
   @Delete(':id')
   @ResponseMessage('Xóa mẫu dòng sản phẩm thành công')
   @UseGuards(RoleGuard)
-  @Roles('delete_product-sample')
+  @Roles('d_pdsam')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productSamplesService.remove(id);
   }

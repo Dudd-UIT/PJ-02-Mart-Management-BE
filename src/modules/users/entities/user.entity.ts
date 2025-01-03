@@ -38,7 +38,7 @@ export class User {
   @Column({ type: 'tinyint', default: 0, comment: '0: inactive, 1: active' })
   isActive: number;
 
-  @Column({ nullable: true, length: 32 })
+  @Column({ nullable: true, length: 36 })
   codeId: string;
 
   @Column({ nullable: true, type: 'datetime' })

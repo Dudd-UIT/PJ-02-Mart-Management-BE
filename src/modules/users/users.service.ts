@@ -13,13 +13,47 @@ import { GroupsService } from '../groups/groups.service';
 import { User } from './entities/user.entity';
 import { hashPasswordHelper } from 'src/helpers/utils';
 import aqp from 'api-query-params';
+import { CodeDto } from '../auths/dto/codeDto';
+import * as dayjs from 'dayjs';
+import { v4 as uuid4 } from 'uuid';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private readonly groupsService: GroupsService,
+    private readonly mailerService: MailerService,
   ) {}
+
+  async verifyEmail(token: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { codeId: token },
+      });
+
+      if (!user) {
+        throw new BadRequestException('Token không hợp lệ');
+      }
+
+      if (dayjs().isAfter(user.codeExpired)) {
+        throw new BadRequestException('Token đã hết hạn');
+      }
+
+      user.isActive = 1;
+      user.codeId = null; // Xóa token sau khi xác thực
+      user.codeExpired = null;
+      await this.userRepository.save(user);
+
+      return { message: 'Xác thực tài khoản thành công' };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Lỗi khi xác thực email:', error.message);
+      throw new InternalServerErrorException('Không thể xác thực email');
+    }
+  }
 
   async isEmailExist(email: string) {
     try {
@@ -65,6 +99,7 @@ export class UsersService {
         score,
         phone,
         address,
+        isActive: 0,
       });
 
       const group = await this.groupsService.findOne(+createUserDto.groupId);
@@ -73,9 +108,36 @@ export class UsersService {
       }
       user.group = group;
 
-      return await this.userRepository.save(user);
+      const savedUser = await this.userRepository.save(user);
+
+      // Tạo mã xác thực (UUID)
+      const codeId = uuid4();
+      await this.userRepository.update(savedUser.id, {
+        codeId,
+        codeExpired: dayjs().add(1, 'hour').toDate(), // Hết hạn sau 1 giờ
+      });
+
+      // Gửi email xác thực
+      const verificationUrl = `${process.env.APP_URL}/verify-email?token=${codeId}`;
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'BMart Email Verification',
+        template: 'verify-email', // File HTML của email
+        context: {
+          name,
+          verificationUrl, // Gửi link xác thực
+        },
+      });
+
+      return {
+        message:
+          'Tạo người dùng thành công, vui lòng kiểm tra email để xác thực',
+      };
     } catch (error) {
-      if (error instanceof ConflictException || NotFoundException) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       console.error('Lỗi khi tạo người dùng:', error.message);
@@ -124,9 +186,6 @@ export class UsersService {
     pageSize: number,
     groupId: number,
   ) {
-    console.log('query', query);
-    console.log('type of query', typeof query);
-
     try {
       const { filter, sort } = aqp(query);
 
@@ -286,5 +345,70 @@ export class UsersService {
       console.error(`Lỗi khi xóa người dùng với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể xóa người dùng');
     }
+  }
+
+  async handleCheckCode(codeDto: CodeDto) {
+    const user = await this.findOneById(+codeDto.id);
+    if (user.codeId !== codeDto.code) {
+      throw new BadRequestException('Mã code không hợp lệ');
+    }
+
+    const isBeforeExpired = dayjs().isBefore(user?.codeExpired);
+    if (isBeforeExpired) {
+      await this.userRepository.update(codeDto.id, { isActive: 1 });
+      return { isBeforeExpired };
+    } else {
+      throw new BadRequestException('Mã code đã hết hạn');
+    }
+  }
+
+  async handleRetryActive(email: string) {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại');
+    }
+    if (user.isActive) {
+      throw new BadRequestException('Tài khoản đã được kích hoạt');
+    }
+    const codeId = uuid4();
+    await this.userRepository.update(user.id, {
+      codeId: codeId,
+      codeExpired: dayjs().add(1, 'minute'),
+    });
+    this.mailerService.sendMail({
+      to: user.email, // list of receivers
+      subject: 'BMart Activation code', // Subject line
+      text: 'welcome', // plaintext body
+      template: 'register',
+      context: {
+        name: user?.name ?? user.email,
+        activationCode: codeId,
+      },
+    });
+    return { id: user.id };
+  }
+
+  async handleRetryPassword(email: string) {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại');
+    }
+
+    const codeId = uuid4();
+    await this.userRepository.update(user.id, {
+      codeId: codeId,
+      codeExpired: dayjs().add(1, 'minute'),
+    });
+    this.mailerService.sendMail({
+      to: user.email, // list of receivers
+      subject: 'BMart Change password code', // Subject line
+      text: 'welcome', // plaintext body
+      template: 'register',
+      context: {
+        name: user?.name ?? user.email,
+        activationCode: codeId,
+      },
+    });
+    return { id: user.id, email: user.email };
   }
 }
