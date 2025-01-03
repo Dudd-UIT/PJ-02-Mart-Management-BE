@@ -14,6 +14,15 @@ export class AppService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    console.log({
+      P: process.env.PORT,
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+    });
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
 

@@ -15,7 +15,6 @@ export class RoleGuard implements CanActivate {
       'roles',
       context.getHandler(),
     );
-    console.log('requiredRoles', requiredRoles);
 
     if (!requiredRoles) {
       return true; // Không yêu cầu role => Cho phép truy cập
@@ -23,7 +22,6 @@ export class RoleGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    console.log('user', user);
 
     if (!user || !user.roles) {
       throw new ForbiddenException(
@@ -33,7 +31,6 @@ export class RoleGuard implements CanActivate {
 
     const userRoles = user.roles;
     const result = requiredRoles.some((role) => userRoles.includes(role));
-    console.log('result', result);
 
     if (!result) {
       console.error(`User ${user.id || 'N/A'} thiếu quyền: ${requiredRoles}`);

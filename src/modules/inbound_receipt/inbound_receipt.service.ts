@@ -10,7 +10,13 @@ import {
 import { CreateInboundReceiptDto } from './dto/create-inbound_receipt.dto';
 import { UpdateInboundReceiptDto } from './dto/update-inbound_receipt.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import {
+  Between,
+  LessThanOrEqual,
+  Like,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { InboundReceipt } from './entities/inbound_receipt.entity';
 import aqp from 'api-query-params';
 import { UsersService } from '../users/users.service';
@@ -19,6 +25,8 @@ import { CreateInboundReceiptBatchsDto } from './dto/create-inbound_receipt-batc
 import { BatchsService } from '../batchs/batchs.service';
 import { Batch } from '../batchs/entities/batch.entity';
 import { UpdateInboundReceiptBatchsDto } from './dto/update-inbound_receipt-batchs.dto';
+import { MailerService } from '@nestjs-modules/mailer';
+import { SendMailDto } from './dto/send-mail.dto';
 
 @Injectable()
 export class InboundReceiptService {
@@ -29,6 +37,7 @@ export class InboundReceiptService {
     private suppliersService: SuppliersService,
     @Inject(forwardRef(() => BatchsService))
     private batchsService: BatchsService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async createInboundReceiptAndBatchs(
@@ -46,7 +55,6 @@ export class InboundReceiptService {
           inboundReceiptId,
         });
       }
-
       return await this.inboundReceiptRepository.save(inboundReceipt);
     } catch (error) {
       if (
@@ -59,6 +67,60 @@ export class InboundReceiptService {
       console.error('Lỗi khi tạo đơn nhập hàng và lô hàng:', error.message);
       throw new InternalServerErrorException(
         'Có lỗi xảy ra trong quá trình tạo đơn nhập hàng và lô hàng.',
+      );
+    }
+  }
+
+  async sendEmailToSupplier(sendMailDto: SendMailDto) {
+    try {
+      const { inboundReceiptDto, batchsDto } = sendMailDto;
+
+      const supplier = await this.suppliersService.findOne(
+        inboundReceiptDto.supplierId,
+      );
+      const supplierEmail = supplier.email;
+      const supplieName = supplier.name;
+      console.log('supplierEmail', supplierEmail);
+
+      if (!supplierEmail) {
+        throw new NotFoundException('Email nhà cung cấp không đúng');
+      }
+
+      const batches = batchsDto.map((batch, index) => ({
+        index: index + 1,
+        productSampleName: batch.productSampleName,
+        unitName: batch.unitName,
+        inboundPrice: batch.inboundPrice,
+        inboundQuantity: batch.inboundQuantity,
+        total: batch.inboundPrice * batch.inboundQuantity,
+      }));
+
+      // Gửi email
+      await this.mailerService.sendMail({
+        to: supplierEmail,
+        subject: 'Thông báo đơn nhập hàng mới',
+        template: 'inbound-receipt',
+        context: {
+          supplierName: supplieName,
+          totalPrice: inboundReceiptDto.totalPrice,
+          createdAt: inboundReceiptDto.createdAt,
+          batches,
+        },
+      });
+
+      return { supplierEmail };
+    } catch (error) {
+      console.error('Lỗi khi gửi email cho nhà cung cấp:', error.message);
+
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Có lỗi xảy ra trong quá trình gửi mail.',
       );
     }
   }
@@ -108,11 +170,11 @@ export class InboundReceiptService {
       const whereConditions: any = {};
 
       if (staffName) {
-        whereConditions.staff = { name: staffName };
+        whereConditions.staff = { name: Like(`%${staffName}%`) };
       }
 
       if (supplierName) {
-        whereConditions.supplier = { name: supplierName };
+        whereConditions.supplier = { name: Like(`%${supplierName}%`) };
       }
 
       if (startDate && endDate) {

@@ -97,24 +97,42 @@ export class ProductSamplesService {
 
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
+
+    // Xóa các tham số không cần thiết khỏi filter
     delete filter.current;
     delete filter.pageSize;
 
-    const productSampleNameFilter = filter.name ? filter.name : null;
+    console.log('filter', filter);
 
-    const totalItems = await this.productSampleRepository.count({
-      where: filter,
-    });
+    // Lọc bổ sung
+    const productSampleNameFilter = filter.name ? filter.name : null;
+    const productTypeId = filter.productTypeId ? filter.productTypeId : null;
+    delete filter.productTypeId;
+
+    // Tính tổng số bản ghi dựa trên query thực tế
+    const totalItemsQuery = this.productSampleRepository
+      .createQueryBuilder('productSample')
+      .leftJoin('productSample.productLine', 'productLine')
+      .leftJoin('productLine.productType', 'productType')
+      .where((qb) => {
+        qb.where(filter);
+        if (productSampleNameFilter) {
+          qb.andWhere('productSample.name LIKE :name', {
+            name: `%${productSampleNameFilter}%`,
+          });
+        }
+        if (productTypeId) {
+          qb.andWhere('productType.id = :productTypeId', {
+            productTypeId,
+          });
+        }
+      });
+
+    const totalItems = await totalItemsQuery.getCount();
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
-    // const options = {
-    //   where: filter,
-    //   relations: ['productUnits', 'productLine'],
-    //   take: pageSize,
-    //   skip: skip,
-    // };
-
+    // Lấy danh sách kết quả
     const results = await this.productSampleRepository
       .createQueryBuilder('productSample')
       .leftJoinAndSelect('productSample.productUnits', 'productUnits')
@@ -129,11 +147,26 @@ export class ProductSamplesService {
             name: `%${productSampleNameFilter}%`,
           });
         }
+        if (productTypeId) {
+          qb.andWhere('productType.id = :productTypeId', {
+            productTypeId,
+          });
+        }
       })
       .take(pageSize)
       .skip(skip)
       .getMany();
 
+    // Log kết quả
+    console.log('meta', {
+      current,
+      pageSize,
+      pages: totalPages,
+      total: totalItems,
+    });
+    console.log('results', results);
+
+    // Trả về kết quả
     return {
       meta: {
         current,
@@ -562,7 +595,6 @@ export class ProductSamplesService {
   // }
 
   async remove(id: number) {
-    console.log('id', id);
     const productSample = await this.findOne(id);
     if (!productSample) {
       throw new NotFoundException('Không tìm thấy mẫu sản phẩm');

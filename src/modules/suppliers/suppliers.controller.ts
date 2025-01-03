@@ -25,7 +25,7 @@ export class SuppliersController {
   @ResponseMessage('Tạo nhà cung cấp thành công')
   @Post()
   @UseGuards(RoleGuard)
-  @Roles('create_supplier')
+  @Roles('c_sup')
   create(@Body(ValidationPipe) createSupplierDto: CreateSupplierDto) {
     return this.suppliersService.create(createSupplierDto);
   }
@@ -33,7 +33,7 @@ export class SuppliersController {
   @ResponseMessage('Trả về danh sách các nhà cung cấp thành công')
   @Get()
   @UseGuards(RoleGuard)
-  @Roles('view_suppliers')
+  @Roles('v_sups')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
@@ -45,7 +45,7 @@ export class SuppliersController {
   @ResponseMessage('Trả về thông tin chi tiết nhà cung cấp thành công')
   @Get(':id')
   @UseGuards(RoleGuard)
-  @Roles('view_supplier')
+  @Roles('v_sups')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.suppliersService.findOne(id);
   }
@@ -53,7 +53,7 @@ export class SuppliersController {
   @ResponseMessage('Cập nhật thông tin chi tiết nhà cung cấp thành công')
   @Patch(':id')
   @UseGuards(RoleGuard)
-  @Roles('update_supplier')
+  @Roles('u_sup')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateSupplierDto: UpdateSupplierDto,
@@ -64,7 +64,7 @@ export class SuppliersController {
   @ResponseMessage('Xóa nhà cung cấp thành công')
   @Delete(':id')
   @UseGuards(RoleGuard)
-  @Roles('delete_supplier')
+  @Roles('d_sup')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.suppliersService.remove(id);
   }

@@ -10,7 +10,7 @@ import {
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, MoreThan, Repository } from 'typeorm';
+import { Between, Like, MoreThan, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import aqp from 'api-query-params';
 import { UsersService } from '../users/users.service';
@@ -82,21 +82,44 @@ export class OrdersService {
   }
 
   async findAll(query: any, current: number, pageSize: number) {
+
+    console.log('query:::', query);
     const { filter, sort } = aqp(query);
+    console.log('filter:::', filter);
+
 
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
     delete filter.current;
     delete filter.pageSize;
 
+    const { customerName, staffName, startDate, endDate } = query;
+
+    const where: any = {};
+
+    if (customerName) {
+      where.customer = { name: Like(`%${customerName}%`) };
+    }
+
+    if (staffName) {
+      where.staff = { name: Like(`%${staffName}%`) };
+    }
+
+    if (startDate || endDate) {
+      where.createdAt = Between(
+        startDate ? new Date(startDate) : new Date('1970-01-01'),
+        endDate ? new Date(endDate) : new Date(),
+      );
+    }
+
     const totalItems = await this.orderRepository.count({
-      where: filter,
+      where,
     });
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
     const options = {
-      where: {},
+      where,
       relations: [
         'customer',
         'staff',
