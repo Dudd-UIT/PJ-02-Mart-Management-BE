@@ -25,6 +25,9 @@ export class Supplier {
   address: string;
 
   @Column()
+  email: string;
+
+  @Column()
   country: string;
 
   @CreateDateColumn()

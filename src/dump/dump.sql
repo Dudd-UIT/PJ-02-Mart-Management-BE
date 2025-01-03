@@ -216,9 +216,9 @@ INSERT INTO `user` (id, name, email, password, score, address, phone, groupId, i
 (3, 'Lê Văn Khách', 'khachlv@gmail.com', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 100, 'Hoàn Kiếm, Hà Nội', '0901234569', 3, 1, NOW());
 
 -- Insert Suppliers
-INSERT INTO supplier (id, name, phone, address, country, createdAt) VALUES
-(1, 'Công ty TNHH Thực phẩm Sạch', '0987654321', 'Số 123 Đường ABC, Hà Nội', 'Việt Nam', NOW()),
-(2, 'Công ty CP Phân phối Hàng tiêu dùng', '0987654322', 'Số 456 Đường XYZ, Hồ Chí Minh', 'Việt Nam', NOW());
+INSERT INTO supplier (id, name, phone, address, country, email, createdAt) VALUES
+(1, 'Công ty TNHH Thực phẩm Sạch', '0987654321', 'Số 123 Đường ABC, Hà Nội', 'Việt Nam', '22520260@gm.uit.edu.vn', NOW()),
+(2, 'Công ty CP Phân phối Hàng tiêu dùng', '0987654322', 'Số 456 Đường XYZ, Hồ Chí Minh', 'Việt Nam', '22521205@gm.uit.edu.vn', NOW());
 
 -- Insert Supplier Products
 INSERT INTO supplier_product (id, supplierId, productUnitId, status) VALUES
