@@ -54,6 +54,28 @@ export class ProductUnitsController {
     );
   }
 
+  @Get('/supplier/:id')
+  @ResponseMessage(
+    'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
+  )
+  @UseGuards(RoleGuard)
+  @Roles('view_product-units-by-supplier')
+  findBySupplier(
+    @Param('id') id: string,
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+    @Query('productLineId') productLineId: string,
+  ) {
+    return this.productUnitsService.findBySupplier(
+      +id,
+      query,
+      +current,
+      +pageSize,
+      +productLineId,
+    );
+  }
+
   @Get(':id')
   @UseGuards(RoleGuard)
   @Roles('v_pdsams')

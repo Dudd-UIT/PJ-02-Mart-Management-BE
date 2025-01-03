@@ -31,7 +31,7 @@ export class AuthsService {
       group: user.group.name,
       roles: user.group.roles.map((role) => role.url),
     };
-    console.log('payload', payload);
+    console.log('payload', this.jwtService.sign(payload));
     return {
       user: {
         id: user.id,
