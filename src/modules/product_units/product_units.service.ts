@@ -104,6 +104,8 @@ export class ProductUnitsService {
   ) {
     const { filter, sort } = aqp(query);
 
+    console.log('filter:::', filter);
+
     if (!current) current = 1;
     if (!pageSize) pageSize = 100;
 
@@ -185,6 +187,87 @@ export class ProductUnitsService {
           });
         }
       })
+      .take(pageSize)
+      .skip(skip)
+      .getMany();
+
+    return {
+      meta: {
+        current,
+        pageSize,
+        pages: totalPages,
+        total: totalItems,
+      },
+      results,
+    };
+  }
+
+  async findBySupplier(
+    id:number,
+    query: any,
+    current: number,
+    pageSize: number,
+    productLineId: number,
+  ) {
+    const { filter, sort } = aqp(query);
+
+    const supplierId = id;
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 100;
+
+    const productSampleNameFilter = filter.name ? filter.name : null;
+
+    delete filter.current;
+    delete filter.pageSize;
+    delete filter.name;
+    delete filter.productLineName;
+    delete filter.productTypeName;
+    delete filter.productLineId;
+
+    if (productLineId) {
+      filter.productSample = { productLineId: productLineId };
+    }
+
+    const skip = (current - 1) * pageSize;
+
+    // Count total items with the filters
+    const totalItems = await this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.unit', 'unit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoin('productUnit.supplierProducts', 'supplierProducts')
+      .where((qb) => {
+        qb.where(filter);
+        if (productSampleNameFilter) {
+          qb.andWhere('productSample.name LIKE :name', {
+            name: `%${productSampleNameFilter}%`,
+          });
+        }
+        if (supplierId) {
+          qb.andWhere('supplierProducts.supplierId = :supplierId', { supplierId });
+        }
+      })
+      .getCount();
+
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    const results = await this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productUnit.unit', 'unit')
+      .leftJoin('productUnit.supplierProducts', 'supplierProducts')
+      .where((qb) => {
+        qb.where(filter);
+        if (productSampleNameFilter) {
+          qb.andWhere('productSample.name LIKE :name', {
+            name: `%${productSampleNameFilter}%`,
+          });
+        }
+        if (supplierId) {
+          qb.andWhere('supplierProducts.supplierId = :supplierId', { supplierId });
+        }
+      })
+      
       .take(pageSize)
       .skip(skip)
       .getMany();
