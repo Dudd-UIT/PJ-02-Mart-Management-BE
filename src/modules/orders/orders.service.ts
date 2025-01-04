@@ -82,7 +82,11 @@ export class OrdersService {
   }
 
   async findAll(query: any, current: number, pageSize: number) {
+
+    console.log('query:::', query);
     const { filter, sort } = aqp(query);
+    console.log('filter:::', filter);
+
 
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;

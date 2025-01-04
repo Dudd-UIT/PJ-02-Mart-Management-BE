@@ -62,6 +62,7 @@ export class SuppliersService {
 
   async findAll(query: any, current: number, pageSize: number) {
     try {
+      console.log('query::: ', query);
       const { filter, sort } = aqp(query);
 
       if (!current) current = 1;

@@ -80,6 +80,7 @@ export class InboundReceiptService {
       );
       const supplierEmail = supplier.email;
       const supplieName = supplier.name;
+      console.log('supplierEmail', supplierEmail);
 
       if (!supplierEmail) {
         throw new NotFoundException('Email nhà cung cấp không đúng');

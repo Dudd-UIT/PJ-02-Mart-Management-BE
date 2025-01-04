@@ -1,5 +1,5 @@
 import { Optional } from '@nestjs/common';
-import { IsArray, IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateSupplierDto {
   @IsNotEmpty({ message: 'Tên nhà cung cấp không được bỏ trống' })
@@ -9,10 +9,6 @@ export class CreateSupplierDto {
   @IsNotEmpty({ message: 'Số điện thoại không được bỏ trống' })
   @IsString({ message: 'Số điện thoại phải là chuỗi ký tự' })
   phone: string;
-
-  @IsNotEmpty({ message: 'Email không được bỏ trống' })
-  @IsEmail()
-  email: string;
 
   @IsNotEmpty({ message: 'Địa chỉ không được bỏ trống' })
   @IsString({ message: 'Địa chỉ phải là chuỗi ký tự' })

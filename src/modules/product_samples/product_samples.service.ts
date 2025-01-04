@@ -97,16 +97,19 @@ export class ProductSamplesService {
 
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
+
+    // Xóa các tham số không cần thiết khỏi filter
     delete filter.current;
     delete filter.pageSize;
 
     console.log('filter', filter);
-    const productSampleNameFilter = filter.name ? filter.name : null;
-    delete filter.name;
 
+    // Lọc bổ sung
+    const productSampleNameFilter = filter.name ? filter.name : null;
     const productTypeId = filter.productTypeId ? filter.productTypeId : null;
     delete filter.productTypeId;
 
+    // Tính tổng số bản ghi dựa trên query thực tế
     const totalItemsQuery = this.productSampleRepository
       .createQueryBuilder('productSample')
       .leftJoin('productSample.productLine', 'productLine')
@@ -129,6 +132,7 @@ export class ProductSamplesService {
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
+    // Lấy danh sách kết quả
     const results = await this.productSampleRepository
       .createQueryBuilder('productSample')
       .leftJoinAndSelect('productSample.productUnits', 'productUnits')
@@ -153,6 +157,16 @@ export class ProductSamplesService {
       .skip(skip)
       .getMany();
 
+    // Log kết quả
+    console.log('meta', {
+      current,
+      pageSize,
+      pages: totalPages,
+      total: totalItems,
+    });
+    console.log('results', results);
+
+    // Trả về kết quả
     return {
       meta: {
         current,

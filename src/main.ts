@@ -37,6 +37,7 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new AllExceptionsFilter());
+  // app.useGlobalInterceptors(new LoggingInterceptor()); // Thêm Interceptor
 
   await app.listen(port);
 }

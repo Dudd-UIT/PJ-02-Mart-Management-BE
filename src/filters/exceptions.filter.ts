@@ -18,16 +18,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
 
+    // Kiểm tra nếu là UnauthorizedException
     if (exception instanceof UnauthorizedException) {
       status = HttpStatus.UNAUTHORIZED;
       message = 'Bạn không có quyền truy cập.';
     }
 
+    // Kiểm tra nếu là HttpException (bao gồm ValidationPipe)
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
       if (Array.isArray(exceptionResponse['message'])) {
+        // Nếu là mảng, ghép các thông báo lỗi thành chuỗi
         message = exceptionResponse['message'].join(', ');
       } else if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
@@ -38,9 +41,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = exceptionResponse['message'] || 'Unknown error';
       }
     } else {
+      // Nếu là ngoại lệ không xác định, log ra để tìm hiểu thêm
       console.error('Unhandled exception:', exception);
     }
 
+    // Đảm bảo chỉ gửi một phản hồi duy nhất
     if (!response.headersSent) {
       response.status(status).json({
         statusCode: status,

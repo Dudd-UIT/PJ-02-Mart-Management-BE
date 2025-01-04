@@ -16,14 +16,12 @@ import { CreateUnitDto } from './dto/create-unit.dto';
 import { UpdateUnitDto } from './dto/update-unit.dto';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
-import { ResponseMessage } from 'src/decorators/customDecorator';
 
 @Controller('units')
 export class UnitsController {
   constructor(private readonly unitsService: UnitsService) {}
 
   @Post()
-  @ResponseMessage('Tạo đơn vị tính thành công')
   @UseGuards(RoleGuard)
   @Roles('c_unit')
   create(@Body(ValidationPipe) createUnitDto: CreateUnitDto) {
@@ -31,7 +29,6 @@ export class UnitsController {
   }
 
   @Get()
-  @ResponseMessage('Trả về danh sách đơn vị tính thành công')
   @UseGuards(RoleGuard)
   @Roles('v_units')
   findAll(
@@ -43,7 +40,6 @@ export class UnitsController {
   }
 
   @Get(':id')
-  @ResponseMessage('Trả về thông tin chi tiết đơn vị tính thành công')
   @UseGuards(RoleGuard)
   @Roles('v_units')
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -51,7 +47,6 @@ export class UnitsController {
   }
 
   @Patch(':id')
-  @ResponseMessage('Cập nhật đơn vị tính thành công')
   @UseGuards(RoleGuard)
   @Roles('u_unit')
   update(
@@ -62,7 +57,6 @@ export class UnitsController {
   }
 
   @Delete(':id')
-  @ResponseMessage('Xóa đơn vị tính thành công')
   @UseGuards(RoleGuard)
   @Roles('d_unit')
   remove(@Param('id', ParseIntPipe) id: number) {
