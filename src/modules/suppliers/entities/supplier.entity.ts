@@ -24,8 +24,8 @@ export class Supplier {
   @Column()
   address: string;
 
-  @Column()
-  email: string;
+  @Column({ nullable: true })
+  email?: string;
 
   @Column()
   country: string;
