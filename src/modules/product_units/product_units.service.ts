@@ -103,8 +103,6 @@ export class ProductUnitsService {
   ) {
     const { filter, sort } = aqp(query);
 
-    console.log('filter:::', filter);
-
     if (!current) current = 1;
     if (!pageSize) pageSize = 100;
 

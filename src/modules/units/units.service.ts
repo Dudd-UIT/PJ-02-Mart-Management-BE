@@ -7,7 +7,7 @@ import {
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { UpdateUnitDto } from './dto/update-unit.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Unit } from './entities/unit.entity';
 import aqp from 'api-query-params';
 
@@ -51,6 +51,10 @@ export class UnitsService {
       if (!pageSize) pageSize = 10;
       delete filter.current;
       delete filter.pageSize;
+
+      if (filter.name) {
+        filter.name = Like(`%${filter.name}%`);
+      }
 
       const totalItems = await this.unitRepository.count({
         where: filter,

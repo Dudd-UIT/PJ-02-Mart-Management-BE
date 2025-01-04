@@ -159,7 +159,12 @@ INSERT INTO role (id, url, description) VALUES
     (42, 'u_staff', 'Cập nhật nhân viên'),
     (43, 'd_staff', 'Xóa nhân viên'),
 
-    (44, 'v_statis', 'Xem chi tiết các thống kê');
+    (44, 'v_statis', 'Xem chi tiết các thống kê'),
+
+    (45, 'c_unit', 'Tạo mới đơn vị tính'),
+    (46, 'v_units', 'Xem danh sách đơn vị tính'),
+    (47, 'u_unit', 'Cập nhật đơn vị tính'),
+    (48, 'd_unit', 'Xóa đơn vị tính');
 
 
 -- Insert role_group
@@ -207,7 +212,11 @@ INSERT INTO role_group (groupId, roleId) VALUES
 (1, 41),
 (1, 42),
 (1, 43),
-(1, 44);
+(1, 44),
+(1, 45),
+(1, 46),
+(1, 47),
+(1, 48);
 
 -- Insert Users
 INSERT INTO `user` (id, name, email, password, score, address, phone, groupId, isActive, createdAt) VALUES
