@@ -106,7 +106,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
       inject: [ConfigService],
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'), // Đường dẫn tới thư mục tĩnh (nếu cần)
+      rootPath: join(__dirname, '..', 'public'),
     }),
     UsersModule,
     GroupsModule,
@@ -146,6 +146,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*'); // Áp dụng middleware cho tất cả các routes
+    consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 }
