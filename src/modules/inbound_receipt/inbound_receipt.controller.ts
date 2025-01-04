@@ -56,7 +56,6 @@ export class InboundReceiptController {
     @Body(ValidationPipe)
     sendMailDto: SendMailDto,
   ) {
-    console.log('>>>');
     return this.inboundReceiptService.sendEmailToSupplier(sendMailDto);
   }
 
