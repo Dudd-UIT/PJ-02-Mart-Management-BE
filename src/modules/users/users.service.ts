@@ -5,13 +5,17 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateCustomerDto, CreateUserDto } from './dto/create-user.dto';
+import {
+  ChangePasswordDto,
+  CreateCustomerDto,
+  CreateUserDto,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { GroupsService } from '../groups/groups.service';
 import { User } from './entities/user.entity';
-import { hashPasswordHelper } from 'src/helpers/utils';
+import { comparePasswordHelper, hashPasswordHelper } from 'src/helpers/utils';
 import aqp from 'api-query-params';
 import { CodeDto } from '../auths/dto/codeDto';
 import * as dayjs from 'dayjs';
@@ -357,6 +361,70 @@ export class UsersService {
       }
       console.error('Lỗi khi cập nhật người dùng:', error.message);
       throw new InternalServerErrorException('Không thể cập nhật người dùng');
+    }
+  }
+
+  async resetPassword(id: number) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
+      const intialPassword = '123456';
+      const hashPassword = await hashPasswordHelper(intialPassword);
+      const updateUser = { password: hashPassword };
+      Object.assign(user, updateUser);
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi cập nhật người dùng:', error.message);
+      throw new InternalServerErrorException('Không thể cập nhật người dùng');
+    }
+  }
+
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
+
+      const isValidPassword = await comparePasswordHelper(
+        changePasswordDto.password,
+        user.password,
+      );
+      if (!isValidPassword) {
+        throw new BadRequestException('Mật khẩu không đúng');
+      }
+
+      if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
+        throw new BadRequestException(
+          'Mật khẩu mới không đồng nhất với mật khẩu xác nhận',
+        );
+      }
+      const hashPassword = await hashPasswordHelper(
+        changePasswordDto.newPassword,
+      );
+      const updateUser = { password: hashPassword };
+      Object.assign(user, updateUser);
+
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi đổi mật khẩu:', error.message);
+      throw new InternalServerErrorException('Không thể đổi mật khẩu');
     }
   }
 
