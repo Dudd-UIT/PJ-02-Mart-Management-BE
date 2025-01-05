@@ -13,7 +13,11 @@ import {
   Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateCustomerDto, CreateUserDto } from './dto/create-user.dto';
+import {
+  ChangePasswordDto,
+  CreateCustomerDto,
+  CreateUserDto,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public, ResponseMessage } from 'src/decorators/customDecorator';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -29,7 +33,6 @@ export class UsersController {
   async verifyEmail(@Query('token') token: string, @Res() res: Response) {
     const htmlContent = await this.usersService.verifyEmail(token);
 
-    // Thiết lập Content-Type là text/html và trả về HTML
     res.setHeader('Content-Type', 'text/html');
     res.send(htmlContent);
   }
@@ -88,6 +91,25 @@ export class UsersController {
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @ResponseMessage('Reset mật khẩu nhân viên thành công')
+  @Patch('/reset-pass/:id')
+  @UseGuards(RoleGuard)
+  @Roles('u_staff')
+  resetPassword(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.resetPassword(id);
+  }
+
+  @ResponseMessage('Cập nhật thông tin chi tiết khách hàng thành công')
+  @Patch('/change-pass/:id')
+  @UseGuards(RoleGuard)
+  @Roles('u_cus', 'u_staff')
+  changePassword(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.usersService.changePassword(id, changePasswordDto);
   }
 
   @ResponseMessage('Xóa người dùng thành công')
