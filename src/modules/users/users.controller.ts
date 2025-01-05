@@ -109,9 +109,6 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
   ) {
-    console.log('id', id);
-    console.log('changePasswordDto', changePasswordDto);
-
     return this.usersService.changePassword(id, changePasswordDto);
   }
 
