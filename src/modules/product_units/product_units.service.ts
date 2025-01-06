@@ -95,104 +95,66 @@ export class ProductUnitsService {
     }
   }
 
-  async findAll(
-    query: any,
-    current: number,
-    pageSize: number,
-    productLineId: number,
-  ) {
-    const { filter, sort } = aqp(query);
-
+  async findAll(query: any, current: number, pageSize: number) {
     if (!current) current = 1;
-    if (!pageSize) pageSize = 100;
+    if (!pageSize) pageSize = 10;
 
-    const productSampleNameFilter = filter.name ? filter.name : null;
-    const productLineNameFilter = filter.productLineName
-      ? filter.productLineName
-      : null;
-    const productTypeNameFilter = filter.productTypeName
-      ? filter.productTypeName
-      : null;
+    const { filter } = aqp(query);
+    const productSampleNameFilter = filter.name || null;
+    const productLineIdFilter = filter.productLineId || null;
+    const productTypeIdFilter = filter.productTypeId || null;
+    const outOfStockFlag = filter.outOfStock || false;
 
     delete filter.current;
     delete filter.pageSize;
     delete filter.name;
-    delete filter.productLineName;
-    delete filter.productTypeName;
     delete filter.productLineId;
-
-    if (productLineId) {
-      filter.productSample = { productLineId: productLineId };
-    }
+    delete filter.productTypeId;
 
     const skip = (current - 1) * pageSize;
 
-    // Count total items with the filters
-    const totalItems = await this.productUnitRepository
+    const queryBuilder = this.productUnitRepository
       .createQueryBuilder('productUnit')
       .leftJoinAndSelect('productUnit.unit', 'unit')
       .leftJoinAndSelect('productUnit.productSample', 'productSample')
       .leftJoinAndSelect('productSample.productLine', 'productLine')
-      .leftJoinAndSelect('productLine.productType', 'productType') // Include the necessary joins
-      .where((qb) => {
-        qb.where(filter);
-        if (productSampleNameFilter) {
-          qb.andWhere('productSample.name LIKE :name', {
-            name: `%${productSampleNameFilter}%`,
-          });
-        }
+      .leftJoinAndSelect('productLine.productType', 'productType');
 
-        if (productLineNameFilter) {
-          qb.andWhere('productLine.name LIKE :productLineName', {
-            productLineName: `%${productLineNameFilter}%`, // Sử dụng alias `productLine.name`
-          });
-        }
+    if (outOfStockFlag) {
+      queryBuilder
+        .leftJoin('productUnit.batch', 'batch')
+        .where('(batch.id IS NULL OR batch.inventQuantity = 0)');
+    } else {
+      queryBuilder.where(filter);
+    }
 
-        if (productTypeNameFilter) {
-          qb.andWhere('productType.name LIKE :productTypeName', {
-            productTypeName: `%${productTypeNameFilter}%`,
-          });
-        }
-      })
-      .getCount();
+    if (productSampleNameFilter) {
+      queryBuilder.andWhere('productSample.name LIKE :name', {
+        name: `%${productSampleNameFilter}%`,
+      });
+    }
 
-    const totalPages = Math.ceil(totalItems / pageSize);
+    if (productLineIdFilter) {
+      queryBuilder.andWhere('productLine.id = :lineId', {
+        lineId: productLineIdFilter,
+      });
+    }
 
-    const results = await this.productUnitRepository
-      .createQueryBuilder('productUnit')
-      .leftJoinAndSelect('productUnit.productSample', 'productSample')
-      .leftJoinAndSelect('productSample.productLine', 'productLine')
-      .leftJoinAndSelect('productLine.productType', 'productType')
-      .leftJoinAndSelect('productUnit.unit', 'unit')
-      .where((qb) => {
-        qb.where(filter);
-        if (productSampleNameFilter) {
-          qb.andWhere('productSample.name LIKE :name', {
-            name: `%${productSampleNameFilter}%`,
-          });
-        }
+    if (productTypeIdFilter) {
+      queryBuilder.andWhere('productType.id = :typeId', {
+        typeId: productTypeIdFilter,
+      });
+    }
 
-        if (productLineNameFilter) {
-          qb.andWhere('productLine.name LIKE :productLineName', {
-            productLineName: `%${productLineNameFilter}%`,
-          });
-        }
+    const totalItems = await queryBuilder.getCount();
 
-        if (productTypeNameFilter) {
-          qb.andWhere('productType.name LIKE :productTypeName', {
-            productTypeName: `%${productTypeNameFilter}%`,
-          });
-        }
-      })
-      .take(pageSize)
-      .skip(skip)
-      .getMany();
+    const results = await queryBuilder.take(pageSize).skip(skip).getMany();
 
     return {
       meta: {
         current,
         pageSize,
-        pages: totalPages,
+        pages: Math.ceil(totalItems / pageSize),
         total: totalItems,
       },
       results,
@@ -331,14 +293,6 @@ export class ProductUnitsService {
     };
   }
 
-  // async findAllByIds(unitIds: number[]) {
-  //   const roles = await this.productUnitRepository.findBy({
-  //     id: In(unitIds),
-  //   });
-
-  //   return roles;
-  // }
-
   async findOne(id: number) {
     const productSample = await this.productUnitRepository.findOne({
       where: { id },
@@ -369,5 +323,36 @@ export class ProductUnitsService {
     }
     await this.productUnitRepository.delete(id);
     return productUnit;
+  }
+
+  async findOutOfStockSamples(current: number, pageSize: number) {
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
+
+    const skip = (current - 1) * pageSize;
+
+    const queryBuilder = this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productSample.productLine', 'productLine')
+      .leftJoinAndSelect('productLine.productType', 'productType')
+      .leftJoinAndSelect('productUnit.unit', 'unit')
+      .leftJoin('productUnit.batch', 'batch')
+      .where('(batch.id IS NULL OR batch.inventQuantity = 0)')
+      .take(pageSize)
+      .skip(skip);
+
+    const totalItems = await queryBuilder.getCount();
+    const results = await queryBuilder.getMany();
+
+    return {
+      meta: {
+        current,
+        pageSize,
+        pages: Math.ceil(totalItems / pageSize),
+        total: totalItems,
+      },
+      results,
+    };
   }
 }
