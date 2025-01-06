@@ -30,12 +30,9 @@ export class AppService implements OnModuleInit {
       const result = await queryRunner.query(
         `SELECT COUNT(*) as count FROM product_sample;`,
       );
-
-      console.log('Check du lieu', result);
       const count = parseInt(result[0].count, 10);
 
       if (count === 0) {
-        console.log('result[0].count: ', count);
         console.log('Bang chua co du lieu tien hanh insert du lieu moi: ');
         const sql = readFileSync(join('src/dump/dump.sql'), 'utf8');
 
