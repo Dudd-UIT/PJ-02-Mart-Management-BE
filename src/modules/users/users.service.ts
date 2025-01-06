@@ -278,7 +278,10 @@ export class UsersService {
 
   async findOneById(id: number) {
     try {
-      const user = await this.userRepository.findOne({ where: { id } });
+      const user = await this.userRepository.findOne({
+        where: { id },
+        relations: ['group', 'group.roles'],
+      });
       if (!user) throw new NotFoundException(`Không tìm thấy người dùng`);
       return user;
     } catch (error) {
@@ -446,70 +449,5 @@ export class UsersService {
       console.error(`Lỗi khi xóa người dùng với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể xóa người dùng');
     }
-  }
-
-  async handleCheckCode(codeDto: CodeDto) {
-    const user = await this.findOneById(+codeDto.id);
-    if (user.codeId !== codeDto.code) {
-      throw new BadRequestException('Mã code không hợp lệ');
-    }
-
-    const isBeforeExpired = dayjs().isBefore(user?.codeExpired);
-    if (isBeforeExpired) {
-      await this.userRepository.update(codeDto.id, { isActive: 1 });
-      return { isBeforeExpired };
-    } else {
-      throw new BadRequestException('Mã code đã hết hạn');
-    }
-  }
-
-  async handleRetryActive(email: string) {
-    const user = await this.findOneByEmail(email);
-    if (!user) {
-      throw new BadRequestException('Tài khoản không tồn tại');
-    }
-    if (user.isActive) {
-      throw new BadRequestException('Tài khoản đã được kích hoạt');
-    }
-    const codeId = uuid4();
-    await this.userRepository.update(user.id, {
-      codeId: codeId,
-      codeExpired: dayjs().add(1, 'minute'),
-    });
-    this.mailerService.sendMail({
-      to: user.email, // list of receivers
-      subject: 'BMart Activation code', // Subject line
-      text: 'welcome', // plaintext body
-      template: 'register',
-      context: {
-        name: user?.name ?? user.email,
-        activationCode: codeId,
-      },
-    });
-    return { id: user.id };
-  }
-
-  async handleRetryPassword(email: string) {
-    const user = await this.findOneByEmail(email);
-    if (!user) {
-      throw new BadRequestException('Tài khoản không tồn tại');
-    }
-
-    const codeId = uuid4();
-    await this.userRepository.update(user.id, {
-      codeId: codeId,
-      codeExpired: dayjs().add(1, 'minute'),
-    });
-    this.mailerService.sendMail({
-      to: user.email, // list of receivers
-      subject: 'BMart Change password code', // Subject line
-      text: 'welcome', // plaintext body
-      template: 'register',
-      context: {
-        name: user?.name ?? user.email,
-        activationCode: codeId,
-      },
-    });
-    return { id: user.id, email: user.email };
   }
 }

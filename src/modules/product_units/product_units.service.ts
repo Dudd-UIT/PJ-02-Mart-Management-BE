@@ -200,7 +200,7 @@ export class ProductUnitsService {
   }
 
   async findBySupplier(
-    id:number,
+    id: number,
     query: any,
     current: number,
     pageSize: number,
@@ -241,7 +241,9 @@ export class ProductUnitsService {
           });
         }
         if (supplierId) {
-          qb.andWhere('supplierProducts.supplierId = :supplierId', { supplierId });
+          qb.andWhere('supplierProducts.supplierId = :supplierId', {
+            supplierId,
+          });
         }
       })
       .getCount();
@@ -261,10 +263,12 @@ export class ProductUnitsService {
           });
         }
         if (supplierId) {
-          qb.andWhere('supplierProducts.supplierId = :supplierId', { supplierId });
+          qb.andWhere('supplierProducts.supplierId = :supplierId', {
+            supplierId,
+          });
         }
       })
-      
+
       .take(pageSize)
       .skip(skip)
       .getMany();
