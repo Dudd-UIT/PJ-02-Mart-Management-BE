@@ -63,7 +63,7 @@ export class Batch {
   @JoinColumn()
   inboundReceipt: InboundReceipt;
 
-  @OneToOne(() => ProductUnit, (productUnit) => productUnit.batch, {
+  @ManyToOne(() => ProductUnit, (productUnit) => productUnit.batches, {
     createForeignKeyConstraints: false,
     onDelete: 'CASCADE',
     nullable: false,
