@@ -92,150 +92,6 @@ export class ProductSamplesService {
     return savedProductSample;
   }
 
-  // async findAll(query: any, current: number, pageSize: number) {
-  //   const { filter, sort } = aqp(query);
-
-  //   if (!current) current = 1;
-  //   if (!pageSize) pageSize = 10;
-  //   delete filter.current;
-  //   delete filter.pageSize;
-
-  //   const productSampleNameFilter = filter.name ? filter.name : null;
-  //   delete filter.name;
-
-  //   const productTypeId = filter.productTypeId ? filter.productTypeId : null;
-  //   delete filter.productTypeId;
-
-  //   const totalItemsQuery = this.productSampleRepository
-  //     .createQueryBuilder('productSample')
-  //     .leftJoin('productSample.productLine', 'productLine')
-  //     .leftJoin('productLine.productType', 'productType')
-  //     .where((qb) => {
-  //       qb.where(filter);
-  //       if (productSampleNameFilter) {
-  //         qb.andWhere('productSample.name LIKE :name', {
-  //           name: `%${productSampleNameFilter}%`,
-  //         });
-  //       }
-  //       if (productTypeId) {
-  //         qb.andWhere('productType.id = :productTypeId', {
-  //           productTypeId,
-  //         });
-  //       }
-  //     });
-
-  //   const totalItems = await totalItemsQuery.getCount();
-  //   const totalPages = Math.ceil(totalItems / pageSize);
-  //   const skip = (current - 1) * pageSize;
-
-  //   const results = await this.productSampleRepository
-  //     .createQueryBuilder('productSample')
-  //     .leftJoinAndSelect('productSample.productUnits', 'productUnits')
-  //     .leftJoinAndSelect('productUnits.unit', 'unit')
-  //     .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
-  //     .leftJoinAndSelect('productSample.productLine', 'productLine')
-  //     .leftJoinAndSelect('productLine.productType', 'productType')
-  //     .where((qb) => {
-  //       qb.where(filter);
-  //       if (productSampleNameFilter) {
-  //         qb.andWhere('productSample.name LIKE :name', {
-  //           name: `%${productSampleNameFilter}%`,
-  //         });
-  //       }
-  //       if (productTypeId) {
-  //         qb.andWhere('productType.id = :productTypeId', {
-  //           productTypeId,
-  //         });
-  //       }
-  //     })
-  //     .take(pageSize)
-  //     .skip(skip)
-  //     .getMany();
-
-  //   return {
-  //     meta: {
-  //       current,
-  //       pageSize,
-  //       pages: totalPages,
-  //       total: totalItems,
-  //     },
-  //     results,
-  //   };
-  // }
-
-  // async findAll(query: any, current: number, pageSize: number) {
-  //   const { filter, sort } = aqp(query);
-
-  //   if (!current) current = 1;
-  //   if (!pageSize) pageSize = 10;
-  //   delete filter.current;
-  //   delete filter.pageSize;
-
-  //   console.log('filter', filter);
-  //   const productSampleNameFilter = filter.name ? filter.name : null;
-  //   delete filter.name;
-
-  //   const productTypeId = filter.productTypeId ? filter.productTypeId : null;
-  //   delete filter.productTypeId;
-
-  //   const totalItemsQuery = this.productSampleRepository
-  //     .createQueryBuilder('productSample')
-  //     .leftJoin('productSample.productLine', 'productLine')
-  //     .leftJoin('productLine.productType', 'productType')
-  //     .where((qb) => {
-  //       qb.where(filter);
-  //       if (productSampleNameFilter) {
-  //         qb.andWhere('productSample.name LIKE :name', {
-  //           name: `%${productSampleNameFilter}%`,
-  //         });
-  //       }
-  //       if (productTypeId) {
-  //         qb.andWhere('productType.id = :productTypeId', {
-  //           productTypeId,
-  //         });
-  //       }
-  //     });
-
-  //   const totalItems = await totalItemsQuery.getCount();
-  //   const totalPages = Math.ceil(totalItems / pageSize);
-  //   const skip = (current - 1) * pageSize;
-
-  //   const results = await this.productSampleRepository
-  //     .createQueryBuilder('productSample')
-  //     .leftJoinAndSelect('productSample.productUnits', 'productUnits')
-  //     .leftJoinAndSelect('productUnits.unit', 'unit')
-  //     .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
-  //     .leftJoinAndSelect('productSample.productLine', 'productLine')
-  //     .leftJoinAndSelect('productLine.productType', 'productType')
-  //     .where((qb) => {
-  //       qb.where(filter);
-  //       if (productSampleNameFilter) {
-  //         qb.andWhere('productSample.name LIKE :name', {
-  //           name: `%${productSampleNameFilter}%`,
-  //         });
-  //       }
-  //       if (productTypeId) {
-  //         qb.andWhere('productType.id = :productTypeId', {
-  //           productTypeId,
-  //         });
-  //       }
-  //     })
-  //     .take(pageSize)
-  //     .skip(skip)
-  //     .getMany();
-
-  //   return {
-  //     meta: {
-  //       current,
-  //       pageSize,
-  //       pages: totalPages,
-  //       total: totalItems,
-  //     },
-  //     results,
-  //   };
-  // }
-
-  
   async findAll(query: any, current: number, pageSize: number) {
     const { filter, sort } = aqp(query);
 
@@ -250,7 +106,6 @@ export class ProductSamplesService {
     const productTypeId = filter.productTypeId ? filter.productTypeId : null;
     delete filter.productTypeId;
 
-    // Đếm tổng số sản phẩm mẫu thỏa điều kiện
     const totalItemsQuery = this.productSampleRepository
       .createQueryBuilder('productSample')
       .leftJoin('productSample.productLine', 'productLine')
@@ -273,7 +128,6 @@ export class ProductSamplesService {
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
-    // Lấy danh sách sản phẩm và tất cả các batch liên quan
     const results = await this.productSampleRepository
       .createQueryBuilder('productSample')
       .leftJoinAndSelect('productSample.productUnits', 'productUnits')
@@ -281,12 +135,6 @@ export class ProductSamplesService {
       .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
       .leftJoinAndSelect('productSample.productLine', 'productLine')
       .leftJoinAndSelect('productLine.productType', 'productType')
-      .leftJoinAndMapMany(
-        'productUnits.batches',
-        'productUnits.batch',
-        'batch',
-        'batch.inventQuantity > 0 AND batch.expiredAt > CURRENT_DATE',
-      ) // Map tất cả các batch còn hàng và còn hạn
       .where((qb) => {
         qb.where(filter);
         if (productSampleNameFilter) {
@@ -300,8 +148,6 @@ export class ProductSamplesService {
           });
         }
       })
-      .orderBy('batch.expiredAt', 'ASC') // Sắp xếp batch theo hạn sử dụng gần nhất
-      .addOrderBy('productUnits.id', 'ASC') // Thứ tự theo sản phẩm
       .take(pageSize)
       .skip(skip)
       .getMany();
