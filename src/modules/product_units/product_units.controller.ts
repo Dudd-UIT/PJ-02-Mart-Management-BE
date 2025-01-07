@@ -33,13 +33,13 @@ export class ProductUnitsController {
   create(@Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto) {
     return this.productUnitsService.create(createProductSampleDto);
   }
-
+@Public()
   @Get()
   @ResponseMessage(
     'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
   )
-  @UseGuards(RoleGuard)
-  @Roles('v_pdsams')
+  // @UseGuards(RoleGuard)
+  // @Roles('v_pdsams')
   findAll(
     @Query() query: any,
     @Query('current') current: string,

@@ -35,7 +35,7 @@ export class ProductSamplesController {
       createProductSampleAndProductUnitDto,
     );
   }
-
+@Public()
   @Get()
   @Public()
   @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
