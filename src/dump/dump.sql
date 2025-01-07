@@ -61,7 +61,8 @@ INSERT INTO unit (id, name, createdAt) VALUES
 (8, 'lốc', NOW()),
 (9, 'gram', NOW()),
 (10, 'túi', NOW()),
-(11, 'lon', NOW());
+(11, 'lon', NOW()),
+(12, 'cái', NOW());
 
 
 -- Thêm Product Units (Tổng 20 đơn vị sản phẩm)
@@ -95,7 +96,7 @@ INSERT INTO product_unit (id, sellPrice, conversionRate, compareUnitId, image, v
 (18, 38000, 1, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG_mCa8SZ0ilroESF12s1rxV6t8C4bOOGkCg&s', '1L', 18, 5, NOW()),
 (19, 25000, 1, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLJsXsGamM-MVngdc3qPPxD7RNDQy1hQSGdw&s', '380g', 19, 5, NOW()),
 (20, 6000, 1, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '100g', 20, 5, NOW()),
-(21, 200000, 24, 4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '4 kg', 13, 6, NOW());
+(21, 200000, 24, 4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWwm9VX6a2C1dGCrYKCN_DLaUBO3kXHRDxBg&s', '4 kg', 13, 6, NOW());
 
 
 -- Insert Groups

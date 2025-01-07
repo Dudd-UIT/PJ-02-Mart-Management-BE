@@ -73,7 +73,7 @@ export class InboundReceipt {
   @OneToMany(() => Batch, (batch) => batch.inboundReceipt, {
     createForeignKeyConstraints: false,
   })
-  batchs: Batch[];
+  batches: Batch[];
 
   @OneToOne(() => Supplier, (supplier) => supplier.inboundReceipt, {
     createForeignKeyConstraints: false,

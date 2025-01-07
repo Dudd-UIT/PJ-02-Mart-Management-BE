@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive } from 'class-validator';
 
 export class CreateOrderDetailDto {
   @IsNotEmpty()
@@ -18,4 +18,8 @@ export class CreateOrderDetailDto {
   @IsNotEmpty()
   @IsNumber()
   orderId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  batchId?: number;
 }

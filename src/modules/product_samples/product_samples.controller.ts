@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ProductSamplesService } from './product_samples.service';
 import { UpdateProductSampleDto } from './dto/update-product_sample.dto';
-import { ResponseMessage } from 'src/decorators/customDecorator';
+import { Public, ResponseMessage } from 'src/decorators/customDecorator';
 import { CreateProductSampleAndProductUnitDto } from './dto/create-productSample_productUnit.dto';
 import { UpdateProductSampleAndProductUnitsDto } from './dto/update-productSample_productUnit.dto';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
@@ -37,9 +37,10 @@ export class ProductSamplesController {
   }
 
   @Get()
+  @Public()
   @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
-  @UseGuards(RoleGuard)
-  @Roles('v_pdsams')
+  // @UseGuards(RoleGuard)
+  // @Roles('v_pdsams')
   findAll(
     @Query() query: any,
     @Query('current') current: string,

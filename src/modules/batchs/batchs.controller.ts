@@ -16,12 +16,14 @@ import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
+import { ResponseMessage } from 'src/decorators/customDecorator';
 
 @Controller('batchs')
 export class BatchsController {
   constructor(private readonly batchsService: BatchsService) {}
 
   @Post()
+  @ResponseMessage('Tạo mới lô hàng thành công')
   @UseGuards(RoleGuard)
   @Roles('c_batch')
   create(@Body(ValidationPipe) createBatchDto: CreateBatchDto) {
@@ -29,6 +31,7 @@ export class BatchsController {
   }
 
   @Get()
+  @ResponseMessage('Trả về danh sách các lô hàng thành công')
   @UseGuards(RoleGuard)
   @Roles('v_batchs')
   findAll(
@@ -40,6 +43,7 @@ export class BatchsController {
   }
 
   @Get(':id')
+  @ResponseMessage('Trả về thông tin chi tiết lô hàng thành công')
   @UseGuards(RoleGuard)
   @Roles('v_batchs')
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -47,6 +51,7 @@ export class BatchsController {
   }
 
   @Patch(':id')
+  @ResponseMessage('Cập nhật thông tin chi tiết lô hàng thành công')
   @UseGuards(RoleGuard)
   @Roles('u_batch')
   update(
@@ -57,6 +62,7 @@ export class BatchsController {
   }
 
   @Delete(':id')
+  @ResponseMessage('Xóa lô hàng thành công')
   @UseGuards(RoleGuard)
   @Roles('d_batch')
   remove(@Param('id', ParseIntPipe) id: number) {
