@@ -44,14 +44,8 @@ export class ProductUnitsController {
     @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
-    @Query('productLineId') productLineId: string,
   ) {
-    return this.productUnitsService.findAll(
-      query,
-      +current,
-      +pageSize,
-      +productLineId,
-    );
+    return this.productUnitsService.findAll(query, +current, +pageSize);
   }
 
   @Get('/supplier/:id')

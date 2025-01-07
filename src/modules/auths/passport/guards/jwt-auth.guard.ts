@@ -33,7 +33,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       } else if (info?.name === 'JsonWebTokenError') {
         throw new UnauthorizedException('Token không hợp lệ.');
       } else {
-        console.log('>>>');
         throw new UnauthorizedException('Bạn không có quyền truy cập.');
       }
     }

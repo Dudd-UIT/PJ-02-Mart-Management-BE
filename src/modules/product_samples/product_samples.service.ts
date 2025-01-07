@@ -97,19 +97,15 @@ export class ProductSamplesService {
 
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
-
-    // Xóa các tham số không cần thiết khỏi filter
     delete filter.current;
     delete filter.pageSize;
 
-    console.log('filter', filter);
-
-    // Lọc bổ sung
     const productSampleNameFilter = filter.name ? filter.name : null;
+    delete filter.name;
+
     const productTypeId = filter.productTypeId ? filter.productTypeId : null;
     delete filter.productTypeId;
 
-    // Tính tổng số bản ghi dựa trên query thực tế
     const totalItemsQuery = this.productSampleRepository
       .createQueryBuilder('productSample')
       .leftJoin('productSample.productLine', 'productLine')
@@ -132,7 +128,6 @@ export class ProductSamplesService {
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
-    // Lấy danh sách kết quả
     const results = await this.productSampleRepository
       .createQueryBuilder('productSample')
       .leftJoinAndSelect('productSample.productUnits', 'productUnits')
@@ -157,16 +152,6 @@ export class ProductSamplesService {
       .skip(skip)
       .getMany();
 
-    // Log kết quả
-    console.log('meta', {
-      current,
-      pageSize,
-      pages: totalPages,
-      total: totalItems,
-    });
-    console.log('results', results);
-
-    // Trả về kết quả
     return {
       meta: {
         current,
@@ -394,6 +379,7 @@ export class ProductSamplesService {
       );
     }
   }
+
   async updateProductSampleAndProductUnits(
     id: number,
     updateProductSampleAndProductUnitsDto: UpdateProductSampleAndProductUnitsDto,
@@ -458,141 +444,6 @@ export class ProductSamplesService {
       await queryRunner.release();
     }
   }
-
-  // async updateProductSampleAndProductUnits(
-  //   id: number,
-  //   updateProductSampleAndProductUnitsDto: UpdateProductSampleAndProductUnitsDto,
-  // ) {
-  //   // Bắt đầu transaction
-  //   const queryRunner =
-  //     this.productSampleRepository.manager.connection.createQueryRunner();
-  //   await queryRunner.connect();
-  //   await queryRunner.startTransaction();
-
-  //   try {
-  //     const { productSampleDto, productUnitsDto } =
-  //       updateProductSampleAndProductUnitsDto;
-
-  //     // Cập nhật thông tin mẫu sản phẩm
-  //     const productSample = await this.update(id, productSampleDto);
-  //     const productUnits = productSample.productUnits;
-
-  //     // Xóa các productUnit cũ
-  //     for (const productUnit of productUnits) {
-  //       await queryRunner.manager
-  //         .getRepository(ProductUnit)
-  //         .delete(productUnit.id);
-  //     }
-
-  //     // Thêm các productUnit mới
-  //     const newProductUnits = productUnitsDto.map((productUnitDto) => {
-  //       return queryRunner.manager.getRepository(ProductUnit).create({
-  //         ...productUnitDto,
-  //         productSample: { id }, // Gán quan hệ với productSample
-  //       });
-  //     });
-
-  //     // Lưu các productUnit mới
-  //     const savedProductUnits = await queryRunner.manager
-  //       .getRepository(ProductUnit)
-  //       .save(newProductUnits);
-
-  //     // Cập nhật lại danh sách productUnits trong productSample
-  //     productSample.productUnits = savedProductUnits;
-
-  //     // Lưu productSample
-  //     const savedProductSample = await queryRunner.manager
-  //       .getRepository(ProductSample)
-  //       .save(productSample);
-
-  //     // Commit transaction
-  //     await queryRunner.commitTransaction();
-
-  //     return savedProductSample;
-  //   } catch (error) {
-  //     console.error('Lỗi khi cập nhật mẫu sản phẩm:', error.message);
-
-  //     // Rollback transaction nếu có lỗi
-  //     await queryRunner.rollbackTransaction();
-
-  //     throw new InternalServerErrorException(
-  //       'Có lỗi xảy ra trong quá trình cập nhật mẫu sản phẩm.',
-  //     );
-  //   } finally {
-  //     await queryRunner.release();
-  //   }
-  // }
-
-  // async update(
-  //   id: number,
-  //   updateProductSampleDto: UpdateProductSampleDto,
-  //   updateUnit: UpdateProductUnitDto,
-  // ) {
-  //   const productSample = await this.findOne(id);
-  //   if (!productSample) {
-  //     throw new NotFoundException('Không tìm thấy mẫu sản phẩm');
-  //   }
-
-  //   if (
-  //     updateProductSampleDto.name &&
-  //     updateProductSampleDto.name !== productSample.name
-  //   ) {
-  //     const existingProductSampleByName =
-  //       await this.productSampleRepository.findOne({
-  //         where: { name: updateProductSampleDto.name },
-  //       });
-  //     if (existingProductSampleByName) {
-  //       throw new ConflictException('Tên mẫu sản phẩm đã tồn tại');
-  //     }
-  //   }
-
-  //   Object.assign(productSample, updateProductSampleDto);
-  //   await this.productSampleRepository.save(productSample);
-
-  //   // Cập nhật bảng product_unit với conversion_rate = 1
-  //   if (updateUnit.unitId) {
-  //     const productUnit = await this.productUnitRepository.findOne({
-  //       where: { productSample: { id }, conversionRate: 1 },
-  //     });
-
-  //     console.log('updateUnit.unitId:::', updateUnit.unitId);
-  //     console.log('productUnit:::', productUnit);
-
-  //     if (!productUnit) {
-  //       throw new NotFoundException(
-  //         'Không tìm thấy đơn vị sản phẩm với conversion_rate = 1',
-  //       );
-  //     }
-
-  //     // Tìm entity Unit tương ứng
-  //     const unit = await this.unitRepository.findOne({
-  //       where: { id: updateUnit.unitId },
-  //     });
-
-  //     if (!unit) {
-  //       throw new NotFoundException(
-  //         'Không tìm thấy đơn vị tính với ID đã cung cấp',
-  //       );
-  //     }
-
-  //     // Cập nhật trường volumne và unit
-  //     Object.assign(productUnit, {
-  //       volumne: updateUnit.volumne || productUnit.volumne,
-  //       unit: unit, // Gán entity Unit vào
-  //     });
-
-  //     // Lưu lại cập nhật
-  //     await this.productUnitRepository.save(productUnit);
-
-  //     console.log('Updated productUnit:::', productUnit);
-  //   }
-
-  //   // Trả về dữ liệu đã cập nhật
-  //   return {
-  //     productSample,
-  //     productUnit: updateUnit.unitId ? updateUnit : null,
-  //   };
-  // }
 
   async remove(id: number) {
     const productSample = await this.findOne(id);

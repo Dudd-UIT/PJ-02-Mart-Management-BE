@@ -5,13 +5,17 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateCustomerDto, CreateUserDto } from './dto/create-user.dto';
+import {
+  ChangePasswordDto,
+  CreateCustomerDto,
+  CreateUserDto,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { GroupsService } from '../groups/groups.service';
 import { User } from './entities/user.entity';
-import { hashPasswordHelper } from 'src/helpers/utils';
+import { comparePasswordHelper, hashPasswordHelper } from 'src/helpers/utils';
 import aqp from 'api-query-params';
 import { CodeDto } from '../auths/dto/codeDto';
 import * as dayjs from 'dayjs';
@@ -274,7 +278,10 @@ export class UsersService {
 
   async findOneById(id: number) {
     try {
-      const user = await this.userRepository.findOne({ where: { id } });
+      const user = await this.userRepository.findOne({
+        where: { id },
+        relations: ['group', 'group.roles'],
+      });
       if (!user) throw new NotFoundException(`Không tìm thấy người dùng`);
       return user;
     } catch (error) {
@@ -360,6 +367,70 @@ export class UsersService {
     }
   }
 
+  async resetPassword(id: number) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
+      const intialPassword = '123456';
+      const hashPassword = await hashPasswordHelper(intialPassword);
+      const updateUser = { password: hashPassword };
+      Object.assign(user, updateUser);
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi cập nhật người dùng:', error.message);
+      throw new InternalServerErrorException('Không thể cập nhật người dùng');
+    }
+  }
+
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
+
+      const isValidPassword = await comparePasswordHelper(
+        changePasswordDto.password,
+        user.password,
+      );
+      if (!isValidPassword) {
+        throw new BadRequestException('Mật khẩu không đúng');
+      }
+
+      if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
+        throw new BadRequestException(
+          'Mật khẩu mới không đồng nhất với mật khẩu xác nhận',
+        );
+      }
+      const hashPassword = await hashPasswordHelper(
+        changePasswordDto.newPassword,
+      );
+      const updateUser = { password: hashPassword };
+      Object.assign(user, updateUser);
+
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi đổi mật khẩu:', error.message);
+      throw new InternalServerErrorException('Không thể đổi mật khẩu');
+    }
+  }
+
   async remove(id: number) {
     try {
       const user = await this.findOneById(id);
@@ -378,70 +449,5 @@ export class UsersService {
       console.error(`Lỗi khi xóa người dùng với ID ${id}:`, error.message);
       throw new InternalServerErrorException('Không thể xóa người dùng');
     }
-  }
-
-  async handleCheckCode(codeDto: CodeDto) {
-    const user = await this.findOneById(+codeDto.id);
-    if (user.codeId !== codeDto.code) {
-      throw new BadRequestException('Mã code không hợp lệ');
-    }
-
-    const isBeforeExpired = dayjs().isBefore(user?.codeExpired);
-    if (isBeforeExpired) {
-      await this.userRepository.update(codeDto.id, { isActive: 1 });
-      return { isBeforeExpired };
-    } else {
-      throw new BadRequestException('Mã code đã hết hạn');
-    }
-  }
-
-  async handleRetryActive(email: string) {
-    const user = await this.findOneByEmail(email);
-    if (!user) {
-      throw new BadRequestException('Tài khoản không tồn tại');
-    }
-    if (user.isActive) {
-      throw new BadRequestException('Tài khoản đã được kích hoạt');
-    }
-    const codeId = uuid4();
-    await this.userRepository.update(user.id, {
-      codeId: codeId,
-      codeExpired: dayjs().add(1, 'minute'),
-    });
-    this.mailerService.sendMail({
-      to: user.email, // list of receivers
-      subject: 'BMart Activation code', // Subject line
-      text: 'welcome', // plaintext body
-      template: 'register',
-      context: {
-        name: user?.name ?? user.email,
-        activationCode: codeId,
-      },
-    });
-    return { id: user.id };
-  }
-
-  async handleRetryPassword(email: string) {
-    const user = await this.findOneByEmail(email);
-    if (!user) {
-      throw new BadRequestException('Tài khoản không tồn tại');
-    }
-
-    const codeId = uuid4();
-    await this.userRepository.update(user.id, {
-      codeId: codeId,
-      codeExpired: dayjs().add(1, 'minute'),
-    });
-    this.mailerService.sendMail({
-      to: user.email, // list of receivers
-      subject: 'BMart Change password code', // Subject line
-      text: 'welcome', // plaintext body
-      template: 'register',
-      context: {
-        name: user?.name ?? user.email,
-        activationCode: codeId,
-      },
-    });
-    return { id: user.id, email: user.email };
   }
 }
