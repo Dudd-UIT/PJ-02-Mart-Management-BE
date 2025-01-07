@@ -91,6 +91,7 @@ export class BatchsService {
         .createQueryBuilder('batch')
         .leftJoinAndSelect('batch.inboundReceipt', 'inboundReceipt')
         .leftJoinAndSelect('batch.productUnit', 'productUnit')
+        .leftJoinAndSelect('inboundReceipt.supplier', 'supplier')
         .leftJoinAndSelect('productUnit.productSample', 'productSample')
         .leftJoinAndSelect('productUnit.unit', 'unit')
         .where(filter); // Apply base filters
@@ -272,5 +273,30 @@ export class BatchsService {
     }, 0);
 
     return totalValue;
+  }
+
+  async findAvailableBatches(productUnitId: number) {
+    return await this.batchRepository
+      .createQueryBuilder('batch')
+      .where('batch.productUnitId = :productUnitId', { productUnitId })
+      .andWhere('batch.inventQuantity > 0') // Chỉ lấy các lô hàng còn tồn
+      .andWhere('batch.expiredAt > :now', { now: new Date() }) // Loại bỏ các lô hàng đã hết hạn
+      .orderBy('batch.expiredAt', 'ASC') // Ưu tiên lô hàng có hạn gần nhất
+      .getMany();
+  }
+
+  async updateBatchQuantity(batchId: number, change: number) {
+    const batch = await this.findOne(batchId);
+    if (!batch) {
+      throw new NotFoundException('Không tìm thấy lô hàng tương ứng');
+    }
+
+    const newQuantity = batch.inventQuantity + change;
+    if (newQuantity < 0) {
+      throw new BadRequestException('Không đủ hàng trong lô để xử lý');
+    }
+
+    batch.inventQuantity = newQuantity;
+    return await this.batchRepository.save(batch);
   }
 }

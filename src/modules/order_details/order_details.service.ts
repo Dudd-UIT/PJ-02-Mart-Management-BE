@@ -14,14 +14,14 @@ import { OrdersService } from '../orders/orders.service';
 import { ProductUnitsService } from '../product_units/product_units.service';
 import { CreateOrderDetailDto } from './dto/create-order_detail.dto';
 import { ProductUnit } from '../product_units/entities/product_unit.entity';
+import { BatchsService } from '../batchs/batchs.service';
 
 @Injectable()
 export class OrderDetailsService {
   constructor(
     @InjectRepository(OrderDetail)
     private readonly orderDetailRepository: Repository<OrderDetail>,
-    @Inject(forwardRef(() => OrdersService))
-    private readonly ordersService: OrdersService,
+    private readonly batchService: BatchsService,
     private readonly productUnitsService: ProductUnitsService,
     @InjectRepository(ProductUnit)
     private readonly productUnitRepository: Repository<ProductUnit>,
@@ -29,29 +29,82 @@ export class OrderDetailsService {
 
   async create(createOrderDetailDto: CreateOrderDetailDto) {
     try {
-      const { orderId, productUnitId, ...rest } = createOrderDetailDto;
-      const orderDetail = this.orderDetailRepository.create(rest);
+      const { orderId, productUnitId, quantity, batchId, ...rest } =
+        createOrderDetailDto;
 
-      if (orderId) {
-        const order = await this.ordersService.findOne(orderId);
-        if (!order) {
-          throw new NotFoundException('Không tìm thấy đơn hàng');
-        }
-        orderDetail.order = order;
+      console.log('createOrderDetailDto', createOrderDetailDto);
+
+      if (quantity <= 0) {
+        throw new BadRequestException('Số lượng sản phẩm phải lớn hơn 0');
       }
 
-      if (productUnitId) {
-        const productUnit =
-          await this.productUnitsService.findOne(productUnitId);
-        if (!productUnit) {
-          throw new NotFoundException('Không tìm thấy mẫu sản phẩm');
-        }
-        orderDetail.productUnit = productUnit;
+      // Kiểm tra sản phẩm
+      const productUnit = await this.productUnitsService.findOne(productUnitId);
+      if (!productUnit) {
+        throw new NotFoundException('Không tìm thấy mẫu sản phẩm');
       }
 
-      const savedOrderDetail =
-        await this.orderDetailRepository.save(orderDetail);
-      return savedOrderDetail;
+      if (batchId) {
+        // Nếu có batchId được cung cấp
+        const batch = await this.batchService.findOne(batchId);
+        if (!batch) {
+          throw new NotFoundException('Không tìm thấy lô hàng tương ứng');
+        }
+
+        if (batch.inventQuantity < quantity) {
+          throw new BadRequestException(
+            'Số lượng yêu cầu vượt quá số lượng tồn của lô hàng',
+          );
+        }
+
+        // Giảm số lượng tồn của batch
+        await this.batchService.updateBatchQuantity(batchId, -quantity);
+      } else {
+        // Nếu không có batchId, thực hiện logic tìm các lô hàng hợp lệ
+        const batches =
+          await this.batchService.findAvailableBatches(productUnitId);
+
+        if (batches.length === 0) {
+          throw new BadRequestException(
+            'Không tìm thấy lô hàng nào hợp lệ cho sản phẩm này',
+          );
+        }
+
+        console.log('batches', batches);
+
+        let remainingQuantity = quantity;
+
+        for (const batch of batches) {
+          if (remainingQuantity <= 0) break;
+
+          const batchInventQuantity = batch.inventQuantity || 0;
+          const usedQuantity = Math.min(batchInventQuantity, remainingQuantity);
+
+          if (usedQuantity > 0) {
+            await this.batchService.updateBatchQuantity(
+              batch.id,
+              -usedQuantity,
+            );
+            remainingQuantity -= usedQuantity;
+          }
+        }
+
+        if (remainingQuantity > 0) {
+          throw new BadRequestException(
+            'Không đủ hàng trong kho để xử lý đơn hàng',
+          );
+        }
+      }
+
+      // Tạo chi tiết đơn hàng
+      const orderDetail = this.orderDetailRepository.create({
+        ...rest,
+        orderId,
+        productUnit,
+        quantity,
+      });
+
+      return await this.orderDetailRepository.save(orderDetail);
     } catch (error) {
       if (
         error instanceof NotFoundException ||

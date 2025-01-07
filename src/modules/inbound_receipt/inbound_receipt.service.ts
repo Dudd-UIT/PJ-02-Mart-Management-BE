@@ -44,12 +44,12 @@ export class InboundReceiptService {
     createInboundReceiptBatchsDto: CreateInboundReceiptBatchsDto,
   ) {
     try {
-      const { inboundReceiptDto, batchsDto } = createInboundReceiptBatchsDto;
+      const { inboundReceiptDto, batchesDto } = createInboundReceiptBatchsDto;
       const inboundReceipt = await this.create(inboundReceiptDto);
 
       const inboundReceiptId = inboundReceipt.id;
 
-      for (const batchInfo of batchsDto) {
+      for (const batchInfo of batchesDto) {
         await this.batchsService.create({
           ...batchInfo,
           inboundReceiptId,
@@ -204,8 +204,8 @@ export class InboundReceiptService {
         relations: [
           'staff',
           'supplier',
-          'batchs.productUnit.productSample',
-          'batchs.productUnit.unit',
+          'batches.productUnit.productSample',
+          'batches.productUnit.unit',
         ],
         take: pageSize,
         skip: skip,

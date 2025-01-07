@@ -53,7 +53,7 @@ export class Batch {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.batchs, {
+  @ManyToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.batches, {
     createForeignKeyConstraints: false,
     onDelete: 'CASCADE',
     nullable: false,
@@ -61,7 +61,7 @@ export class Batch {
   @JoinColumn()
   inboundReceipt: InboundReceipt;
 
-  @OneToOne(() => ProductUnit, (productUnit) => productUnit.batch, {
+  @ManyToOne(() => ProductUnit, (productUnit) => productUnit.batches, {
     createForeignKeyConstraints: false,
     onDelete: 'CASCADE',
     nullable: false,

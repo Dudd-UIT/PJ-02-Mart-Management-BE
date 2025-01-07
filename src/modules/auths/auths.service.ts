@@ -47,7 +47,6 @@ export class AuthsService {
   login(user: any) {
     const accessToken = this.generateAccessToken(user);
     // const refreshToken = this.generateRefreshToken(user);
-    };
     return {
       user: {
         id: user.id,
