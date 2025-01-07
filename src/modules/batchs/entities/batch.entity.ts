@@ -1,3 +1,4 @@
+import { CartDetail } from 'src/modules/cart_details/entities/cart_detail.entity';
 import { InboundReceipt } from 'src/modules/inbound_receipt/entities/inbound_receipt.entity';
 import { ProductUnit } from 'src/modules/product_units/entities/product_unit.entity';
 import {
@@ -9,6 +10,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -68,4 +70,9 @@ export class Batch {
   })
   @JoinColumn()
   productUnit: ProductUnit;
+
+  @OneToMany(() => CartDetail, (cartDetail) => cartDetail.batch, {
+    createForeignKeyConstraints: false,
+  })
+  public cartDetails: CartDetail[];
 }

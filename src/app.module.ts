@@ -47,6 +47,10 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { CartDetailsModule } from './modules/cart_details/cart_details.module';
+import { CartsModule } from './modules/carts/carts.module';
+import { Cart } from './modules/carts/entities/cart.entity';
+import { CartDetail } from './modules/cart_details/entities/cart_detail.entity';
 
 @Module({
   imports: [
@@ -79,6 +83,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
       Supplier,
       Unit,
       User,
+      Cart,
+      CartDetail
     ]),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -126,6 +132,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     ProductUnitsModule,
     UploadModule,
     StatisticModule,
+    CartDetailsModule,
+    CartsModule,
   ],
   controllers: [AppController],
   providers: [
