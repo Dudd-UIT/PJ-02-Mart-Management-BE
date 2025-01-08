@@ -22,4 +22,8 @@ export class CreateOrderDetailDto {
   @IsOptional()
   @IsNumber()
   batchId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  cartDetailId?: number;
 }

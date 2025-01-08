@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateOrderDto {
   @IsNotEmpty()
@@ -16,6 +16,9 @@ export class CreateOrderDto {
   @IsNotEmpty()
   customerId: number;
 
-  @IsNotEmpty()
-  staffId: number;
+  @IsOptional()
+  staffId?: number;
+
+  @IsOptional()
+  orderType?: string;
 }
