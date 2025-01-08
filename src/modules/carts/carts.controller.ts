@@ -18,7 +18,7 @@ export class CartsController {
     @Body(ValidationPipe)
     createCartAndCartDetailsDto: CreateCartAndCartDetailsDto,
   ) {
-    console.log('createCartAndCartDetailsDto', createCartAndCartDetailsDto)
+    console.log('-----createCartAndCartDetailsDto', createCartAndCartDetailsDto)
     return this.cartsService.createCartAndCartDetails(
         createCartAndCartDetailsDto,
     );

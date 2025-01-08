@@ -77,4 +77,24 @@ export class CartDetailsService {
         }
       }
       
+    async findOne(id: number) {
+      const cartDetail = await this.cartDetailRepository.findOne({
+        where: { id },
+      });
+  
+      if (!cartDetail) {
+        throw new NotFoundException('Không tìm thấy chi tiết giỏ hàng');
+      }
+  
+      return cartDetail;
+    }
+
+    async remove(id: number) {
+      const cartDetail = await this.findOne(id);
+      if (!cartDetail) {
+        throw new NotFoundException('Không tìm thấy chi tiết giỏ hàng');
+      }
+  
+      return await this.cartDetailRepository.delete(id);
+    }
 }

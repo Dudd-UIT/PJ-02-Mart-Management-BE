@@ -16,6 +16,7 @@ import aqp from 'api-query-params';
 import { UsersService } from '../users/users.service';
 import { OrderDetailsService } from '../order_details/order_details.service';
 import { CreateOrderAndOrderDetailsDto } from './dto/create-order_order-detail.dto';
+import { CartDetailsService } from '../cart_details/cart_details.service';
 
 @Injectable()
 export class OrdersService {
@@ -24,6 +25,7 @@ export class OrdersService {
     private readonly usersService: UsersService,
     @Inject(forwardRef(() => OrderDetailsService))
     private readonly orderDetailsService: OrderDetailsService,
+    private readonly cartDetailsService: CartDetailsService
   ) {}
 
   async createOrderAndOrderDetails(
@@ -40,6 +42,14 @@ export class OrdersService {
           ...orderDetail,
           orderId,
         });
+      }
+
+      if(orderDto.orderType === 'Online') {
+        for (const orderDetail of orderDetailsDto) {
+          if(orderDetail.cartDetailId) {
+            await this.cartDetailsService.remove(orderDetail?.cartDetailId);
+          }
+        }
       }
 
       return await this.orderRepository.save(order);
