@@ -224,6 +224,7 @@ INSERT INTO `user` (id, name, email, password, score, address, phone, groupId, i
 (1, 'Đoàn Danh Dự', 'dudd@mini.mart', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 0, 'Ấp Thị 1, xã Hội An, Chợ Mới, An Giang', '0901234567', 1, 1, NOW()),
 (2, 'Trần Thị Nhân Viên', 'vienttn@mini.mart', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 0, 'Đường Bùi Thị Xuân, Quận 1, TP. Hồ Chí Minh', '0901234568', 2, 1, NOW()),
 (3, 'Lê Văn Khách', 'khachlv@gmail.com', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 100, 'Hoàn Kiếm, Hà Nội', '0901234569', 3, 1, NOW());
+(4, 'Lê Văn Anh', 'anh@gmail.com', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 100, 'Hoàn Kiếm, Hà Nội', '0931234579', 3, 1, NOW());
 
 -- Insert Suppliers
 INSERT INTO supplier (id, name, phone, address, country, email, createdAt) VALUES

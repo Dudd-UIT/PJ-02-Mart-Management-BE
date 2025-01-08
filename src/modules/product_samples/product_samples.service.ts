@@ -17,6 +17,7 @@ import { ProductLinesService } from '../product_lines/product_lines.service';
 import { ProductUnitsService } from '../product_units/product_units.service';
 import { CreateProductSampleAndProductUnitDto } from './dto/create-productSample_productUnit.dto';
 import { UpdateProductSampleAndProductUnitsDto } from './dto/update-productSample_productUnit.dto';
+import { RecommendationService } from '../recommendation/recommendation.service';
 
 @Injectable()
 export class ProductSamplesService {
@@ -24,6 +25,7 @@ export class ProductSamplesService {
     @InjectRepository(ProductSample)
     private productSampleRepository: Repository<ProductSample>,
     private productLinesService: ProductLinesService,
+    private recommendationService: RecommendationService,
     @Inject(forwardRef(() => ProductUnitsService))
     private productUnitsService: ProductUnitsService,
   ) {}
@@ -255,6 +257,125 @@ export class ProductSamplesService {
       results,
     };
   }
+
+  async findAllRecommend(query: any, current: number, pageSize: number, customerId: number) {
+    const { filter, sort } = aqp(query);
+
+    console.log('filter:::', filter);
+    console.log('customerId:::', customerId);
+
+    delete filter.customerId;
+
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
+    delete filter.current;
+    delete filter.pageSize;
+
+    const productSampleNameFilter = filter.name ? filter.name : null;
+    delete filter.name;
+
+    const productTypeId = filter.productTypeId ? filter.productTypeId : null;
+    delete filter.productTypeId;
+
+    // Lấy danh sách sản phẩm đề xuất từ recommendation service
+    const recommendations = await this.recommendationService.getRecommendations(customerId);
+
+    console.log('recommendations:::', recommendations);
+    const recommendedProductIds = recommendations.map((item) => item.product_id);
+    const productScores = recommendations.reduce((acc, item) => {
+        acc[item.product_id] = item.score;
+        return acc;
+    }, {});
+
+    // Đếm tổng số sản phẩm thỏa điều kiện
+    const totalItemsQuery = this.productSampleRepository
+      .createQueryBuilder('productSample')
+      .leftJoin('productSample.productLine', 'productLine')
+      .leftJoin('productLine.productType', 'productType')
+      .where((qb) => {
+        qb.where(filter);
+        if (productSampleNameFilter) {
+          qb.andWhere('productSample.name LIKE :name', {
+            name: `%${productSampleNameFilter}%`,
+          });
+        }
+        if (productTypeId) {
+          qb.andWhere('productType.id = :productTypeId', {
+            productTypeId,
+          });
+        }
+        qb.andWhere('productSample.id IN (:...recommendedProductIds)', { recommendedProductIds });
+      });
+
+    const totalItems = await totalItemsQuery.getCount();
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const skip = (current - 1) * pageSize;
+
+    // Lấy danh sách sản phẩm và tất cả các batch liên quan
+    const results = await this.productSampleRepository
+        .createQueryBuilder('productSample')
+        .leftJoinAndSelect('productSample.productUnits', 'productUnits')
+        .leftJoinAndSelect('productUnits.unit', 'unit')
+        .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
+        .leftJoinAndSelect('productSample.productLine', 'productLine')
+        .leftJoinAndSelect('productLine.productType', 'productType')
+        .leftJoinAndMapMany(
+          'productUnits.batches',
+          'productUnits.batches',
+          'batch',
+          'batch.inventQuantity > 0 AND batch.expiredAt > CURRENT_DATE',
+        )
+        .where((qb) => {
+          qb.where(filter);
+          if (productSampleNameFilter) {
+            qb.andWhere('productSample.name LIKE :name', {
+              name: `%${productSampleNameFilter}%`,
+            });
+          }
+          if (productTypeId) {
+            qb.andWhere('productType.id = :productTypeId', {
+              productTypeId,
+            });
+          }
+          qb.andWhere('productSample.id IN (:...recommendedProductIds)', { recommendedProductIds });
+        })
+        // Thêm đoạn này vào trước các orderBy khác
+        .addSelect(
+          `CASE WHEN productSample.id IN (:...highScoreIds) THEN 1 ELSE 0 END`,
+          'score'
+        )
+        .setParameter(
+          'highScoreIds',
+          recommendedProductIds.filter(id => productScores[id] === 1).length > 0
+            ? recommendedProductIds.filter(id => productScores[id] === 1)
+            : [-1] // Giá trị mặc định để tránh IN ()
+        )
+        .orderBy('score', 'DESC') // Sắp xếp theo score giảm dần 
+        .addOrderBy('batch.expiredAt', 'ASC')
+        .addOrderBy('productUnits.id', 'ASC')
+        .take(pageSize)
+        .skip(skip)
+        .getMany();
+
+    // Thêm `score` từ danh sách đề xuất vào kết quả
+    const resultsWithScores = results.map((product) => ({
+        ...product,
+        score: productScores[product.id] || 0, // Nếu không có trong danh sách thì mặc định score = 0
+    }));
+
+    console.log('resultsWithScores:::', resultsWithScores);
+
+    return {
+      meta: {
+        current,
+        pageSize,
+        pages: totalPages,
+        total: totalItems,
+      },
+      results: resultsWithScores,
+    };
+  }
+
 
   async findAll(query: any, current: number, pageSize: number) {
     const { filter, sort } = aqp(query);
