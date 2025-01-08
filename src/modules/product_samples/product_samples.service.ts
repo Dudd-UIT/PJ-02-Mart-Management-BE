@@ -291,10 +291,12 @@ export class ProductSamplesService {
     results: any[];
   }> {
     try {
+      // Xử lý tham số mặc định
       current = isNaN(current) ? 1 : current;
       pageSize = isNaN(pageSize) ? 10 : pageSize;
       const skip = (current - 1) * pageSize;
-
+  
+      // Trường hợp không có ID được cung cấp
       if (!productUnitIds || productUnitIds.length === 0) {
         return {
           meta: {
@@ -306,19 +308,20 @@ export class ProductSamplesService {
           results: [],
         };
       }
-
+  
+      // Query dữ liệu
       const queryBuilder = this.productSampleRepository
         .createQueryBuilder('productSample')
         .leftJoinAndSelect('productSample.productUnits', 'productUnits')
         .leftJoinAndSelect('productUnits.unit', 'unit')
-        .leftJoin('productUnits.batch', 'batch')
+        .leftJoin('productUnits.batches', 'batch') // Đúng theo mối quan hệ
         .select([
           'productSample.id',
           'productSample.name',
           'productSample.description',
           'productUnits.id',
-          'productUnits.sell_price',
-          'productUnits.conversion_rate',
+          'productUnits.sellPrice',
+          'productUnits.conversionRate',
           'productUnits.image',
           'productUnits.volumne',
           'unit.id',
@@ -326,7 +329,7 @@ export class ProductSamplesService {
         ])
         .addSelect((subQuery) => {
           return subQuery
-            .select('batch.inbound_price')
+            .select('batch.inboundPrice')
             .from('Batch', 'batch')
             .where('batch.productUnitId = productUnits.id')
             .orderBy('batch.createdAt', 'DESC')
@@ -334,7 +337,7 @@ export class ProductSamplesService {
         }, 'latest_inbound_price')
         .addSelect((subQuery) => {
           return subQuery
-            .select('AVG(batch.inbound_price)')
+            .select('AVG(batch.inboundPrice)')
             .from('Batch', 'batch')
             .where('batch.productUnitId = productUnits.id');
         }, 'average_inbound_price')
@@ -342,12 +345,13 @@ export class ProductSamplesService {
         .groupBy('productUnits.id')
         .take(pageSize)
         .skip(skip);
-
+  
       const totalItems = await queryBuilder.getCount();
       const totalPages = Math.ceil(totalItems / pageSize);
+  
+      // Lấy dữ liệu thô và ánh xạ kết quả
       const results = await queryBuilder.getRawAndEntities();
-
-      const transformedResults = results.entities.map((sample, index) => ({
+      const transformedResults = results.entities.map((sample) => ({
         id: sample.id,
         name: sample.name,
         description: sample.description,
@@ -378,7 +382,7 @@ export class ProductSamplesService {
             };
           }),
       }));
-
+  
       return {
         meta: {
           current,
@@ -389,6 +393,7 @@ export class ProductSamplesService {
         results: transformedResults,
       };
     } catch (error) {
+      // Xử lý lỗi
       if (
         error instanceof NotFoundException ||
         error instanceof ConflictException ||
@@ -400,6 +405,7 @@ export class ProductSamplesService {
       throw error;
     }
   }
+  
 
   async findOne(id: number) {
     const productSample = await this.productSampleRepository.findOne({

@@ -111,9 +111,9 @@ import { CartDetail } from './modules/cart_details/entities/cart_detail.entity';
       }),
       inject: [ConfigService],
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'public'),
+    // }),
     UsersModule,
     GroupsModule,
     RolesModule,
