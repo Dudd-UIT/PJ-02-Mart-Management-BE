@@ -43,5 +43,5 @@ export class SendMailDto {
   inboundReceiptDto: InboundReceiptDto;
 
   @IsNotEmpty()
-  batchsDto: BatchDto[];
+  batchesDto: BatchDto[];
 }
