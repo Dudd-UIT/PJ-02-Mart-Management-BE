@@ -51,6 +51,7 @@ import { CartDetailsModule } from './modules/cart_details/cart_details.module';
 import { CartsModule } from './modules/carts/carts.module';
 import { Cart } from './modules/carts/entities/cart.entity';
 import { CartDetail } from './modules/cart_details/entities/cart_detail.entity';
+import { RecommendationModule } from './modules/recommendation/recommendation.module';
 
 @Module({
   imports: [
@@ -111,9 +112,9 @@ import { CartDetail } from './modules/cart_details/entities/cart_detail.entity';
       }),
       inject: [ConfigService],
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'public'),
+    // }),
     UsersModule,
     GroupsModule,
     RolesModule,
@@ -134,6 +135,7 @@ import { CartDetail } from './modules/cart_details/entities/cart_detail.entity';
     StatisticModule,
     CartDetailsModule,
     CartsModule,
+    RecommendationModule,
   ],
   controllers: [AppController],
   providers: [

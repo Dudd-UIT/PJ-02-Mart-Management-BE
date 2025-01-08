@@ -110,15 +110,19 @@ export class CartsService {
   }
 
   async findOneByCustomerId(customerId: number) {
+    console.log('customerId', customerId)
     const cart = await this.cartRepository.findOne({
       where: { customer: { id: customerId } },
       relations: [
         'customer', 
         'cartDetails',
         'cartDetails.productUnit',
-        'cartDetails.batch',
+        'cartDetails.productUnit.productSample',
+        'cartDetails.productUnit.unit',
+        'cartDetails.productUnit.batches',
       ],
     });
+    console.log('cart', cart)
   
     if (!cart) {
       throw new NotFoundException('Không tìm thấy giỏ hàng cho khách hàng này');

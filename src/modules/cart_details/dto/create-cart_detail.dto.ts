@@ -23,7 +23,7 @@ export class CreateCartDetailDto {
 
   @IsNotEmpty()
   @IsNumber()
-  cartId: number;
+  cartId?: number;
 
   @IsArray()
   @ValidateNested({ each: true })

@@ -1,9 +1,10 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateCartDto {
-  @IsNotEmpty()
-  status: string;
+  // @IsNotEmpty()
+  // status: string;
 
   @IsNotEmpty()
+  @IsNumber()
   customerId: number;
 }

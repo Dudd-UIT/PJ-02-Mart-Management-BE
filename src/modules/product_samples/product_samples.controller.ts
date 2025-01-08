@@ -10,6 +10,7 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProductSamplesService } from './product_samples.service';
 import { UpdateProductSampleDto } from './dto/update-product_sample.dto';
@@ -63,6 +64,43 @@ export class ProductSamplesController {
       +pageSize,
     );
   }
+
+  @Public()
+  @Get('/online-shopping')
+  @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
+  // @UseGuards(RoleGuard)
+  // @Roles('v_pdsams')
+  findAllShopping(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.productSamplesService.findAllShopping(
+      query,
+      +current,
+      +pageSize,
+    );
+  }
+
+  @Get('/online-shopping-recommend')
+  @ResponseMessage('Trả về danh sách các mẫu sản phẩm có đề xuất thành công')
+  // @UseGuards(RoleGuard)
+  // @Roles('v_pdsams')
+  findAllRecommend(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+    @Query('customerId') customerId: string,
+  ) {
+    const customerIdNumber = parseInt(customerId, 10);
+    return this.productSamplesService.findAllRecommend(
+      query,
+      +current,
+      +pageSize,
+      customerIdNumber,
+    );
+  }
+  
 
   @Get(':id')
   @ResponseMessage('Trả về thông tin chi tiết mẫu sản phẩm thành công')
