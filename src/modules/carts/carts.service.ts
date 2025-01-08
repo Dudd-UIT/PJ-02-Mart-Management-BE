@@ -111,17 +111,27 @@ export class CartsService {
 
   async findOneByCustomerId(customerId: number) {
     console.log('customerId', customerId)
-    const cart = await this.cartRepository.findOne({
-      where: { customer: { id: customerId } },
-      relations: [
-        'customer', 
-        'cartDetails',
-        'cartDetails.productUnit',
-        'cartDetails.productUnit.productSample',
-        'cartDetails.productUnit.unit',
-        'cartDetails.productUnit.batches',
-      ],
-    });
+    // const cart = await this.cartRepository.findOne({
+    //   where: { customer: { id: customerId } },
+    //   relations: [
+    //     'customer', 
+    //     'cartDetails',
+    //     'cartDetails.productUnit',
+    //     'cartDetails.productUnit.productSample',
+    //     'cartDetails.productUnit.unit',
+    //     'cartDetails.productUnit.batches',
+    //   ],
+    // });
+    const cart = await this.cartRepository
+    .createQueryBuilder('cart')
+    .leftJoinAndSelect('cart.customer', 'customer')
+    .leftJoinAndSelect('cart.cartDetails', 'cartDetails')
+    .leftJoinAndSelect('cartDetails.productUnit', 'productUnit')
+    .leftJoinAndSelect('productUnit.productSample', 'productSample')
+    .leftJoinAndSelect('productUnit.unit', 'unit')
+    .leftJoinAndSelect('productUnit.batches', 'batches', 'batches.id = cartDetails.batchId') // Lọc batch theo batchId
+    .where('cart.customer.id = :customerId', { customerId })
+    .getOne();
     console.log('cart', cart)
   
     if (!cart) {
