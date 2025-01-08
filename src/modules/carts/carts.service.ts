@@ -116,7 +116,9 @@ export class CartsService {
         'customer', 
         'cartDetails',
         'cartDetails.productUnit',
-        'cartDetails.batch',
+        'cartDetails.productUnit.productSample',
+        'cartDetails.productUnit.unit',
+        'cartDetails.productUnit.batches',
       ],
     });
   

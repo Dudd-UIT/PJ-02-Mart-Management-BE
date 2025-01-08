@@ -64,10 +64,10 @@ export class ProductUnit {
   })
   orderDetails?: OrderDetail[];
 
-  @OneToOne(() => Batch, (batch) => batch.productUnit, {
+  @OneToMany(() => Batch, (batch) => batch.productUnit, {
     createForeignKeyConstraints: false,
   })
-  batch?: Batch;
+  batches?: Batch[];
 
   @ManyToOne(() => Unit, (unit) => unit.productUnits, {
     createForeignKeyConstraints: false,
