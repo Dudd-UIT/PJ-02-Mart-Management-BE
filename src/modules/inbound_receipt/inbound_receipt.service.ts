@@ -73,7 +73,7 @@ export class InboundReceiptService {
 
   async sendEmailToSupplier(sendMailDto: SendMailDto) {
     try {
-      const { inboundReceiptDto, batchsDto } = sendMailDto;
+      const { inboundReceiptDto, batchesDto } = sendMailDto;
 
       const supplier = await this.suppliersService.findOne(
         inboundReceiptDto.supplierId,
@@ -85,7 +85,7 @@ export class InboundReceiptService {
         throw new NotFoundException('Email nhà cung cấp không đúng');
       }
 
-      const batches = batchsDto.map((batch, index) => ({
+      const batches = batchesDto.map((batch, index) => ({
         index: index + 1,
         productSampleName: batch.productSampleName,
         unitName: batch.unitName,

@@ -66,6 +66,108 @@ export class BatchsService {
     }
   }
 
+  // async findAll(query: any, current: number, pageSize: number) {
+  //   try {
+  //     const { filter } = aqp(query);
+
+  //     if (!current) current = 1;
+  //     if (!pageSize) pageSize = 10;
+
+  //     // Extract and remove filters
+  //     const inventQuantityFilter = filter.inventQuantity || null;
+  //     const expiredAtFilter = filter.expiredAt || null;
+  //     const nearExpiredFilter = filter.nearExpired || null; // Check for nearExpired flag
+  //     const createdTodayFilter = filter.createdToday || null; // Check for createdToday flag
+
+  //     delete filter.current;
+  //     delete filter.pageSize;
+  //     delete filter.inventQuantity;
+  //     delete filter.expiredAt;
+  //     delete filter.nearExpired;
+  //     delete filter.createdToday;
+
+  //     // Create query builder
+  //     const queryBuilder = this.batchRepository
+  //       .createQueryBuilder('batch')
+  //       .leftJoinAndSelect('batch.inboundReceipt', 'inboundReceipt')
+  //       .leftJoinAndSelect('batch.productUnit', 'productUnit')
+  //       .leftJoinAndSelect('inboundReceipt.supplier', 'supplier')
+  //       .leftJoinAndSelect('productUnit.productSample', 'productSample')
+  //       .leftJoinAndSelect('productUnit.unit', 'unit')
+  //       .where(filter); // Apply base filters
+
+  //     // Apply additional filters
+  //     if (inventQuantityFilter) {
+  //       queryBuilder.andWhere('batch.inventQuantity <= :inventQuantity', {
+  //         inventQuantity: inventQuantityFilter,
+  //       });
+  //     }
+
+  //     if (expiredAtFilter) {
+  //       queryBuilder.andWhere('batch.expiredAt <= :expiredAt', {
+  //         expiredAt: new Date(expiredAtFilter),
+  //       });
+  //     }
+
+  //     if (nearExpiredFilter) {
+  //       const today = new Date();
+  //       const nearExpiredDate = new Date();
+  //       nearExpiredDate.setDate(today.getDate() + 30); // Filter for the next 30 days
+  //       queryBuilder.andWhere(
+  //         'batch.expiredAt BETWEEN :today AND :nearExpired',
+  //         {
+  //           today: today.toISOString(),
+  //           nearExpired: nearExpiredDate.toISOString(),
+  //         },
+  //       );
+  //     }
+
+  //     if (createdTodayFilter) {
+  //       const todayStart = new Date();
+  //       todayStart.setHours(0, 0, 0, 0);
+  //       const todayEnd = new Date();
+  //       todayEnd.setHours(23, 59, 59, 999);
+
+  //       queryBuilder.andWhere(
+  //         'batch.createdAt BETWEEN :todayStart AND :todayEnd',
+  //         {
+  //           todayStart: todayStart.toISOString(),
+  //           todayEnd: todayEnd.toISOString(),
+  //         },
+  //       );
+  //     }
+
+  //     // Count total items
+  //     const totalItems = await queryBuilder.getCount();
+  //     const totalPages = Math.ceil(totalItems / pageSize);
+  //     const skip = (current - 1) * pageSize;
+
+  //     // Fetch paginated results
+  //     const results = await queryBuilder.take(pageSize).skip(skip).getMany();
+
+  //     return {
+  //       meta: {
+  //         current,
+  //         pageSize,
+  //         pages: totalPages,
+  //         total: totalItems,
+  //       },
+  //       results,
+  //     };
+  //   } catch (error) {
+  //     if (
+  //       error instanceof NotFoundException ||
+  //       error instanceof ConflictException ||
+  //       error instanceof BadRequestException
+  //     ) {
+  //       throw error;
+  //     }
+  //     console.error('Lỗi khi tìm tất cả các lô hàng:', error.message);
+  //     throw new InternalServerErrorException(
+  //       'Không thể truy xuất dữ liệu lô hàng, vui lòng thử lại sau.',
+  //     );
+  //   }
+  // }
   async findAll(query: any, current: number, pageSize: number) {
     try {
       const { filter } = aqp(query);
@@ -94,17 +196,20 @@ export class BatchsService {
         .leftJoinAndSelect('inboundReceipt.supplier', 'supplier')
         .leftJoinAndSelect('productUnit.productSample', 'productSample')
         .leftJoinAndSelect('productUnit.unit', 'unit')
-        .where(filter); // Apply base filters
+        .where(filter) // Apply base filters
+        .andWhere('inboundReceipt.isReceived = :isReceived', {
+          isReceived: 1, // Only batches with isReceived = 1
+        });
 
       // Apply additional filters
       if (inventQuantityFilter) {
-        queryBuilder.andWhere('batch.inventQuantity >= :inventQuantity', {
+        queryBuilder.andWhere('batch.inventQuantity <= :inventQuantity', {
           inventQuantity: inventQuantityFilter,
         });
       }
 
       if (expiredAtFilter) {
-        queryBuilder.andWhere('batch.expiredAt >= :expiredAt', {
+        queryBuilder.andWhere('batch.expiredAt <= :expiredAt', {
           expiredAt: new Date(expiredAtFilter),
         });
       }
