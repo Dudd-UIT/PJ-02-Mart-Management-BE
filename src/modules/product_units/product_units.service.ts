@@ -355,4 +355,89 @@ export class ProductUnitsService {
       results,
     };
   }
+
+  async findProductUnitsWithNearestBatch(
+    query: any,
+    current: number,
+    pageSize: number,
+  ) {
+    // Đảm bảo current và pageSize hợp lệ
+    if (!current || current < 1) current = 1;
+    if (!pageSize || pageSize < 1) pageSize = 12;
+
+    const { filter } = aqp(query);
+    const productSampleNameFilter = filter.name || null;
+    const productUnitIdFilter = filter.id || null; // Thêm lọc id
+
+    delete filter.current;
+    delete filter.pageSize;
+    delete filter.name;
+    delete filter.id; // Xóa id khỏi filter để tránh ảnh hưởng logic khác
+
+    console.log('filter', filter);
+
+    const skip = (current - 1) * pageSize;
+
+    // Tính tổng số lượng bản ghi
+    const totalItems = await this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .andWhere(
+        productSampleNameFilter ? 'productSample.name LIKE :name' : '1=1',
+        {
+          name: `%${productSampleNameFilter}%`,
+        },
+      )
+      .andWhere(productUnitIdFilter ? 'productUnit.id = :id' : '1=1', {
+        id: productUnitIdFilter,
+      }) // Áp dụng lọc id
+      .getCount();
+
+    // Lấy toàn bộ kết quả và xử lý phân trang sau
+    const allResults = await this.productUnitRepository
+      .createQueryBuilder('productUnit')
+      .leftJoinAndSelect('productUnit.unit', 'unit')
+      .leftJoinAndSelect('productUnit.productSample', 'productSample')
+      .leftJoinAndSelect('productSample.productLine', 'productLine')
+      .leftJoinAndSelect('productLine.productType', 'productType')
+      .leftJoinAndMapMany(
+        'productUnit.batches',
+        'productUnit.batches',
+        'batch',
+        '1=1', // Không áp dụng điều kiện lọc tại đây
+      )
+      .andWhere(
+        productSampleNameFilter ? 'productSample.name LIKE :name' : '1=1',
+        {
+          name: `%${productSampleNameFilter}%`,
+        },
+      )
+      .andWhere(productUnitIdFilter ? 'productUnit.id = :id' : '1=1', {
+        id: productUnitIdFilter,
+      }) // Áp dụng lọc id
+      .orderBy('productUnit.id', 'ASC') // Sắp xếp chính
+      .addOrderBy('batch.expiredAt', 'ASC') // Sắp xếp phụ
+      .getMany();
+
+    // Lọc batches hợp lệ
+    allResults.forEach((productUnit) => {
+      productUnit.batches = productUnit.batches.filter(
+        (batch) => batch.inventQuantity > 0 && batch.expiredAt > new Date(),
+      );
+    });
+
+    // Thực hiện phân trang trong mã xử lý kết quả
+    const paginatedResults = allResults.slice(skip, skip + pageSize);
+
+    // Trả về kết quả
+    return {
+      meta: {
+        current,
+        pageSize,
+        pages: Math.ceil(totalItems / pageSize),
+        total: totalItems,
+      },
+      results: paginatedResults,
+    };
+  }
 }

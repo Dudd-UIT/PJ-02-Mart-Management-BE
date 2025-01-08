@@ -7,5 +7,5 @@ export class CreateInboundReceiptBatchsDto {
   inboundReceiptDto: CreateInboundReceiptDto;
 
   @IsNotEmpty()
-  batchsDto: CreateBatchDto[];
+  batchesDto: CreateBatchDto[];
 }

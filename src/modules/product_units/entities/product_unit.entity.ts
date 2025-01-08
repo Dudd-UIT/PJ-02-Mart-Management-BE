@@ -11,7 +11,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -64,6 +63,7 @@ export class ProductUnit {
   })
   orderDetails?: OrderDetail[];
 
+  @OneToMany(() => Batch, (batch) => batch.productUnit, {
   @OneToMany(() => Batch, (batch) => batch.productUnit, {
     createForeignKeyConstraints: false,
   })

@@ -48,6 +48,20 @@ export class ProductUnitsController {
     return this.productUnitsService.findAll(query, +current, +pageSize);
   }
 
+  @Public()
+  @Get('sale')
+  findProductUnitsWithNearestBatch(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.productUnitsService.findProductUnitsWithNearestBatch(
+      query,
+      +current,
+      +pageSize,
+    );
+  }
+
   @Get('/supplier/:id')
   @ResponseMessage(
     'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
