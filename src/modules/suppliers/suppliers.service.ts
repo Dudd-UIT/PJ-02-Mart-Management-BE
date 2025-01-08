@@ -157,6 +157,7 @@ export class SuppliersService {
 
   async update(id: number, updateSupplierDto: UpdateSupplierDto) {
     try {
+      console.log('updateSupplierDto', updateSupplierDto);
       const supplier = await this.findOne(id);
       if (!supplier) {
         throw new NotFoundException('Không tìm thấy nhà cung cấp');

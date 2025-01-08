@@ -35,18 +35,33 @@ export class ProductSamplesController {
       createProductSampleAndProductUnitDto,
     );
   }
-@Public()
+
   @Get()
-  @Public()
   @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
-  // @UseGuards(RoleGuard)
-  // @Roles('v_pdsams')
+  @UseGuards(RoleGuard)
+  @Roles('v_pdsams')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {
     return this.productSamplesService.findAll(query, +current, +pageSize);
+  }
+
+  @Get('/shopping')
+  @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('v_pdsams')
+  findAllProductSampleAndBatches(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.productSamplesService.findAllProductSampleAndBatches(
+      query,
+      +current,
+      +pageSize,
+    );
   }
 
   @Get(':id')
