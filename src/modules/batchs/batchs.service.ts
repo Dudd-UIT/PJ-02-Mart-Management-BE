@@ -10,7 +10,7 @@ import {
 import { CreateBatchDto } from './dto/create-batch.dto';
 import { UpdateBatchDto } from './dto/update-batch.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { Batch } from './entities/batch.entity';
 import aqp from 'api-query-params';
 import { InboundReceiptService } from '../inbound_receipt/inbound_receipt.service';
@@ -298,5 +298,14 @@ export class BatchsService {
 
     batch.inventQuantity = newQuantity;
     return await this.batchRepository.save(batch);
+  }
+
+  async getBatchesByProductUnitId(productUnitId: number) {
+    return this.batchRepository.find({
+      where: {
+        productUnit: { id: productUnitId },
+        expiredAt: MoreThanOrEqual(new Date()),
+      },
+    });
   }
 }

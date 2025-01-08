@@ -215,6 +215,7 @@ export class ProductSamplesService {
       .createQueryBuilder('productSample')
       .leftJoinAndSelect('productSample.productUnits', 'productUnits')
       .leftJoinAndSelect('productUnits.unit', 'unit')
+      .leftJoinAndSelect('productUnits.batches', 'batches')
       .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
       .leftJoinAndSelect('productSample.productLine', 'productLine')
       .leftJoinAndSelect('productLine.productType', 'productType')
@@ -231,6 +232,7 @@ export class ProductSamplesService {
           });
         }
       })
+      // .orderBy('batches.createdAt', 'DESC') // Sắp xếp batches theo createdAt giảm dần
       .take(pageSize)
       .skip(skip)
       .getMany();
