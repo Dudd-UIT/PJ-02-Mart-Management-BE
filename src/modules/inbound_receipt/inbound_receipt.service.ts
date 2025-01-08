@@ -268,7 +268,7 @@ export class InboundReceiptService {
     updateInboundReceiptBatchsDto: UpdateInboundReceiptBatchsDto,
   ) {
     try {
-      const { inboundReceiptDto, batchsDto } = updateInboundReceiptBatchsDto;
+      const { inboundReceiptDto, batchesDto } = updateInboundReceiptBatchsDto;
 
       if (inboundReceiptDto.isPaid && +inboundReceiptDto.isPaid === 1) {
         throw new ConflictException(
@@ -278,7 +278,7 @@ export class InboundReceiptService {
 
       await this.update(id, inboundReceiptDto);
 
-      for (const batchInfo of batchsDto) {
+      for (const batchInfo of batchesDto) {
         const { id: batchId, ...rest } = batchInfo;
         await this.batchsService.update(batchId, rest);
       }
