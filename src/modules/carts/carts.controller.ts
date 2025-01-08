@@ -1,4 +1,4 @@
-import { ResponseMessage } from 'src/decorators/customDecorator';
+import { Public, ResponseMessage } from 'src/decorators/customDecorator';
 import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, ValidationPipe } from '@nestjs/common';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -23,8 +23,10 @@ export class CartsController {
         createCartAndCartDetailsDto,
     );
   }
+
+  @Public()
   @ResponseMessage('Trả về thông tin chi tiết giỏ hàng thành công')
-    @Get(':id')
+    @Get('/:id')
     // @UseGuards(RoleGuard)
     // @Roles('v_carts')
     findOne(@Param('id', ParseIntPipe) id: number) {

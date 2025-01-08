@@ -64,6 +64,23 @@ export class ProductSamplesController {
     );
   }
 
+  @Public()
+  @Get('/online-shopping')
+  @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
+  // @UseGuards(RoleGuard)
+  // @Roles('v_pdsams')
+  findAllShopping(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.productSamplesService.findAllShopping(
+      query,
+      +current,
+      +pageSize,
+    );
+  }
+
   @Get(':id')
   @ResponseMessage('Trả về thông tin chi tiết mẫu sản phẩm thành công')
   @UseGuards(RoleGuard)
