@@ -128,44 +128,44 @@ INSERT INTO role (id, url, description) VALUES
     (16, 'u_order', 'Cập nhật hóa đơn'),
     (17, 'd_order', 'Xóa hóa đơn'),
 
-    (19, 'u_param', 'Cập nhật tham số'),
+    (18, 'u_param', 'Cập nhật tham số'),
 
-    (20, 'c_pdline', 'Tạo mới dòng sản phẩm'),
-    (21, 'v_pdlines', 'Xem danh sách dòng sản phẩm'),
-    (22, 'u_pdline', 'Cập nhật dòng sản phẩm'),
-    (23, 'd_pdline', 'Xóa dòng sản phẩm'),
+    (19, 'c_pdline', 'Tạo mới dòng sản phẩm'),
+    (20, 'v_pdlines', 'Xem danh sách dòng sản phẩm'),
+    (21, 'u_pdline', 'Cập nhật dòng sản phẩm'),
+    (22, 'd_pdline', 'Xóa dòng sản phẩm'),
 
-    (24, 'c_pdsam', 'Tạo mới mẫu sản phẩm'),
-    (25, 'v_pdsams', 'Xem danh sách mẫu sản phẩm'),
-    (26, 'u_pdsam', 'Cập nhật mẫu sản phẩm'),
-    (27, 'd_pdsam', 'Xóa mẫu sản phẩm'),
+    (23, 'c_pdsam', 'Tạo mới mẫu sản phẩm'),
+    (24, 'v_pdsams', 'Xem danh sách mẫu sản phẩm'),
+    (25, 'u_pdsam', 'Cập nhật mẫu sản phẩm'),
+    (26, 'd_pdsam', 'Xóa mẫu sản phẩm'),
 
-    (28, 'c_pdtype', 'Tạo mới loại sản phẩm'),
-    (29, 'v_pdtypes', 'Xem danh sách loại sản phẩm'),
-    (30, 'u_pdtype', 'Cập nhật loại sản phẩm'),
-    (31, 'd_pdtype', 'Xóa loại sản phẩm'),
+    (27, 'c_pdtype', 'Tạo mới loại sản phẩm'),
+    (28, 'v_pdtypes', 'Xem danh sách loại sản phẩm'),
+    (29, 'u_pdtype', 'Cập nhật loại sản phẩm'),
+    (30, 'd_pdtype', 'Xóa loại sản phẩm'),
 
-    (32, 'c_sup', 'Tạo mới nhà cung cấp'),
-    (33, 'v_sups', 'Xem danh sách nhà cung cấp'),
-    (34, 'u_sup', 'Cập nhật nhà cung cấp'),
-    (35, 'd_sup', 'Xóa nhà cung cấp'),
+    (31, 'c_sup', 'Tạo mới nhà cung cấp'),
+    (32, 'v_sups', 'Xem danh sách nhà cung cấp'),
+    (33, 'u_sup', 'Cập nhật nhà cung cấp'),
+    (34, 'd_sup', 'Xóa nhà cung cấp'),
 
-    (36, 'c_cus', 'Tạo mới khách hàng'),
-    (37, 'v_cus', 'Xem danh sách khách hàng'),
-    (38, 'u_cus', 'Cập nhật khách hàng'),
-    (39, 'd_cus', 'Xóa khách hàng'),
+    (35, 'c_cus', 'Tạo mới khách hàng'),
+    (36, 'v_cus', 'Xem danh sách khách hàng'),
+    (37, 'u_cus', 'Cập nhật khách hàng'),
+    (38, 'd_cus', 'Xóa khách hàng'),
 
-    (40, 'c_staff', 'Tạo mới nhân viên'),
-    (41, 'v_staffs', 'Xem danh sách nhân viên'),
-    (42, 'u_staff', 'Cập nhật nhân viên'),
-    (43, 'd_staff', 'Xóa nhân viên'),
+    (39, 'c_staff', 'Tạo mới nhân viên'),
+    (40, 'v_staffs', 'Xem danh sách nhân viên'),
+    (41, 'u_staff', 'Cập nhật nhân viên'),
+    (42, 'd_staff', 'Xóa nhân viên'),
 
-    (44, 'v_statis', 'Xem chi tiết các thống kê'),
+    (43, 'v_statis', 'Xem chi tiết các thống kê'),
 
-    (45, 'c_unit', 'Tạo mới đơn vị tính'),
-    (46, 'v_units', 'Xem danh sách đơn vị tính'),
-    (47, 'u_unit', 'Cập nhật đơn vị tính'),
-    (48, 'd_unit', 'Xóa đơn vị tính');
+    (44, 'c_unit', 'Tạo mới đơn vị tính'),
+    (45, 'v_units', 'Xem danh sách đơn vị tính'),
+    (46, 'u_unit', 'Cập nhật đơn vị tính'),
+    (47, 'd_unit', 'Xóa đơn vị tính');
 
 
 -- Insert role_group
@@ -217,14 +217,20 @@ INSERT INTO role_group (groupId, roleId) VALUES
 (1, 45),
 (1, 46),
 (1, 47),
-(1, 48);
+(1, 48),
+
+(3, 14),
+(3, 15),
+(3, 16),
+(3, 17),
+(3, 18);
+
 
 -- Insert Users
 INSERT INTO `user` (id, name, email, password, score, address, phone, groupId, isActive, createdAt) VALUES
 (1, 'Đoàn Danh Dự', 'dudd@mini.mart', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 0, 'Ấp Thị 1, xã Hội An, Chợ Mới, An Giang', '0901234567', 1, 1, NOW()),
 (2, 'Trần Thị Nhân Viên', 'vienttn@mini.mart', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 0, 'Đường Bùi Thị Xuân, Quận 1, TP. Hồ Chí Minh', '0901234568', 2, 1, NOW()),
 (3, 'Lê Văn Khách', 'khachlv@gmail.com', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 100, 'Hoàn Kiếm, Hà Nội', '0901234569', 3, 1, NOW());
-(4, 'Lê Văn Anh', 'anh@gmail.com', '$2b$10$ImF9chTfy2rgUDiW3t/V5eOYFtNo0JQzuxk/H/m2Jw3pJJTi/i3RC', 100, 'Hoàn Kiếm, Hà Nội', '0931234579', 3, 1, NOW());
 
 -- Insert Suppliers
 INSERT INTO supplier (id, name, phone, address, country, email, createdAt) VALUES
