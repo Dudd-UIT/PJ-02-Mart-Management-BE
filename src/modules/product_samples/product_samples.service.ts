@@ -258,7 +258,12 @@ export class ProductSamplesService {
     };
   }
 
-  async findAllRecommend(query: any, current: number, pageSize: number, customerId: number) {
+  async findAllRecommend(
+    query: any,
+    current: number,
+    pageSize: number,
+    customerId: number,
+  ) {
     const { filter, sort } = aqp(query);
 
     console.log('filter:::', filter);
@@ -278,13 +283,16 @@ export class ProductSamplesService {
     delete filter.productTypeId;
 
     // Lấy danh sách sản phẩm đề xuất từ recommendation service
-    const recommendations = await this.recommendationService.getRecommendations(customerId);
+    const recommendations =
+      await this.recommendationService.getRecommendations(customerId);
 
     console.log('recommendations:::', recommendations);
-    const recommendedProductIds = recommendations.map((item) => item.product_id);
+    const recommendedProductIds = recommendations.map(
+      (item) => item.product_id,
+    );
     const productScores = recommendations.reduce((acc, item) => {
-        acc[item.product_id] = item.score;
-        return acc;
+      acc[item.product_id] = item.score;
+      return acc;
     }, {});
 
     // Đếm tổng số sản phẩm thỏa điều kiện
@@ -304,7 +312,9 @@ export class ProductSamplesService {
             productTypeId,
           });
         }
-        qb.andWhere('productSample.id IN (:...recommendedProductIds)', { recommendedProductIds });
+        qb.andWhere('productSample.id IN (:...recommendedProductIds)', {
+          recommendedProductIds,
+        });
       });
 
     const totalItems = await totalItemsQuery.getCount();
@@ -313,54 +323,56 @@ export class ProductSamplesService {
 
     // Lấy danh sách sản phẩm và tất cả các batch liên quan
     const results = await this.productSampleRepository
-        .createQueryBuilder('productSample')
-        .leftJoinAndSelect('productSample.productUnits', 'productUnits')
-        .leftJoinAndSelect('productUnits.unit', 'unit')
-        .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
-        .leftJoinAndSelect('productSample.productLine', 'productLine')
-        .leftJoinAndSelect('productLine.productType', 'productType')
-        .leftJoinAndMapMany(
-          'productUnits.batches',
-          'productUnits.batches',
-          'batch',
-          'batch.inventQuantity > 0 AND batch.expiredAt > CURRENT_DATE',
-        )
-        .where((qb) => {
-          qb.where(filter);
-          if (productSampleNameFilter) {
-            qb.andWhere('productSample.name LIKE :name', {
-              name: `%${productSampleNameFilter}%`,
-            });
-          }
-          if (productTypeId) {
-            qb.andWhere('productType.id = :productTypeId', {
-              productTypeId,
-            });
-          }
-          qb.andWhere('productSample.id IN (:...recommendedProductIds)', { recommendedProductIds });
-        })
-        // Thêm đoạn này vào trước các orderBy khác
-        .addSelect(
-          `CASE WHEN productSample.id IN (:...highScoreIds) THEN 1 ELSE 0 END`,
-          'score'
-        )
-        .setParameter(
-          'highScoreIds',
-          recommendedProductIds.filter(id => productScores[id] === 1).length > 0
-            ? recommendedProductIds.filter(id => productScores[id] === 1)
-            : [-1] // Giá trị mặc định để tránh IN ()
-        )
-        .orderBy('score', 'DESC') // Sắp xếp theo score giảm dần 
-        .addOrderBy('batch.expiredAt', 'ASC')
-        .addOrderBy('productUnits.id', 'ASC')
-        .take(pageSize)
-        .skip(skip)
-        .getMany();
+      .createQueryBuilder('productSample')
+      .leftJoinAndSelect('productSample.productUnits', 'productUnits')
+      .leftJoinAndSelect('productUnits.unit', 'unit')
+      .leftJoinAndSelect('productUnits.compareUnit', 'compareUnit')
+      .leftJoinAndSelect('productSample.productLine', 'productLine')
+      .leftJoinAndSelect('productLine.productType', 'productType')
+      .leftJoinAndMapMany(
+        'productUnits.batches',
+        'productUnits.batches',
+        'batch',
+        'batch.inventQuantity > 0 AND batch.expiredAt > CURRENT_DATE',
+      )
+      .where((qb) => {
+        qb.where(filter);
+        if (productSampleNameFilter) {
+          qb.andWhere('productSample.name LIKE :name', {
+            name: `%${productSampleNameFilter}%`,
+          });
+        }
+        if (productTypeId) {
+          qb.andWhere('productType.id = :productTypeId', {
+            productTypeId,
+          });
+        }
+        qb.andWhere('productSample.id IN (:...recommendedProductIds)', {
+          recommendedProductIds,
+        });
+      })
+      // Thêm đoạn này vào trước các orderBy khác
+      .addSelect(
+        `CASE WHEN productSample.id IN (:...highScoreIds) THEN 1 ELSE 0 END`,
+        'score',
+      )
+      .setParameter(
+        'highScoreIds',
+        recommendedProductIds.filter((id) => productScores[id] === 1).length > 0
+          ? recommendedProductIds.filter((id) => productScores[id] === 1)
+          : [-1], // Giá trị mặc định để tránh IN ()
+      )
+      .orderBy('score', 'DESC') // Sắp xếp theo score giảm dần
+      .addOrderBy('batch.expiredAt', 'ASC')
+      .addOrderBy('productUnits.id', 'ASC')
+      .take(pageSize)
+      .skip(skip)
+      .getMany();
 
     // Thêm `score` từ danh sách đề xuất vào kết quả
     const resultsWithScores = results.map((product) => ({
-        ...product,
-        score: productScores[product.id] || 0, // Nếu không có trong danh sách thì mặc định score = 0
+      ...product,
+      score: productScores[product.id] || 0, // Nếu không có trong danh sách thì mặc định score = 0
     }));
 
     console.log('resultsWithScores:::', resultsWithScores);
@@ -375,7 +387,6 @@ export class ProductSamplesService {
       results: resultsWithScores,
     };
   }
-
 
   async findAll(query: any, current: number, pageSize: number) {
     const { filter, sort } = aqp(query);
@@ -499,7 +510,7 @@ export class ProductSamplesService {
       current = isNaN(current) ? 1 : current;
       pageSize = isNaN(pageSize) ? 10 : pageSize;
       const skip = (current - 1) * pageSize;
-  
+
       // Trường hợp không có ID được cung cấp
       if (!productUnitIds || productUnitIds.length === 0) {
         return {
@@ -512,7 +523,7 @@ export class ProductSamplesService {
           results: [],
         };
       }
-  
+
       // Query dữ liệu
       const queryBuilder = this.productSampleRepository
         .createQueryBuilder('productSample')
@@ -549,10 +560,10 @@ export class ProductSamplesService {
         .groupBy('productUnits.id')
         .take(pageSize)
         .skip(skip);
-  
+
       const totalItems = await queryBuilder.getCount();
       const totalPages = Math.ceil(totalItems / pageSize);
-  
+
       // Lấy dữ liệu thô và ánh xạ kết quả
       const results = await queryBuilder.getRawAndEntities();
       const transformedResults = results.entities.map((sample) => ({
@@ -586,7 +597,7 @@ export class ProductSamplesService {
             };
           }),
       }));
-  
+
       return {
         meta: {
           current,
@@ -609,7 +620,6 @@ export class ProductSamplesService {
       throw error;
     }
   }
-  
 
   async findOne(id: number) {
     const productSample = await this.productSampleRepository.findOne({

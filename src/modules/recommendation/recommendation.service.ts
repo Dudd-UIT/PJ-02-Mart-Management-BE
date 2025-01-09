@@ -7,22 +7,21 @@ import { firstValueFrom } from 'rxjs';
 export class RecommendationService {
   private readonly recommendationServiceUrl: string;
 
-  constructor(
-    private readonly httpService: HttpService,
-  ) {
-  }
+  constructor(private readonly httpService: HttpService) {}
 
   async getRecommendations(customerId: number) {
     try {
-
       console.log('customerId:::', customerId);
       const recommendationServiceUrl = process.env.RECOMMENDATION_SERVICE_URL;
-      console.log("URL::: ", `${recommendationServiceUrl}/recommendations/${customerId}`);
+      console.log(
+        'URL::: ',
+        `${recommendationServiceUrl}/recommendations/${customerId}`,
+      );
 
       const response = await firstValueFrom(
         this.httpService.get(
           `${recommendationServiceUrl}/recommendations/${customerId}`,
-        )
+        ),
       );
       return response.data;
     } catch (error) {

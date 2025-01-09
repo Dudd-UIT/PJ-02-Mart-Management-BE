@@ -25,7 +25,7 @@ export class OrdersService {
     private readonly usersService: UsersService,
     @Inject(forwardRef(() => OrderDetailsService))
     private readonly orderDetailsService: OrderDetailsService,
-    private readonly cartDetailsService: CartDetailsService
+    private readonly cartDetailsService: CartDetailsService,
   ) {}
 
   async createOrderAndOrderDetails(
@@ -44,9 +44,9 @@ export class OrdersService {
         });
       }
 
-      if(orderDto.orderType === 'Online') {
+      if (orderDto.orderType === 'Online') {
         for (const orderDetail of orderDetailsDto) {
-          if(orderDetail.cartDetailId) {
+          if (orderDetail.cartDetailId) {
             await this.cartDetailsService.remove(orderDetail?.cartDetailId);
           }
         }

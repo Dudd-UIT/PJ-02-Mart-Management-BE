@@ -11,7 +11,10 @@ export class CreateOrderDto {
   paymentTime: Date;
 
   @IsNotEmpty()
-  status: string;
+  isPaid: number;
+
+  @IsNotEmpty()
+  isReceived: number;
 
   @IsNotEmpty()
   customerId: number;

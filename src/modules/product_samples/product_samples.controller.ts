@@ -100,7 +100,6 @@ export class ProductSamplesController {
       customerIdNumber,
     );
   }
-  
 
   @Get(':id')
   @ResponseMessage('Trả về thông tin chi tiết mẫu sản phẩm thành công')
