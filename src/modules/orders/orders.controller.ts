@@ -31,6 +31,7 @@ export class OrdersController {
     @Body(ValidationPipe)
     createOrderAndOrderDetailsDto: CreateOrderAndOrderDetailsDto,
   ) {
+    console.log('createOrderAndOrderDetailsDto', createOrderAndOrderDetailsDto);
     return this.ordersService.createOrderAndOrderDetails(
       createOrderAndOrderDetailsDto,
     );

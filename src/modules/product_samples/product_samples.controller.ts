@@ -10,10 +10,11 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProductSamplesService } from './product_samples.service';
 import { UpdateProductSampleDto } from './dto/update-product_sample.dto';
-import { ResponseMessage } from 'src/decorators/customDecorator';
+import { Public, ResponseMessage } from 'src/decorators/customDecorator';
 import { CreateProductSampleAndProductUnitDto } from './dto/create-productSample_productUnit.dto';
 import { UpdateProductSampleAndProductUnitsDto } from './dto/update-productSample_productUnit.dto';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
@@ -46,6 +47,58 @@ export class ProductSamplesController {
     @Query('pageSize') pageSize: string,
   ) {
     return this.productSamplesService.findAll(query, +current, +pageSize);
+  }
+
+  @Get('/shopping')
+  @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
+  @UseGuards(RoleGuard)
+  @Roles('v_pdsams')
+  findAllProductSampleAndBatches(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.productSamplesService.findAllProductSampleAndBatches(
+      query,
+      +current,
+      +pageSize,
+    );
+  }
+
+  @Public()
+  @Get('/online-shopping')
+  @ResponseMessage('Trả về danh sách các mẫu sản phẩm thành công')
+  // @UseGuards(RoleGuard)
+  // @Roles('v_pdsams')
+  findAllShopping(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.productSamplesService.findAllShopping(
+      query,
+      +current,
+      +pageSize,
+    );
+  }
+
+  @Get('/online-shopping-recommend')
+  @ResponseMessage('Trả về danh sách các mẫu sản phẩm có đề xuất thành công')
+  // @UseGuards(RoleGuard)
+  // @Roles('v_pdsams')
+  findAllRecommend(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+    @Query('customerId') customerId: string,
+  ) {
+    const customerIdNumber = parseInt(customerId, 10);
+    return this.productSamplesService.findAllRecommend(
+      query,
+      +current,
+      +pageSize,
+      customerIdNumber,
+    );
   }
 
   @Get(':id')

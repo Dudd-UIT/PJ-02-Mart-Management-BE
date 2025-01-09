@@ -13,7 +13,7 @@ import { RoleGuard } from './passport/guards/roles.guard';
 @Module({
   imports: [
     UsersModule,
-    PassportModule, // Đặt chiến lược mặc định là jwt
+    PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({

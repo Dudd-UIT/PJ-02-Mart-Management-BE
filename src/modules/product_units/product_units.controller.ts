@@ -17,7 +17,7 @@ import { ProductUnitsService } from './product_units.service';
 import { CreateProductUnitDto } from './dto/create-product_unit.dto';
 import { UpdateProductUnitDto } from './dto/update-product_unit.dto';
 import { FindProductUnitsByIdsDto } from './dto/find-product_units-by-ids.dto';
-import { ResponseMessage } from 'src/decorators/customDecorator';
+import { Public, ResponseMessage } from 'src/decorators/customDecorator';
 import { RoleGuard } from '../auths/passport/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -33,19 +33,33 @@ export class ProductUnitsController {
   create(@Body(ValidationPipe) createProductSampleDto: CreateProductUnitDto) {
     return this.productUnitsService.create(createProductSampleDto);
   }
-
+@Public()
   @Get()
   @ResponseMessage(
     'Trả về danh sách các đơn vị tính cho mẫu sản phẩm thành công',
   )
-  @UseGuards(RoleGuard)
-  @Roles('v_pdsams')
+  // @UseGuards(RoleGuard)
+  // @Roles('v_pdsams')
   findAll(
     @Query() query: any,
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
   ) {
     return this.productUnitsService.findAll(query, +current, +pageSize);
+  }
+
+  @Public()
+  @Get('sale')
+  findProductUnitsWithNearestBatch(
+    @Query() query: any,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.productUnitsService.findProductUnitsWithNearestBatch(
+      query,
+      +current,
+      +pageSize,
+    );
   }
 
   @Get('/supplier/:id')

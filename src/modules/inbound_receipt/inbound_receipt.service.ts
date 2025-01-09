@@ -44,12 +44,12 @@ export class InboundReceiptService {
     createInboundReceiptBatchsDto: CreateInboundReceiptBatchsDto,
   ) {
     try {
-      const { inboundReceiptDto, batchsDto } = createInboundReceiptBatchsDto;
+      const { inboundReceiptDto, batchesDto } = createInboundReceiptBatchsDto;
       const inboundReceipt = await this.create(inboundReceiptDto);
 
       const inboundReceiptId = inboundReceipt.id;
 
-      for (const batchInfo of batchsDto) {
+      for (const batchInfo of batchesDto) {
         await this.batchsService.create({
           ...batchInfo,
           inboundReceiptId,
@@ -73,7 +73,7 @@ export class InboundReceiptService {
 
   async sendEmailToSupplier(sendMailDto: SendMailDto) {
     try {
-      const { inboundReceiptDto, batchsDto } = sendMailDto;
+      const { inboundReceiptDto, batchesDto } = sendMailDto;
 
       const supplier = await this.suppliersService.findOne(
         inboundReceiptDto.supplierId,
@@ -86,7 +86,7 @@ export class InboundReceiptService {
         throw new NotFoundException('Email nhà cung cấp không đúng');
       }
 
-      const batches = batchsDto.map((batch, index) => ({
+      const batches = batchesDto.map((batch, index) => ({
         index: index + 1,
         productSampleName: batch.productSampleName,
         unitName: batch.unitName,
@@ -205,8 +205,8 @@ export class InboundReceiptService {
         relations: [
           'staff',
           'supplier',
-          'batchs.productUnit.productSample',
-          'batchs.productUnit.unit',
+          'batches.productUnit.productSample',
+          'batches.productUnit.unit',
         ],
         take: pageSize,
         skip: skip,
@@ -269,7 +269,7 @@ export class InboundReceiptService {
     updateInboundReceiptBatchsDto: UpdateInboundReceiptBatchsDto,
   ) {
     try {
-      const { inboundReceiptDto, batchsDto } = updateInboundReceiptBatchsDto;
+      const { inboundReceiptDto, batchesDto } = updateInboundReceiptBatchsDto;
 
       if (inboundReceiptDto.isPaid && +inboundReceiptDto.isPaid === 1) {
         throw new ConflictException(
@@ -279,7 +279,7 @@ export class InboundReceiptService {
 
       await this.update(id, inboundReceiptDto);
 
-      for (const batchInfo of batchsDto) {
+      for (const batchInfo of batchesDto) {
         const { id: batchId, ...rest } = batchInfo;
         await this.batchsService.update(batchId, rest);
       }

@@ -47,7 +47,7 @@ export class StatisticsController {
   @UseGuards(RoleGuard)
   @Roles('v_statis')
   async getTopSellingProducts(
-    @Query('limit') limit: number = 10,
+    @Query('limit') limit?: number,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('searchProductTypeId') searchProductTypeId?: string,

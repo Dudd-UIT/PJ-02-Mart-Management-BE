@@ -61,7 +61,8 @@ INSERT INTO unit (id, name, createdAt) VALUES
 (8, 'lốc', NOW()),
 (9, 'gram', NOW()),
 (10, 'túi', NOW()),
-(11, 'lon', NOW());
+(11, 'lon', NOW()),
+(12, 'cái', NOW());
 
 
 -- Thêm Product Units (Tổng 20 đơn vị sản phẩm)
@@ -95,7 +96,7 @@ INSERT INTO product_unit (id, sellPrice, conversionRate, compareUnitId, image, v
 (18, 38000, 1, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG_mCa8SZ0ilroESF12s1rxV6t8C4bOOGkCg&s', '1L', 18, 5, NOW()),
 (19, 25000, 1, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLJsXsGamM-MVngdc3qPPxD7RNDQy1hQSGdw&s', '380g', 19, 5, NOW()),
 (20, 6000, 1, null, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '100g', 20, 5, NOW()),
-(21, 200000, 24, 4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR23a2l1LxuL6jyYBx1RzUNklNzkvByMi4lFg&s', '4 kg', 13, 6, NOW());
+(21, 200000, 24, 4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWwm9VX6a2C1dGCrYKCN_DLaUBO3kXHRDxBg&s', '4 kg', 13, 6, NOW());
 
 
 -- Insert Groups
@@ -127,39 +128,44 @@ INSERT INTO role (id, url, description) VALUES
     (16, 'u_order', 'Cập nhật hóa đơn'),
     (17, 'd_order', 'Xóa hóa đơn'),
 
-    (19, 'u_param', 'Cập nhật tham số'),
+    (18, 'u_param', 'Cập nhật tham số'),
 
-    (20, 'c_pdline', 'Tạo mới dòng sản phẩm'),
-    (21, 'v_pdlines', 'Xem danh sách dòng sản phẩm'),
-    (22, 'u_pdline', 'Cập nhật dòng sản phẩm'),
-    (23, 'd_pdline', 'Xóa dòng sản phẩm'),
+    (19, 'c_pdline', 'Tạo mới dòng sản phẩm'),
+    (20, 'v_pdlines', 'Xem danh sách dòng sản phẩm'),
+    (21, 'u_pdline', 'Cập nhật dòng sản phẩm'),
+    (22, 'd_pdline', 'Xóa dòng sản phẩm'),
 
-    (24, 'c_pdsam', 'Tạo mới mẫu sản phẩm'),
-    (25, 'v_pdsams', 'Xem danh sách mẫu sản phẩm'),
-    (26, 'u_pdsam', 'Cập nhật mẫu sản phẩm'),
-    (27, 'd_pdsam', 'Xóa mẫu sản phẩm'),
+    (23, 'c_pdsam', 'Tạo mới mẫu sản phẩm'),
+    (24, 'v_pdsams', 'Xem danh sách mẫu sản phẩm'),
+    (25, 'u_pdsam', 'Cập nhật mẫu sản phẩm'),
+    (26, 'd_pdsam', 'Xóa mẫu sản phẩm'),
 
-    (28, 'c_pdtype', 'Tạo mới loại sản phẩm'),
-    (29, 'v_pdtypes', 'Xem danh sách loại sản phẩm'),
-    (30, 'u_pdtype', 'Cập nhật loại sản phẩm'),
-    (31, 'd_pdtype', 'Xóa loại sản phẩm'),
+    (27, 'c_pdtype', 'Tạo mới loại sản phẩm'),
+    (28, 'v_pdtypes', 'Xem danh sách loại sản phẩm'),
+    (29, 'u_pdtype', 'Cập nhật loại sản phẩm'),
+    (30, 'd_pdtype', 'Xóa loại sản phẩm'),
 
-    (32, 'c_sup', 'Tạo mới nhà cung cấp'),
-    (33, 'v_sups', 'Xem danh sách nhà cung cấp'),
-    (34, 'u_sup', 'Cập nhật nhà cung cấp'),
-    (35, 'd_sup', 'Xóa nhà cung cấp'),
+    (31, 'c_sup', 'Tạo mới nhà cung cấp'),
+    (32, 'v_sups', 'Xem danh sách nhà cung cấp'),
+    (33, 'u_sup', 'Cập nhật nhà cung cấp'),
+    (34, 'd_sup', 'Xóa nhà cung cấp'),
 
-    (36, 'c_cus', 'Tạo mới khách hàng'),
-    (37, 'v_cus', 'Xem danh sách khách hàng'),
-    (38, 'u_cus', 'Cập nhật khách hàng'),
-    (39, 'd_cus', 'Xóa khách hàng'),
+    (35, 'c_cus', 'Tạo mới khách hàng'),
+    (36, 'v_cus', 'Xem danh sách khách hàng'),
+    (37, 'u_cus', 'Cập nhật khách hàng'),
+    (38, 'd_cus', 'Xóa khách hàng'),
 
-    (40, 'c_staff', 'Tạo mới nhân viên'),
-    (41, 'v_staffs', 'Xem danh sách nhân viên'),
-    (42, 'u_staff', 'Cập nhật nhân viên'),
-    (43, 'd_staff', 'Xóa nhân viên'),
+    (39, 'c_staff', 'Tạo mới nhân viên'),
+    (40, 'v_staffs', 'Xem danh sách nhân viên'),
+    (41, 'u_staff', 'Cập nhật nhân viên'),
+    (42, 'd_staff', 'Xóa nhân viên'),
 
-    (44, 'v_statis', 'Xem chi tiết các thống kê');
+    (43, 'v_statis', 'Xem chi tiết các thống kê'),
+
+    (44, 'c_unit', 'Tạo mới đơn vị tính'),
+    (45, 'v_units', 'Xem danh sách đơn vị tính'),
+    (46, 'u_unit', 'Cập nhật đơn vị tính'),
+    (47, 'd_unit', 'Xóa đơn vị tính');
 
 
 -- Insert role_group
@@ -207,7 +213,18 @@ INSERT INTO role_group (groupId, roleId) VALUES
 (1, 41),
 (1, 42),
 (1, 43),
-(1, 44);
+(1, 44),
+(1, 45),
+(1, 46),
+(1, 47),
+(1, 48),
+
+(3, 14),
+(3, 15),
+(3, 16),
+(3, 17),
+(3, 18);
+
 
 -- Insert Users
 INSERT INTO `user` (id, name, email, password, score, address, phone, groupId, isActive, createdAt) VALUES

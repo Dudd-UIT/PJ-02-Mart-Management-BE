@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
 import aqp from 'api-query-params';
 
@@ -26,14 +26,19 @@ export class RolesService {
       delete filter.current;
       delete filter.pageSize;
 
-      const totalItems = await this.roleRepository.count({
-        where: filter,
-      });
+      const where: any = { ...filter };
+
+      // Thay đổi điều kiện nếu có description
+      if (filter.description) {
+        where.description = Like(`%${filter.description}%`);
+      }
+
+      const totalItems = await this.roleRepository.count({ where });
       const totalPages = Math.ceil(totalItems / pageSize);
       const skip = (current - 1) * pageSize;
 
       const options = {
-        where: filter,
+        where,
         relations: [],
         take: pageSize,
         skip: skip,
