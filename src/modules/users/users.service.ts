@@ -2,296 +2,452 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import {
+  ChangePasswordDto,
+  CreateCustomerDto,
+  CreateUserDto,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { GroupsService } from '../groups/groups.service';
 import { User } from './entities/user.entity';
-import { hashPasswordHelper } from 'src/hepers/utils';
-import { MailerService } from '@nestjs-modules/mailer';
+import { comparePasswordHelper, hashPasswordHelper } from 'src/helpers/utils';
 import aqp from 'api-query-params';
+import { CodeDto } from '../auths/dto/codeDto';
+import * as dayjs from 'dayjs';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as handlebars from 'handlebars';
+import { v4 as uuid4 } from 'uuid';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private readonly groupsService: GroupsService,
-    // private readonly mailerService: MailerService,
+    private readonly mailerService: MailerService,
   ) {}
 
+  async verifyEmail(token: string): Promise<string> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { codeId: token },
+      });
+
+      if (!user) {
+        throw new BadRequestException('Token không hợp lệ');
+      }
+
+      if (dayjs().isAfter(user.codeExpired)) {
+        throw new BadRequestException('Token đã hết hạn');
+      }
+
+      user.isActive = 1;
+      user.codeId = null;
+      user.codeExpired = null;
+      await this.userRepository.save(user);
+
+      return this.renderTemplate('authen.hbs', {
+        title: 'Xác thực thành công',
+        message:
+          'Cảm ơn bạn đã xác thực tài khoản. Bây giờ bạn có thể đăng nhập.',
+      });
+    } catch (error) {
+      console.error('Lỗi khi xác thực email:', error.message);
+
+      return this.renderTemplate('authen.hbs', {
+        title: 'Xác thực thất bại',
+        message: error.message || 'Token không hợp lệ hoặc đã hết hạn.',
+      });
+    }
+  }
+
+  private renderTemplate(templateName: string, context: any): string {
+    const templatePath = path.join(
+      process.cwd(),
+      'src',
+      'public',
+      templateName,
+    );
+
+    const templateSource = fs.readFileSync(templatePath, 'utf8');
+    const template = handlebars.compile(templateSource);
+    return template(context);
+  }
+
   async isEmailExist(email: string) {
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (user) return true;
-    return false;
+    try {
+      const user = await this.userRepository.findOne({ where: { email } });
+      return !!user;
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra email tồn tại:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể kiểm tra email, vui lòng thử lại sau.',
+      );
+    }
+  }
+
+  async isPhoneExist(phone: string) {
+    try {
+      const user = await this.userRepository.findOne({ where: { phone } });
+      return !!user;
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra phone tồn tại:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể kiểm tra phone, vui lòng thử lại sau.',
+      );
+    }
   }
 
   async create(createUserDto: CreateUserDto) {
-    const { name, username, email, password, score, phone, address } =
-      createUserDto;
+    try {
+      const { name, email, password, score, phone, address } = createUserDto;
 
-    console.log('createUserDto', createUserDto);
-    const isExist = await this.isEmailExist(email);
-    if (isExist) {
-      throw new BadRequestException(`Email đã tồn tại: ${email}`);
-    }
-
-    const existingUserByPhone = await this.userRepository.findOne({
-      where: { phone: createUserDto.phone },
-    });
-
-    if (existingUserByPhone) {
-      throw new ConflictException('Số điện thoại đã tồn tại');
-    }
-
-    const hashPassword = await hashPasswordHelper(password);
-    const user = this.userRepository.create({
-      name,
-      username,
-      email,
-      password: hashPassword,
-      score,
-      phone,
-      address,
-    });
-    const group = await this.groupsService.findOne(+createUserDto.groupId);
-    user.group = group;
-
-    const savedUser = this.userRepository.save(user);
-    return savedUser;
-  }
-
-  async findAll(
-    query: string,
-    current: number,
-    pageSize: number,
-    groupId: number,
-  ) {
-    console.log(current, pageSize);
-
-    const { filter, sort } = aqp(query);
-
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
-    delete filter.current;
-    delete filter.pageSize;
-    delete filter.groupId;
-
-    if (groupId) {
-      filter.group = { id: groupId };
-    }
-
-    const totalItems = await this.userRepository.count({
-      where: filter,
-    });
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const skip = (current - 1) * pageSize;
-
-    const options = {
-      where: filter,
-      take: pageSize,
-      skip: skip,
-      order: sort || {},
-    };
-
-    const results = await this.userRepository.find(options);
-
-    return {
-      meta: {
-        current,
-        pageSize,
-        pages: totalPages,
-        total: totalItems,
-      },
-      results,
-    };
-  }
-
-  async findOneById(id: number) {
-    return await this.userRepository.findOne({ where: { id } });
-  }
-
-  async findOneByEmail(email: string) {
-    const user = await this.userRepository.findOne({ where: { email } });
-    return user;
-  }
-
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.findOneById(id);
-
-    if (!user) {
-      throw new NotFoundException(`Không tìm thấy người dùng ${id}`);
-    }
-
-    if (updateUserDto.email && updateUserDto.email !== user.email) {
-      const existingUserByEmail = await this.userRepository.findOne({
-        where: { email: updateUserDto.email },
-      });
-      if (existingUserByEmail) {
-        throw new ConflictException('Email đã tồn tại');
+      if (await this.isEmailExist(email)) {
+        throw new ConflictException(`Email đã tồn tại`);
       }
-    }
 
-    if (updateUserDto.phone && updateUserDto.phone !== user.phone) {
-      const existingUserByPhone = await this.userRepository.findOne({
-        where: { phone: updateUserDto.phone },
-      });
-      if (existingUserByPhone) {
-        throw new ConflictException('Số điện thoại đã tồn tại');
+      if (await this.isPhoneExist(phone)) {
+        throw new ConflictException(`Số điện thoại đã tồn tại`);
       }
-    }
 
-    if (updateUserDto.groupId) {
-      const group = await this.groupsService.findOne(updateUserDto.groupId);
+      const hashPassword = await hashPasswordHelper(password);
+      const user = this.userRepository.create({
+        name,
+        email,
+        password: hashPassword,
+        score,
+        phone,
+        address,
+        isActive: 0,
+      });
+
+      const group = await this.groupsService.findOne(+createUserDto.groupId);
       if (!group) {
         throw new NotFoundException('Không tìm thấy nhóm người dùng');
       }
       user.group = group;
-    }
-    Object.assign(user, updateUserDto);
 
-    return this.userRepository.save(user);
+      const savedUser = await this.userRepository.save(user);
+
+      // Tạo mã xác thực (UUID)
+      const codeId = uuid4();
+      await this.userRepository.update(savedUser.id, {
+        codeId,
+        codeExpired: dayjs().add(1, 'hour').toDate(), // Hết hạn sau 1 giờ
+      });
+
+      // Gửi email xác thực
+      const verificationUrl = `${process.env.APP_URL}/v1/api/users/verify-email?token=${codeId}`;
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'BMart Email Verification',
+        template: 'verify-email', // File HTML của email
+        context: {
+          name,
+          verificationUrl, // Gửi link xác thực
+        },
+      });
+
+      return {
+        message:
+          'Tạo người dùng thành công, vui lòng kiểm tra email để xác thực',
+      };
+    } catch (error) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi tạo người dùng:', error.message);
+      throw new InternalServerErrorException('Không thể tạo người dùng');
+    }
+  }
+
+  async createCustomer(createCustomerDto: CreateCustomerDto) {
+    try {
+      const { name, phone } = createCustomerDto;
+      const groupId = 3;
+
+      const existingUserByPhone = await this.userRepository.findOne({
+        where: { phone },
+      });
+
+      if (existingUserByPhone) {
+        throw new ConflictException('Số điện thoại đã tồn tại');
+      }
+
+      const customer = this.userRepository.create({
+        name,
+        phone,
+      });
+
+      const group = await this.groupsService.findOne(+groupId);
+      customer.group = group;
+
+      return await this.userRepository.save(customer);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi tạo khách hàng:', error.message);
+      throw new InternalServerErrorException('Không thể tạo khách hàng');
+    }
+  }
+
+  async findAll(
+    query: any,
+    current: number,
+    pageSize: number,
+    groupId: number,
+  ) {
+    try {
+      const { filter, sort } = aqp(query);
+
+      if (!current) current = 1;
+      if (!pageSize) pageSize = 10;
+      delete filter.current;
+      delete filter.pageSize;
+      delete filter.groupId;
+
+      const { name, phone } = filter;
+
+      const whereConditions: any = {};
+
+      if (groupId) {
+        whereConditions.group = { id: groupId };
+      }
+
+      if (name) {
+        whereConditions.name = Like(`%${name}%`);
+      }
+
+      if (phone) {
+        whereConditions.phone = Like(`%${phone}%`);
+      }
+
+      const totalItems = await this.userRepository.count({
+        where: whereConditions,
+      });
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const skip = (current - 1) * pageSize;
+
+      const options = {
+        where: whereConditions,
+        take: pageSize,
+        relations: ['group'],
+        skip: skip,
+        order: sort || {},
+      };
+
+      const results = await this.userRepository.find(options);
+
+      return {
+        meta: {
+          current,
+          pageSize,
+          pages: totalPages,
+          total: totalItems,
+        },
+        results,
+      };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi tìm tất cả người dùng:', error.message);
+      throw new InternalServerErrorException(
+        'Không thể truy xuất dữ liệu người dùng',
+      );
+    }
+  }
+
+  async findOneById(id: number) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id },
+        relations: ['group', 'group.roles'],
+      });
+      if (!user) throw new NotFoundException(`Không tìm thấy người dùng`);
+      return user;
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error(`Lỗi khi tìm người dùng với ID ${id}:`, error.message);
+      throw new InternalServerErrorException('Không thể tìm người dùng');
+    }
+  }
+
+  async findOneByEmail(email: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { email },
+        relations: ['group', 'group.roles'],
+      });
+      if (!user) {
+        throw new NotFoundException(`Không tìm thấy người dùng`);
+      }
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      console.error(
+        `Lỗi khi tìm người dùng với email ${email}:`,
+        error.message,
+      );
+      throw new InternalServerErrorException('Không thể tìm người dùng');
+    }
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
+      if (updateUserDto.email && updateUserDto.email !== user.email) {
+        const existingUserByEmail = await this.userRepository.findOne({
+          where: { email: updateUserDto.email },
+        });
+        if (existingUserByEmail) {
+          throw new ConflictException('Email đã tồn tại');
+        }
+      }
+
+      if (updateUserDto.phone && updateUserDto.phone !== user.phone) {
+        const existingUserByPhone = await this.userRepository.findOne({
+          where: { phone: updateUserDto.phone },
+        });
+        if (existingUserByPhone) {
+          throw new ConflictException('Số điện thoại đã tồn tại');
+        }
+      }
+
+      if (updateUserDto.groupId) {
+        const group = await this.groupsService.findOne(updateUserDto.groupId);
+        if (!group) {
+          throw new NotFoundException('Không tìm thấy nhóm người dùng');
+        }
+        user.group = group;
+      }
+
+      Object.assign(user, updateUserDto);
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi cập nhật người dùng:', error.message);
+      throw new InternalServerErrorException('Không thể cập nhật người dùng');
+    }
+  }
+
+  async resetPassword(id: number) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
+      const intialPassword = '123456';
+      const hashPassword = await hashPasswordHelper(intialPassword);
+      const updateUser = { password: hashPassword };
+      Object.assign(user, updateUser);
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi cập nhật người dùng:', error.message);
+      throw new InternalServerErrorException('Không thể cập nhật người dùng');
+    }
+  }
+
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) {
+        throw new NotFoundException('Không tìm thấy người dùng');
+      }
+
+      const isValidPassword = await comparePasswordHelper(
+        changePasswordDto.password,
+        user.password,
+      );
+      if (!isValidPassword) {
+        throw new BadRequestException('Mật khẩu không đúng');
+      }
+
+      if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
+        throw new BadRequestException(
+          'Mật khẩu mới không đồng nhất với mật khẩu xác nhận',
+        );
+      }
+      const hashPassword = await hashPasswordHelper(
+        changePasswordDto.newPassword,
+      );
+      const updateUser = { password: hashPassword };
+      Object.assign(user, updateUser);
+
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error('Lỗi khi đổi mật khẩu:', error.message);
+      throw new InternalServerErrorException('Không thể đổi mật khẩu');
+    }
   }
 
   async remove(id: number) {
-    const user = await this.findOneById(id);
-    if (!user) {
-      throw new NotFoundException('Không tìm thấy người dùng');
+    try {
+      const user = await this.findOneById(id);
+      if (!user) throw new NotFoundException('Không tìm thấy người dùng');
+
+      await this.userRepository.softDelete(id);
+      return user;
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      console.error(`Lỗi khi xóa người dùng với ID ${id}:`, error.message);
+      throw new InternalServerErrorException('Không thể xóa người dùng');
     }
-
-    return await this.userRepository.softDelete(id);
   }
-
-  // async handleRegister(registerDto: CreateAuthDto) {
-  //   const { name, email, password } = registerDto;
-
-  //   const isExist = await this.isEmailExist(email);
-  //   if (isExist) {
-  //     throw new BadRequestException(`Email đã tồn tại: ${email}`);
-  //   }
-
-  //   const hashPassword = await hashPasswordHelper(password);
-  //   const codeId = uuid4();
-
-  //   const user = await this.userRepository.create({
-  //     name,
-  //     email,
-  //     password: hashPassword,
-  //     codeId: codeId,
-  //     codeExpired: dayjs().add(1, 'minute'),
-  //   });
-
-  //   this.mailerService.sendMail({
-  //     to: user.email, // list of receivers
-  //     subject: 'MR.BUOI Activation code', // Subject line
-  //     text: 'welcome', // plaintext body
-  //     template: 'register',
-  //     context: {
-  //       name: user?.name ?? user.email,
-  //       activationCode: codeId,
-  //     },
-  //   });
-
-  //   return {
-  //     _id: user._id,
-  //   };
-  // }
-
-  // async handleCheckCode(codeDto: CodeDto) {
-  //   const user = await this.userRepository.findOne({
-  //     _id: codeDto.id,
-  //     codeId: codeDto.code,
-  //   });
-  //   if (!user) {
-  //     throw new BadRequestException('Mã code không hợp lệ');
-  //   }
-  //   const isBeforeExpired = dayjs().isBefore(user?.codeExpired);
-  //   if (isBeforeExpired) {
-  //     await this.userRepository.updateOne(
-  //       { _id: codeDto.id },
-  //       { isActive: true },
-  //     );
-  //     return { isBeforeExpired };
-  //   } else {
-  //     throw new BadRequestException('Mã code đã hết hạn');
-  //   }
-  // }
-
-  // async handleRetryActive(email: string) {
-  //   const user = await this.userRepository.findOne({ email });
-  //   if (!user) {
-  //     throw new BadRequestException('Tài khoản không tồn tại');
-  //   }
-  //   if (user.isActive) {
-  //     throw new BadRequestException('Tài khoản đã được kích hoạt');
-  //   }
-  //   const codeId = uuid4();
-  //   await this.userRepository.updateOne(
-  //     { _id: user._id },
-  //     { codeId: codeId, codeExpired: dayjs().add(1, 'minute') },
-  //   );
-  //   this.mailerService.sendMail({
-  //     to: user.email, // list of receivers
-  //     subject: 'MR.BUOI Activation code', // Subject line
-  //     text: 'welcome', // plaintext body
-  //     template: 'register',
-  //     context: {
-  //       name: user?.name ?? user.email,
-  //       activationCode: codeId,
-  //     },
-  //   });
-  //   return { _id: user._id };
-  // }
-
-  // async handleRetryPassword(email: string) {
-  //   const user = await this.userRepository.findOne({ email });
-  //   if (!user) {
-  //     throw new BadRequestException('Tài khoản không tồn tại');
-  //   }
-
-  //   const codeId = uuid4();
-  //   await this.userRepository.updateOne(
-  //     { _id: user._id },
-  //     { codeId: codeId, codeExpired: dayjs().add(1, 'minute') },
-  //   );
-  //   this.mailerService.sendMail({
-  //     to: user.email, // list of receivers
-  //     subject: 'MR.BUOI Change password code', // Subject line
-  //     text: 'welcome', // plaintext body
-  //     template: 'register',
-  //     context: {
-  //       name: user?.name ?? user.email,
-  //       activationCode: codeId,
-  //     },
-  //   });
-  //   return { _id: user._id, email: user.email };
-  // }
-
-  // async handleChangePassword(changePasswordDto: ChangePasswordDto) {
-  //   if (changePasswordDto.password !== changePasswordDto.confirmPassword) {
-  //     throw new BadRequestException(
-  //       'Mật khẩu mới không đồng nhất với mật khẩu xác nhận',
-  //     );
-  //   }
-  //   const user = await this.userRepository.findOne({
-  //     email: changePasswordDto.email,
-  //   });
-  //   if (!user) {
-  //     throw new BadRequestException('Tài khoản không tồn tại');
-  //   }
-
-  //   const isBeforeExpired = dayjs().isBefore(user?.codeExpired);
-  //   if (isBeforeExpired) {
-  //     const newPassword = await hashPasswordHelper(changePasswordDto.password);
-  //     await this.userRepository.updateOne(
-  //       { _id: user.id },
-  //       { password: newPassword },
-  //     );
-  //     return { isBeforeExpired };
-  //   } else {
-  //     throw new BadRequestException('Mã code đã hết hạn');
-  //   }
-  // }
 }

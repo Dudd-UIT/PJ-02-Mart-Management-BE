@@ -1,21 +1,27 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateOrderDto {
   @IsNotEmpty()
-  total_price: number;
+  totalPrice: number;
 
   @IsNotEmpty()
-  payment_method: string;
+  paymentMethod: string;
 
   @IsNotEmpty()
-  payment_time: Date;
+  paymentTime: Date;
 
   @IsNotEmpty()
-  status: string;
+  isPaid: number;
+
+  @IsNotEmpty()
+  isReceived: number;
 
   @IsNotEmpty()
   customerId: number;
 
-  @IsNotEmpty()
-  staffId: number;
+  @IsOptional()
+  staffId?: number;
+
+  @IsOptional()
+  orderType?: string;
 }

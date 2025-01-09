@@ -1,13 +1,27 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
-export class Parameters {
+export class Parameter {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    unique: true,
+  })
   name: string;
 
-  @Column()
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   description: string;
+
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  value: number;
 }

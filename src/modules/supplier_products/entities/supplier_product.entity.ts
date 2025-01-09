@@ -1,8 +1,15 @@
 import { ProductUnit } from 'src/modules/product_units/entities/product_unit.entity';
 import { Supplier } from 'src/modules/suppliers/entities/supplier.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  Unique,
+} from 'typeorm';
 
 @Entity()
+@Unique(['supplierId', 'productUnitId'])
 export class SupplierProduct {
   @PrimaryGeneratedColumn()
   public id: number;
@@ -13,12 +20,18 @@ export class SupplierProduct {
   @Column()
   public productUnitId: number;
 
-  @Column()
-  public status: string;
+  @Column({ type: 'tinyint', default: 0, comment: '0: inactive, 1: active' })
+  public status: number;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.supplierProducts)
+  @ManyToOne(() => Supplier, (supplier) => supplier.supplierProducts, {
+    createForeignKeyConstraints: false,
+    onDelete: 'CASCADE',
+  })
   public supplier: Supplier;
 
-  @ManyToOne(() => ProductUnit, (productUnit) => productUnit.supplierProducts)
+  @ManyToOne(() => ProductUnit, (productUnit) => productUnit.supplierProducts, {
+    createForeignKeyConstraints: false,
+    onDelete: 'CASCADE',
+  })
   public productUnit: ProductUnit;
 }

@@ -24,6 +24,9 @@ export class Supplier {
   @Column()
   address: string;
 
+  @Column({ nullable: true })
+  email?: string;
+
   @Column()
   country: string;
 
@@ -36,9 +39,12 @@ export class Supplier {
   @OneToMany(
     () => SupplierProduct,
     (supplierProduct) => supplierProduct.supplier,
+    { createForeignKeyConstraints: false },
   )
   supplierProducts: SupplierProduct[];
 
-  @OneToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.supplier)
+  @OneToOne(() => InboundReceipt, (inboundReceipt) => inboundReceipt.supplier, {
+    createForeignKeyConstraints: false,
+  })
   inboundReceipt: InboundReceipt;
 }

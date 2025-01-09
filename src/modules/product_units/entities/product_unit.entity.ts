@@ -11,7 +11,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -21,40 +20,58 @@ export class ProductUnit {
   id: number;
 
   @Column()
-  sell_price: number;
+  sellPrice: number;
 
-  @Column()
-  conversion_rate: number;
+  @Column({ nullable: true })
+  conversionRate: number;
 
-  @Column()
+  @Column({ nullable: true })
   image: string;
 
-  @Column()
+  @Column({ nullable: true })
   volumne: string;
 
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: string;
+  deletedAt: Date;
 
-  @ManyToOne(() => ProductSample, (productSample) => productSample.productUnits)
+  @ManyToOne(
+    () => ProductSample,
+    (productSample) => productSample.productUnits,
+    { createForeignKeyConstraints: false },
+  )
   @JoinColumn()
   productSample?: ProductSample;
 
-  @ManyToOne(() => Unit, (unit) => unit.productUnits)
+  @ManyToOne(() => Unit, (unit) => unit.productUnits, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn()
   unit: Unit;
 
   @OneToMany(
     () => SupplierProduct,
     (supplierProduct) => supplierProduct.productUnit,
+    { createForeignKeyConstraints: false },
   )
   supplierProducts?: SupplierProduct[];
 
-  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.productUnit)
+  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.productUnit, {
+    createForeignKeyConstraints: false,
+  })
   orderDetails?: OrderDetail[];
 
-  @OneToOne(() => Batch, (batch) => batch.productUnit)
-  batch?: Batch;
+  @OneToMany(() => Batch, (batch) => batch.productUnit, {
+    createForeignKeyConstraints: false,
+  })
+  batches?: Batch[];
+
+  @ManyToOne(() => Unit, (unit) => unit.productUnits, {
+    createForeignKeyConstraints: false,
+    nullable: true,
+  })
+  @JoinColumn({ name: 'compareUnitId' })
+  compareUnit?: Unit;
 }

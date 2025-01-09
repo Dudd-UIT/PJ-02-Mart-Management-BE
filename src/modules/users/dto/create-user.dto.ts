@@ -1,24 +1,19 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   name: string;
 
-  @IsNotEmpty()
-  @IsString()
-  username: string;
-
-  @IsNotEmpty()
-  @IsEmail()
+  @IsOptional()
   email: string;
 
   @IsNotEmpty()
   @IsString()
   password: string;
 
-  @IsNotEmpty()
-  score: number;
+  @IsOptional()
+  score?: number;
 
   @IsNotEmpty()
   @IsString()
@@ -30,4 +25,25 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   groupId: number;
+}
+
+export class CreateCustomerDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  phone: string;
+}
+
+export class ChangePasswordDto {
+  @IsNotEmpty()
+  password: string;
+
+  @IsNotEmpty()
+  newPassword: string;
+
+  @IsNotEmpty()
+  confirmPassword: string;
 }

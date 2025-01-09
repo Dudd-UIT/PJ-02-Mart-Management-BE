@@ -1,23 +1,26 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductUnitDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   volumne: string;
 
   @IsNotEmpty()
-  sell_price: number;
+  sellPrice: number;
 
   @IsNotEmpty()
-  conversion_rate: number;
+  conversionRate: number;
 
   @IsOptional()
   @IsString()
   image: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   productSampleId?: number;
 
   @IsNotEmpty()
   unitId?: number;
+
+  @IsNotEmpty()
+  compareUnitId?: number;
 }

@@ -18,14 +18,43 @@ export class InboundReceipt {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   totalPrice: number;
 
-  @Column()
+  @Column({
+    type: 'tinyint',
+    default: 0,
+    comment: '0: Chưa nhận, 1: Đã nhận',
+  })
   isReceived: number;
 
-  @Column()
+  @Column({
+    type: 'tinyint',
+    default: 0,
+    comment: '0: Chưa thanh toán, 1: Đã thanh toán',
+  })
   isPaid: number;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
+  discount: number;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
+  vat: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -33,14 +62,24 @@ export class InboundReceipt {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.inboundReceipts)
-  @JoinColumn({ name: 'staff_id' })
+  @ManyToOne(() => User, (user) => user.inboundReceipts, {
+    createForeignKeyConstraints: false,
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'staffId' })
   staff: User;
 
-  @OneToMany(() => Batch, (batch) => batch.inboundReceipt)
-  batchs: Batch[];
+  @OneToMany(() => Batch, (batch) => batch.inboundReceipt, {
+    createForeignKeyConstraints: false,
+  })
+  batches: Batch[];
 
-  @OneToOne(() => Supplier, (supplier) => supplier.inboundReceipt)
+  @OneToOne(() => Supplier, (supplier) => supplier.inboundReceipt, {
+    createForeignKeyConstraints: false,
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
   @JoinColumn()
   supplier: Supplier;
 }

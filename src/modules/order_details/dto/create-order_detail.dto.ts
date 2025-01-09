@@ -1,15 +1,6 @@
-import { IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive } from 'class-validator';
 
 export class CreateOrderDetailDto {
-  @IsNotEmpty()
-  @IsNumber()
-  orderId: number;
-
-  @IsNotEmpty()
-  details: OrderDetailDto[];
-}
-
-export class OrderDetailDto {
   @IsNotEmpty()
   @IsNumber()
   productUnitId: number;
@@ -22,5 +13,17 @@ export class OrderDetailDto {
   @IsNotEmpty()
   @IsNumber()
   @IsPositive()
-  current_price: number;
+  currentPrice: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  orderId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  batchId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  cartDetailId?: number;
 }

@@ -17,26 +17,32 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ length: 100 })
   name: string;
 
-  @Column()
-  username: string;
-
-  @Column()
+  @Column({ default: 'Chưa có', length: 100 })
   email: string;
 
-  @Column()
+  @Column({ default: 'Chưa có' })
   password: string;
 
-  @Column()
+  @Column({ default: 0, type: 'int', unsigned: true })
   score: number;
 
-  @Column()
+  @Column({ default: 'Chưa có', length: 255 })
   address: string;
 
-  @Column()
+  @Column({ length: 10, unique: true })
   phone: string;
+
+  @Column({ type: 'tinyint', default: 0, comment: '0: inactive, 1: active' })
+  isActive: number;
+
+  @Column({ nullable: true, length: 36 })
+  codeId: string;
+
+  @Column({ nullable: true, type: 'datetime' })
+  codeExpired: Date;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -44,16 +50,27 @@ export class User {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => Group, (group) => group.users)
+  @ManyToOne(() => Group, (group) => group.users, {
+    createForeignKeyConstraints: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   group: Group;
 
-  @OneToMany(() => Order, (user) => user.customer)
+  @OneToMany(() => Order, (user) => user.customer, {
+    createForeignKeyConstraints: false,
+    cascade: true,
+  })
   customerOrders: Order[];
 
-  @OneToMany(() => Order, (user) => user.staff)
+  @OneToMany(() => Order, (user) => user.staff, {
+    createForeignKeyConstraints: false,
+    cascade: true,
+  })
   staffOrders: Order[];
 
-  @OneToMany(() => InboundReceipt, (inboundReceipt) => inboundReceipt.staff)
+  @OneToMany(() => InboundReceipt, (inboundReceipt) => inboundReceipt.staff, {
+    createForeignKeyConstraints: false,
+  })
   inboundReceipts: InboundReceipt[];
 }
